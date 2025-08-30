@@ -1,6 +1,12 @@
 # Tapr
     Fun little side-project
 
+> [!WARNING]
+> Dependencies:
+>- Raylib
+>- Meson build system
+>- C++ Compiler
+
 # Building
 - Linux Systems:
 ```bash
