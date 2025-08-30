@@ -1,3 +1,7 @@
+/*
+ * src/main.cpp
+ */
+
 #include <iostream>
 #include <raylib.h>
 #include <objects.h>
@@ -8,11 +12,14 @@
 
 int main(int argc, char **argv) {
 	InitWindow(WIDTH, HEIGHT, "Tappr");
-	SetTargetFPS(60);
 
+	Menu menu(WIDTH, HEIGHT);
 	while(!WindowShouldClose()){
 		BeginDrawing();
-		DrawText("test", 20, 20, 20, WHITE);
+		ClearBackground(BLACK);
+		DrawFPS(20, 20);
+
+		menu.DrawMain();
 		EndDrawing();
 	}
     return 0;

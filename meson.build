@@ -18,6 +18,7 @@ includeDirs = [
 src = [
   'src/main.cpp',
   'src/objects.cpp',
+  'src/game.cpp',
 ]
 
 exe = executable(
