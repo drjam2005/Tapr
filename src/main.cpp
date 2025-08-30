@@ -19,7 +19,7 @@ int main(int argc, char **argv) {
 		ClearBackground(BLACK);
 		DrawFPS(20, 20);
 
-		menu.DrawMain();
+		menu.Draw();
 		EndDrawing();
 	}
     return 0;

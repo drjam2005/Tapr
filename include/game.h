@@ -3,7 +3,6 @@
  */
 
 #include <raylib.h>
-#include <iostream>
 #include <objects.h>
 #include <functional>
 
@@ -13,28 +12,32 @@ enum GAME_STATE {
 	SETTINGS,
 	GAME
 };
+
 class Button {
 public:
 	int xPos = 0, yPos = 0;
 	int width = 10, height = 10;
 	int state = 0;
 	std::string text;
-	Color color = WHITE;
+	Color fontColor = BLACK;
+	Color bgColor = WHITE;
 
 	Button();
-	Button(int, int, int, int, std::string, Color);
-	void Update();
-	void Draw();
+	Button(int, int, int, int, std::string, Color, Color);
 
 	template <typename T>
 	void setClick(void (T::*func)(), T* instance);
 	void setClick(std::function<void()> func);
 	std::function<void()> onClick;
+
+	void Update();
+	void Draw();
 };
 
 class Menu {
 public:
 	Menu(int, int);
+	void Draw();
 	void DrawMain();
 	void DrawSongSelect();
 	void DrawGame();
@@ -60,7 +63,14 @@ private:
 	void SetupSettings();
 
 	// Main Menu
-	Button mainButton1;
-	std::string text;
+	Button playButton;
+	Button settingsButton;
+	Button exitButton;
+
+	// Settings Menu
+	Button setBind1;
+	Button setBind2;
+	Button setBind3;
+	Button setBind4;
 	bool isClick = false;
 };
