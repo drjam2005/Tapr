@@ -7,7 +7,7 @@
 >- Meson build system
 >- C++ Compiler
 
-# Building
+## Building
 - Linux Systems:
 ```bash
  $ git clone https://github.com/drjam2005/Tapr
@@ -15,7 +15,7 @@
  $ meson setup build
 ```
 
-# Running
+## Running
 - Linux Systems:
 ```bash
  $ meson compile -C build
