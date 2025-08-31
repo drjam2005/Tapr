@@ -1,5 +1,5 @@
 project(
-  'Tappr',
+  'Tapr',
   'cpp',
   version : '0.1',
   meson_version : '>= 1.3.0',
@@ -22,7 +22,7 @@ src = [
 ]
 
 exe = executable(
-  'Tappr',
+  'Tapr',
   src,
   install : true,
   dependencies : dependencies,

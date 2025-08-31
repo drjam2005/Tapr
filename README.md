@@ -2,6 +2,9 @@
     Fun little side-project
 
 > [!WARNING]
+> VERY INCOMPLETE!!!
+
+> [!WARNING]
 > Dependencies:
 >- Raylib
 >- Meson build system
@@ -22,3 +25,8 @@
  $ cd build/
  $ ./Tapr
 ```
+
+TODO
+===
+* Configure Settings menu and saving
+* Try Better Rendering
