@@ -19,6 +19,7 @@ src = [
   'src/main.cpp',
   'src/objects.cpp',
   'src/game.cpp',
+  'src/beatmap.cpp',
 ]
 
 exe = executable(
@@ -27,6 +28,7 @@ exe = executable(
   install : true,
   dependencies : dependencies,
   include_directories : includeDirs,
+  link_args: ['-lstdc++fs']
 )
 
 test('basic', exe)

@@ -3,8 +3,11 @@
  */
 
 #include <raylib.h>
+#include <beatmap.h>
 #include <objects.h>
+#include <vector>
 #include <functional>
+#include <fstream>
 
 enum GAME_STATE {
 	MAIN,
@@ -39,9 +42,10 @@ public:
 	Menu(int, int);
 	void Draw();
 	void DrawMain();
-	void DrawSongSelect();
+	void DrawMapSelect();
 	void DrawGame();
 	void DrawSettings();
+	void Update();
 
 	void DrawMisc(){
 		if(isClick)
@@ -58,9 +62,16 @@ private:
 	int WINDOW_HEIGHT = 0;
 
 	void SetupMain();
-	void SetupSongSelect();
-	void SetupGame();
 	void SetupSettings();
+	void SetupMapSelect();
+	void SetupGame();
+	bool isClick = false;
+
+	// Misc
+	char bind1 = 'A', bind2 = 'S', bind3 = ';', bind4 = '\'';
+	bool waiting = false;
+	char* bindTarget = nullptr;
+	
 
 	// Main Menu
 	Button playButton;
@@ -72,5 +83,7 @@ private:
 	Button setBind2;
 	Button setBind3;
 	Button setBind4;
-	bool isClick = false;
+
+	// Song Select
+	std::vector<Pack> Songs;
 };

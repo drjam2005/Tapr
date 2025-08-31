@@ -13,13 +13,16 @@
 int main(int argc, char **argv) {
 	InitWindow(WIDTH, HEIGHT, "Tappr");
 
-	Menu menu(WIDTH, HEIGHT);
+	Menu Game(WIDTH, HEIGHT);
 	while(!WindowShouldClose()){
 		BeginDrawing();
 		ClearBackground(BLACK);
+
 		DrawFPS(20, 20);
 
-		menu.Draw();
+		Game.Draw();
+		Game.Update();
+
 		EndDrawing();
 	}
     return 0;
