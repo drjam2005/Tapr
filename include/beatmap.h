@@ -8,6 +8,10 @@ public:
 	void printInfo();
 
 private:
+	//General
+	std::string songPath = "";
+	int songLeadIn = 0;
+
 	//MetaData
 	int keys = 0; float bpm;
 	std::string Title = "";
@@ -15,19 +19,15 @@ private:
 	std::string Mapper = "";
 	std::string Diff = "";
 
-	std::vector<double> lane1;
-	std::vector<double> lane2;
-	std::vector<double> lane3;
-	std::vector<double> lane4;
+	Lane lane1;
+	Lane lane2;
+	Lane lane3;
+	Lane lane4;
 };
 
 class Pack {
 public:
 	Pack(std::string path);
-
-private:
 	std::string folderPath;
 	std::vector<Beatmap> maps;
-	// General
-	int mode;
 };

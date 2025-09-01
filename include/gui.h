@@ -25,6 +25,7 @@ class Menu {
 		int WINDOW_WIDTH, WINDOW_HEIGHT;
 		char bind1 = 'D', bind2 = 'F', bind3 = 'J', bind4 = 'K';
 		int isBinding = 0;
+		bool isprint = false;
 		std::vector<Pack> Songs;
 		Font font;
 };

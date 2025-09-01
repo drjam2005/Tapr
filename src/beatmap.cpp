@@ -24,10 +24,6 @@ Pack::Pack(std::string path) : folderPath(path) {
     } catch (const std::exception& e) {
         std::cerr << "General error: " << e.what() << "\n";
     }
-
-	for(auto& map : maps){
-		map.printInfo();
-	}
 }
 
 bool startsWith(std::string str1, std::string str2){
@@ -41,12 +37,16 @@ bool startsWith(std::string str1, std::string str2){
 	return true;
 }
 
-
-Beatmap::Beatmap(std::string mapPath){
+Beatmap::Beatmap(std::string mapPath):
+	lane1(Lane(1)),
+	lane2(Lane(2)),
+	lane3(Lane(3)),
+	lane4(Lane(4))
+{
 	std::cout << "BM: " << mapPath << std::endl;
 	// Parsing time!!!
 	std::string line;
-	std::fstream file(mapPath);
+	std::ifstream file(mapPath);
 	std::vector<double> bpmFull;
 	bool headerDone = false; bool inHitObj = false; bool inTiming = false;
 	while (std::getline(file, line)) {
@@ -59,39 +59,47 @@ Beatmap::Beatmap(std::string mapPath){
 				Mapper = line.substr(8);
 			else if(startsWith(line, "Version:"))
 				Diff = line.substr(8);
+			else if(startsWith(line, "AudioFilename:"))
+				songPath = line.substr(14);
+			else if(startsWith(line, "AudioLeadIn:"))
+				songLeadIn = std::stoi(line.substr(12));
 			else if(startsWith(line, "CircleSize:"))
 				keys = std::stoi(line.substr(11));
 
-			if(keys != 0 && !Title.empty() && !Artist.empty() && !Mapper.empty() && !Diff.empty()){
+			if(songLeadIn != 0 && keys != 0 && !Title.empty() 
+			&& !Artist.empty() && !Mapper.empty() && !Diff.empty()
+			&& !songPath.empty())
+			{
 				headerDone = true;
 			}
 			continue;
 		}
 
+		if (line.find("[TimingPoints]") != std::string::npos) {
+			inTiming = true;
+			inHitObj = false;
+			continue;
+		}
 		if (line.find("[HitObjects]") != std::string::npos) {
 			inHitObj = true;
 			inTiming = false;
 			continue;
 		}
-		if (line.find("[TimingPoints]") != std::string::npos) {
-			inHitObj = false;
-			inTiming = true;
-			continue;
-		}
+
 
 		if (inTiming) {
-			std::stringstream ss(line);
-			double time, beatLength;
-			int bruh, uninherited;
-			char comma;
+					std::stringstream ss(line);
+            double time, beatLength;
+            double meter, sampleSet, sampleIndex, volume, uninherited, effects;
+            char comma;
 
-			ss >> time >> comma >> beatLength >> comma >> bruh >> comma
-			   >> bruh >> comma >> bruh >> comma >> bruh >> comma
-			   >> uninherited >> comma >> bruh;
+            ss >> time >> comma >> beatLength >> comma >> meter >> comma
+               >> sampleSet >> comma >> sampleIndex >> comma >> volume >> comma
+               >> uninherited >> comma >> effects;
 
-			if (uninherited == 1) { // real BPM point
-				double temp = 60000.0 / beatLength;
-				bpmFull.push_back(temp);
+			if (uninherited == 1 && beatLength > 0) {
+				double bpm = 60000.0 / beatLength;
+				bpmFull.push_back(bpm);
 			}
 		}
 
@@ -99,16 +107,27 @@ Beatmap::Beatmap(std::string mapPath){
 			//   X,  Y, Time, Type, HitSound, [EndTime], [Extras]
 			// 192,192,  160,    5,        0,         0:0:0:0:
 			std::stringstream ss(line);
-			int x, y; char chr; double offset;
-			ss >> x >> chr >> y >> chr >> offset;
-			if (x < 128) 
-				lane1.push_back(offset/1000.0f);
-			else if (x < 256)
-				lane2.push_back(offset/1000.0f);
-			else if (x < 384)
-				lane3.push_back(offset/1000.0f);
-			else
-				lane4.push_back(offset/1000.0f);
+			double x, y, offset, type, hs, end; char chr;
+			ss >> x >> chr >> y >> chr >> offset >> type >> chr >> hs >> chr >> end;
+			if(type == 1){
+				if (x < 128) 
+					lane1.Add(offset/1000.0f);
+				else if (x < 256)
+					lane2.Add(offset/1000.0f);
+				else if (x < 384)
+					lane3.Add(offset/1000.0f);
+				else
+					lane4.Add(offset/1000.0f);
+			}else if (type == 128){
+				if (x < 128) 
+					lane1.Add(offset/1000.0f, end);
+				else if (x < 256)
+					lane2.Add(offset/1000.0f, end);
+				else if (x < 384)
+					lane3.Add(offset/1000.0f, end);
+				else
+					lane4.Add(offset/1000.0f, end);
+			}
 		}
 	}
 	double full = 0;
@@ -116,16 +135,18 @@ Beatmap::Beatmap(std::string mapPath){
 		full += temp;
 	}
 
-	bpm = (float)full / bpmFull.size();
-
+	if(bpmFull.size() != 0)
+		bpm = (float)full / bpmFull.size();
 }
 
 void Beatmap::printInfo(){
-	std::cout << "BM Info:" << std::endl;
-	std::cout << "\tTitle: " << Title << std::endl;
-	std::cout << "\tDiff: " << Diff << std::endl;
-	std::cout << "\tArtist: " << Artist << std::endl;
-	std::cout << "\tMapper: " << Mapper << std::endl;
-	std::cout << "\tKeys: " << keys << std::endl;
-	std::cout << "\tBPM: " << bpm << std::endl;
+	std::cout << "\tBM Info:" << std::endl;
+	std::cout << "\t\tTitle: " << Title << std::endl;
+	std::cout << "\t\tDiff: " << Diff << std::endl;
+	std::cout << "\t\tArtist: " << Artist << std::endl;
+	std::cout << "\t\tMapper: " << Mapper << std::endl;
+	std::cout << "\t\tKeys: " << keys << std::endl;
+	std::cout << "\t\tBPM: " << bpm << std::endl;
+	std::cout << "\t\tSongPath: " << songPath << std::endl;
+	std::cout << "\t\tSongLead: " << songLeadIn << std::endl;
 }

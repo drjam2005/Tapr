@@ -24,13 +24,14 @@ void Menu::Draw(){
 
 void Menu::DrawMain(){
 	ClearBackground(Color{30, 30, 60, 255});
-	if(GuiButton((Rectangle){(float)WINDOW_WIDTH/2-(100), (float)(WINDOW_HEIGHT/2-(35)), 200, 70 },"Play")){
+	DrawText("Tapr", WINDOW_WIDTH/2-145, WINDOW_HEIGHT/2-200, 120, WHITE);
+	if(GuiButton((Rectangle){(float)WINDOW_WIDTH/2-(100), ((float)WINDOW_HEIGHT/2-(35)), 200, 70 },"Play")){
 		gameState = SELECT;
 	}
-	if(GuiButton((Rectangle){WINDOW_WIDTH/2-(100), (WINDOW_HEIGHT/2+100-(35)), 200, 70 },"Settings")){
+	if(GuiButton((Rectangle){(float)WINDOW_WIDTH/2-(100), ((float)WINDOW_HEIGHT/2+100-(35)), 200, 70 },"Settings")){
 		gameState = SETTINGS;
 	}
-	if(GuiButton((Rectangle){WINDOW_WIDTH/2-(200/2), (WINDOW_HEIGHT/2+200-(70/2)), 200, 70 },"Exit")){
+	if(GuiButton((Rectangle){(float)WINDOW_WIDTH/2-(200/2), ((float)WINDOW_HEIGHT/2+200-(70/2)), 200, 70 },"Exit")){
 		CloseWindow();
 	}
 }
@@ -83,25 +84,33 @@ void Menu::SetupMapSelect(){
 }
 
 void Menu::DrawMapSelect(){
-	
+	if(!isprint){
+	for(auto& pack : Songs){
+		std::cout << "MAP LOC " << pack.folderPath << std::endl;
+		for(auto& bm : pack.maps){
+			bm.printInfo();
+		}
+	}
+	isprint = true;
+	}
 }
 
 
 void Menu::DrawSettings() {
     ClearBackground(Color{30, 30, 60, 255});
-    DrawText("Current binds:", 60, 60, 40, WHITE);
+    DrawText("Current binds:", 60, 100, 40, WHITE);
 
     char str[2] = \
-	{bind1, '\0'};  DrawText(str, 80, 40+70, 50, WHITE);
-    str[0] = bind2; DrawText(str, 80, 40+120, 50, WHITE);
-    str[0] = bind3; DrawText(str, 80, 40+170, 50, WHITE);
-    str[0] = bind4; DrawText(str, 80, 40+220, 50, WHITE);
+	{bind1, '\0'};  DrawText(str, 80, 80+70, 50, WHITE);
+    str[0] = bind2; DrawText(str, 80, 80+120, 50, WHITE);
+    str[0] = bind3; DrawText(str, 80, 80+170, 50, WHITE);
+    str[0] = bind4; DrawText(str, 80, 80+220, 50, WHITE);
 
-    if (GuiButton({25, 25, 70, 25}, "<- Back")) { gameState = MAIN; }
-    if (GuiButton({150, 50+70, 120, 40}, "Set Bind1")) { isBinding = 1; }
-    if (GuiButton({150, 50+120, 120, 40}, "Set Bind2")) { isBinding = 2; }
-    if (GuiButton({150, 50+170, 120, 40}, "Set Bind3")) { isBinding = 3; }
-    if (GuiButton({150, 50+220, 120, 40}, "Set Bind4")) { isBinding = 4; }
+    if (GuiButton({25, 55, 70, 25}, "<- Back")) { gameState = MAIN; }
+    if (GuiButton({150, 80+70, 120, 40}, "Set Bind1")) { isBinding = 1; }
+    if (GuiButton({150, 80+120, 120, 40}, "Set Bind2")) { isBinding = 2; }
+    if (GuiButton({150, 80+170, 120, 40}, "Set Bind3")) { isBinding = 3; }
+    if (GuiButton({150, 80+220, 120, 40}, "Set Bind4")) { isBinding = 4; }
 
     if (isBinding > 0) {
 		GuiTextBox({300, 200, 300, 100}, "Waiting for Key Press...", 10, false);
