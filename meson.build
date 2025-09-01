@@ -18,7 +18,7 @@ includeDirs = [
 src = [
   'src/main.cpp',
   'src/objects.cpp',
-  'src/game.cpp',
+  'src/gui.cpp',
   'src/beatmap.cpp',
 ]
 

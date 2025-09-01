@@ -5,7 +5,7 @@
 #include <iostream>
 #include <raylib.h>
 #include <objects.h>
-#include <game.h>
+#include <gui.h>
 
 #define WIDTH 800
 #define HEIGHT 600
@@ -13,15 +13,13 @@
 int main(int argc, char **argv) {
 	InitWindow(WIDTH, HEIGHT, "Tappr");
 
-	Menu Game(WIDTH, HEIGHT);
+	Menu game(WIDTH, HEIGHT);
 	while(!WindowShouldClose()){
 		BeginDrawing();
 		ClearBackground(BLACK);
 
 		DrawFPS(20, 20);
-
-		Game.Draw();
-		Game.Update();
+		game.Draw();
 
 		EndDrawing();
 	}
