@@ -5,8 +5,8 @@
 #include <iostream>
 #include <experimental/filesystem>
 #include <sstream>
-
 namespace fs = std::experimental::filesystem;
+
 Pack::Pack(std::string path) : folderPath(path) {
 	try {
 		std::cout << "Map folder : " << path << std::endl;
