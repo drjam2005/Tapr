@@ -6,9 +6,10 @@ class Beatmap {
 public:
 	Beatmap(std::string mapPath);
 	void printInfo();
+	void printMap(); // lol
 
-private:
 	//General
+	std::string mapPath = "";
 	std::string songPath = "";
 	int songLeadIn = 0;
 

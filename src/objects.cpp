@@ -21,3 +21,7 @@ void Lane::Add(double offset) {
 void Lane::Add(double offset, double end) {
     objects.emplace(offset, HitObject(offset, end));
 }
+
+int Lane::size(){
+	return objects.size();
+}

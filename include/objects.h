@@ -28,6 +28,7 @@ public:
 	std::map<double, HitObject> objects;
 
 	Lane(int ID);
+	int size();
 	void Add(double);
 	void Add(double, double);
 };

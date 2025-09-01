@@ -16,16 +16,20 @@ class Menu {
 		void Draw();
 		void DrawMain();
 		void SetupMapSelect();
-		void DrawMapSelect();
 		void DrawGame();
+		void DrawMapSelect();
 		void DrawSettings();
 
 	private:
 		GAME_STATE gameState = MAIN;
 		int WINDOW_WIDTH, WINDOW_HEIGHT;
-		char bind1 = 'D', bind2 = 'F', bind3 = 'J', bind4 = 'K';
+
 		int isBinding = 0;
 		bool isprint = false;
+		char bind1 = 'D', bind2 = 'F', bind3 = 'J', bind4 = 'K';
+
+		int selectedPack = 0;
+		int selectedMap = 0;
 		std::vector<Pack> Songs;
 		Font font;
 };

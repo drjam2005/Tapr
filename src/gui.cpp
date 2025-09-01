@@ -84,15 +84,73 @@ void Menu::SetupMapSelect(){
 }
 
 void Menu::DrawMapSelect(){
-	if(!isprint){
+	ClearBackground(Color{30, 30, 60, 255});
+	int yPos = 30;
+	int packIndex = 0, mapIndex = 0;
 	for(auto& pack : Songs){
-		std::cout << "MAP LOC " << pack.folderPath << std::endl;
+		bool isMapSelected = false;
+		if(packIndex == selectedPack){
+			DrawRectangle(30, yPos, 200, 30, RED);
+			isMapSelected = true;
+		}else
+			DrawRectangle(30, yPos, 200, 30, WHITE);
+
+		yPos += 30;
 		for(auto& bm : pack.maps){
-			bm.printInfo();
+			if(isMapSelected && mapIndex == selectedMap)
+				DrawRectangle(100, yPos, 200, 30, BLUE);
+			else
+				DrawRectangle(100, yPos, 200, 30, GRAY);
+			yPos += 30;
+			mapIndex++;
+		}
+		packIndex++;
+		mapIndex = 0;
+	}
+
+	if(IsKeyDown(KEY_LEFT_CONTROL)){
+		int key = GetKeyPressed();
+		if(key == KEY_J){
+			if(selectedPack+1 < (int)Songs.size()){
+				selectedPack++;
+				selectedMap = 0;
+			}
+		}
+		if(key == KEY_K){
+			if(selectedPack > 0){
+				selectedPack--;
+				selectedMap = 0;
+			}
+		}
+	}else{
+		int key = GetKeyPressed();
+		if(key == KEY_J){
+			if(selectedMap+1 < (int)Songs[selectedPack].maps.size())
+				selectedMap++;
+			else{
+				selectedMap = 0;
+				if(selectedPack < (int)Songs.size()-1){
+					selectedPack++;
+				}else{
+					selectedPack = 0;
+				}
+			}
+		}
+		if(key == KEY_K){
+			if(selectedMap > 0)
+				selectedMap--;
+			else{
+				if(selectedPack >0){
+					selectedPack--;
+				}else{
+					selectedPack = (int)Songs.size()-1;
+				}
+				selectedMap = (int)Songs[selectedPack].maps.size()-1;
+			}
 		}
 	}
-	isprint = true;
-	}
+	DrawText(TextFormat("Pack: %s", Songs[selectedPack].folderPath.c_str()), 400, 30, 20, BLACK);
+	DrawText(TextFormat("Song: %s", Songs[selectedPack].maps[selectedMap].Diff.c_str()), 400, 50, 20, BLACK);
 }
 
 
