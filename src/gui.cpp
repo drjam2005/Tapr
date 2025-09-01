@@ -187,5 +187,5 @@ void Menu::DrawSettings() {
 }
 
 void Menu::DrawGame(){
-
+	// TODO
 }
