@@ -8,6 +8,7 @@ Menu::Menu(int givenWidth, int givenHeight){
 	GuiLoadStyle("../resources/style.rgs");
 	WINDOW_WIDTH = givenWidth;
 	WINDOW_HEIGHT = givenHeight;
+	ParseOSZFiles();
 	SetupMapSelect();
 }
 
@@ -36,6 +37,37 @@ void Menu::DrawMain(){
 	}
 }
 
+void Menu::ParseOSZFiles() {
+    namespace fs = std::experimental::filesystem;
+    std::string songs = "../Songs/";
+    try {
+        int mapCount = 0;
+        for (const auto& entry : fs::directory_iterator(songs)) {
+            std::string fileName = entry.path().filename().string();
+            if (fileName.size() > 4 && fileName.substr(fileName.length()-4) == ".osz") {
+                std::cout << "[MAP] " << fileName.substr(0, fileName.length()-4) << "\n";
+
+                std::string folderName = fileName.substr(0, fileName.length()-4);
+                std::string command = "7z x \"../Songs/" + fileName + "\" -o\"../Songs/" + folderName + "\"";
+                std::string remove = "rm \"../Songs/" + fileName + "\"";
+
+                system(command.c_str());
+                system(remove.c_str());
+
+                mapCount++;
+            }
+        }
+        if (mapCount) {
+            std::cout << "Extracted " << mapCount << " OSZ file(s)!" << std::endl;
+        }
+    } catch (const fs::filesystem_error& e) {
+        std::cerr << "Filesystem error: " << e.what() << "\n";
+    } catch (const std::exception& e) {
+        std::cerr << "General error: " << e.what() << "\n";
+    }
+}
+
+
 void Menu::SetupMapSelect(){
 	namespace fs = std::experimental::filesystem;
 	std::string songs = "../Songs/";
@@ -52,19 +84,13 @@ void Menu::SetupMapSelect(){
 			return;
 	}
 
+	ParseOSZFiles();
+
     try {
 		int mapCount = 0;
         for (const auto& entry : fs::directory_iterator(songs)) {
 			std::string fileName = entry.path().filename().string();
-			if(fileName.substr(fileName.length()-4) == ".osz"){
-				Songs.push_back("../Songs/"+fileName);
-				std::cout << "[MAP] " << fileName.substr(0,fileName.length()-4) << "\n";
-				// parse map
-				std::string command = "7z x ../Songs/" + fileName + " \"-o../Songs/" + fileName.substr(0,fileName.length()-4) + "\"";
-				std::string remove = "rm ../Songs/" + fileName;
-				system(command.c_str());
-				system(remove.c_str());
-			}else if(fs::is_directory(entry)){
+			if(fs::is_directory(entry)){
 				std::cout << "[MAP FOLDER] " << fileName << std::endl;
 				Songs.push_back(Pack("../Songs/"+fileName)); mapCount++;
 			}else {
@@ -84,24 +110,27 @@ void Menu::SetupMapSelect(){
 }
 
 void Menu::DrawMapSelect(){
-	ClearBackground(Color{30, 30, 60, 255});
-	int yPos = 30;
+	ClearBackground(Color{35, 35, 60, 255});
+	int yPos = 35;
 	int packIndex = 0, mapIndex = 0;
 	for(auto& pack : Songs){
 		bool isMapSelected = false;
 		if(packIndex == selectedPack){
-			DrawRectangle(30, yPos, 200, 30, RED);
+			DrawRectangle(35, yPos, 200, 35, RED);
 			isMapSelected = true;
-		}else
-			DrawRectangle(30, yPos, 200, 30, WHITE);
+		}else{
+			DrawRectangle(35, yPos, 200, 35, WHITE);
+		}
+		DrawText(pack.folderPath.c_str(), 38, yPos+2, 20, BLACK);
 
-		yPos += 30;
+		yPos += 35;
 		for(auto& bm : pack.maps){
 			if(isMapSelected && mapIndex == selectedMap)
-				DrawRectangle(100, yPos, 200, 30, BLUE);
+				DrawRectangle(100, yPos, 200, 35, BLUE);
 			else
-				DrawRectangle(100, yPos, 200, 30, GRAY);
-			yPos += 30;
+				DrawRectangle(100, yPos, 200, 35, GRAY);
+			DrawText(bm.Diff.c_str(), 103, yPos+2, 20, BLACK);
+			yPos += 35;
 			mapIndex++;
 		}
 		packIndex++;
@@ -151,6 +180,7 @@ void Menu::DrawMapSelect(){
 	}
 	DrawText(TextFormat("Pack: %s", Songs[selectedPack].folderPath.c_str()), 400, 30, 20, BLACK);
 	DrawText(TextFormat("Song: %s", Songs[selectedPack].maps[selectedMap].Diff.c_str()), 400, 50, 20, BLACK);
+	DrawText(TextFormat("%s", Songs[selectedPack].maps[selectedMap].metaData().c_str()), 400, 100, 20, BLACK);
 }
 
 

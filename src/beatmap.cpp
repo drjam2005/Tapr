@@ -149,3 +149,17 @@ void Beatmap::printInfo(){
 	std::cout << "\t\tSongPath: " << songPath << std::endl;
 	std::cout << "\t\tSongLead: " << songLeadIn << std::endl;
 }
+
+std::string Beatmap::metaData(){
+	std::string meta = "";
+	meta = "\tBM Info:\n"
+		"\t\tTitle: "   + Title + "\n"
+		"\t\tDiff: "    + Diff + "\n"
+		"\t\tArtist: "  + Artist + "\n"
+		"\t\tMapper: "  + Mapper + "\n"
+		"\t\tKeys: "    + std::to_string(keys) + "\n"
+		"\t\tBPM: "     + std::to_string(bpm) + "\n"
+		"\t\tSongPath: " + songPath + "\n"
+		"\t\tSongLead: " + std::to_string(songLeadIn) + "\n";
+	return meta;
+}

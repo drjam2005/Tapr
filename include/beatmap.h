@@ -7,6 +7,7 @@ public:
 	Beatmap(std::string mapPath);
 	void printInfo();
 	void printMap(); // lol
+	std::string metaData();
 
 	//General
 	std::string mapPath = "";

@@ -15,6 +15,7 @@ class Menu {
 		Menu(int, int);
 		void Draw();
 		void DrawMain();
+		void ParseOSZFiles();
 		void SetupMapSelect();
 		void DrawGame();
 		void DrawMapSelect();
