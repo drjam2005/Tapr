@@ -8,19 +8,29 @@ Menu::Menu(int givenWidth, int givenHeight){
 	GuiLoadStyle("../resources/style.rgs");
 	WINDOW_WIDTH = givenWidth;
 	WINDOW_HEIGHT = givenHeight;
-	ParseOSZFiles();
-	SetupMapSelect();
 }
 
 void Menu::Draw(){
-	if(gameState == MAIN)
+	if(gameState == MAIN){
 		DrawMain();
-	if(gameState == SETTINGS)
+		isMapLoad = false;
+	}if(gameState == SETTINGS){
 		DrawSettings();
-	if(gameState == SELECT)
+		isMapLoad = false;
+	}if(gameState == SELECT){
+		if(!isMapLoad){
+			selectedMap = 0;
+			selectedPack = 0;
+			Songs.clear();
+			ParseOSZFiles();
+			SetupMapSelect();
+		}
 		DrawMapSelect();
-	if(gameState == GAME)
+		isMapLoad = true;
+	}if(gameState == GAME){
 		DrawGame();
+		isMapLoad = false;
+	}
 }
 
 void Menu::DrawMain(){
@@ -111,7 +121,7 @@ void Menu::SetupMapSelect(){
 
 void Menu::DrawMapSelect(){
 	ClearBackground(Color{35, 35, 60, 255});
-	int yPos = 35;
+	int yPos = 75;
 	int packIndex = 0, mapIndex = 0;
 	for(auto& pack : Songs){
 		bool isMapSelected = false;
@@ -181,6 +191,7 @@ void Menu::DrawMapSelect(){
 	DrawText(TextFormat("Pack: %s", Songs[selectedPack].folderPath.c_str()), 400, 30, 20, BLACK);
 	DrawText(TextFormat("Song: %s", Songs[selectedPack].maps[selectedMap].Diff.c_str()), 400, 50, 20, BLACK);
 	DrawText(TextFormat("%s", Songs[selectedPack].maps[selectedMap].metaData().c_str()), 400, 100, 20, BLACK);
+	if (GuiButton({25, 45, 70, 25}, "<- Back")) { gameState = MAIN; }
 }
 
 
