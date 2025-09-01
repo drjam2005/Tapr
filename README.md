@@ -1,6 +1,3 @@
-> [!WARNING]
-> Testing out RAYGUI
-
 # Tapr
     Fun little side-project
 
