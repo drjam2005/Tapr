@@ -2,11 +2,13 @@
 #include <raygui.h>
 #include <iostream>
 #include <gui.h>
+#include <experimental/filesystem>
 
 Menu::Menu(int givenWidth, int givenHeight){
 	GuiLoadStyle("../resources/style.rgs");
 	WINDOW_WIDTH = givenWidth;
 	WINDOW_HEIGHT = givenHeight;
+	SetupMapSelect();
 }
 
 void Menu::Draw(){
@@ -33,27 +35,77 @@ void Menu::DrawMain(){
 	}
 }
 
-void Menu::DrawMapSelect(){
+void Menu::SetupMapSelect(){
+	namespace fs = std::experimental::filesystem;
+	std::string songs = "../Songs/";
+	
+	try {
+		if (fs::create_directory(songs)){
+			std::cout << "Created \"../Songs\" folder!" << std::endl;
+			return;
+		}else {
+			std::cout << "Found \"../Songs\" folder!" << std::endl;
+		}
+	} catch (const fs::filesystem_error& e){
+			std::cout << "Could not create\"../Songs\" folder!" << std::endl;
+			return;
+	}
 
+    try {
+		int mapCount = 0;
+        for (const auto& entry : fs::directory_iterator(songs)) {
+			std::string fileName = entry.path().filename().string();
+			if(fileName.substr(fileName.length()-4) == ".osz"){
+				Songs.push_back("../Songs/"+fileName);
+				std::cout << "[MAP] " << fileName.substr(0,fileName.length()-4) << "\n";
+				// parse map
+				std::string command = "7z x ../Songs/" + fileName + " \"-o../Songs/" + fileName.substr(0,fileName.length()-4) + "\"";
+				std::string remove = "rm ../Songs/" + fileName;
+				system(command.c_str());
+				system(remove.c_str());
+			}else if(fs::is_directory(entry)){
+				std::cout << "[MAP FOLDER] " << fileName << std::endl;
+				Songs.push_back(Pack("../Songs/"+fileName)); mapCount++;
+			}else {
+				std::cout << "[OTHER] " << fileName << "\n";
+			}
+        }
+		if(mapCount){
+			std::cout << "Found " << mapCount << " Maps!" << std::endl;
+		}else{
+			std::cout << "Couldn't find any Maps!" << std::endl;
+		}
+    } catch (const fs::filesystem_error& e) {
+        std::cerr << "Filesystem error: " << e.what() << "\n";
+    } catch (const std::exception& e) {
+        std::cerr << "General error: " << e.what() << "\n";
+    }
 }
+
+void Menu::DrawMapSelect(){
+	
+}
+
 
 void Menu::DrawSettings() {
     ClearBackground(Color{30, 30, 60, 255});
-    DrawText("Current binds:", 20, 20, 50, WHITE);
+    DrawText("Current binds:", 60, 60, 40, WHITE);
 
     char str[2] = \
-	{bind1, '\0'};  DrawText(str, 40, 70, 50, WHITE);
-    str[0] = bind2; DrawText(str, 40, 120, 50, WHITE);
-    str[0] = bind3; DrawText(str, 40, 170, 50, WHITE);
-    str[0] = bind4; DrawText(str, 40, 220, 50, WHITE);
+	{bind1, '\0'};  DrawText(str, 80, 40+70, 50, WHITE);
+    str[0] = bind2; DrawText(str, 80, 40+120, 50, WHITE);
+    str[0] = bind3; DrawText(str, 80, 40+170, 50, WHITE);
+    str[0] = bind4; DrawText(str, 80, 40+220, 50, WHITE);
 
-    if (GuiButton({100, 70, 120, 40}, "Set Bind1")) { isBinding = 1; }
-    if (GuiButton({100, 120, 120, 40}, "Set Bind2")) { isBinding = 2; }
-    if (GuiButton({100, 170, 120, 40}, "Set Bind3")) { isBinding = 3; }
-    if (GuiButton({100, 220, 120, 40}, "Set Bind4")) { isBinding = 4; }
+    if (GuiButton({25, 25, 70, 25}, "<- Back")) { gameState = MAIN; }
+    if (GuiButton({150, 50+70, 120, 40}, "Set Bind1")) { isBinding = 1; }
+    if (GuiButton({150, 50+120, 120, 40}, "Set Bind2")) { isBinding = 2; }
+    if (GuiButton({150, 50+170, 120, 40}, "Set Bind3")) { isBinding = 3; }
+    if (GuiButton({150, 50+220, 120, 40}, "Set Bind4")) { isBinding = 4; }
 
     if (isBinding > 0) {
-		GuiTextBox({300, 200, 300, 100}, "Waiting for key press...", 10, false);
+		GuiTextBox({300, 200, 300, 100}, "Waiting for Key Press...", 10, false);
+
         int key = GetKeyPressed();
         if (key != 0) {
             switch (isBinding) {

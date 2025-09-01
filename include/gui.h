@@ -15,6 +15,7 @@ class Menu {
 		Menu(int, int);
 		void Draw();
 		void DrawMain();
+		void SetupMapSelect();
 		void DrawMapSelect();
 		void DrawGame();
 		void DrawSettings();
@@ -22,7 +23,7 @@ class Menu {
 	private:
 		GAME_STATE gameState = MAIN;
 		int WINDOW_WIDTH, WINDOW_HEIGHT;
-		char bind1 = 'A', bind2 = 'S', bind3 = ';', bind4 = '\'';
+		char bind1 = 'D', bind2 = 'F', bind3 = 'J', bind4 = 'K';
 		int isBinding = 0;
 		std::vector<Pack> Songs;
 		Font font;

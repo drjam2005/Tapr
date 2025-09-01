@@ -68,7 +68,7 @@ private:
 	bool isClick = false;
 
 	// Misc
-	char bind1 = 'A', bind2 = 'S', bind3 = ';', bind4 = '\'';
+	char bind1 = 'D', bind2 = 'F', bind3 = 'J', bind4 = 'K';
 	bool waiting = false;
 	char* bindTarget = nullptr;
 	
