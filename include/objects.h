@@ -1,7 +1,6 @@
 #pragma once
 #include <raylib.h>
 #include <map>
-#include <helpers.h>
 
 enum HIT_TYPE {
 	TAP,

@@ -122,87 +122,6 @@ void Menu::SetupMapSelect(){
     }
 }
 
-// void Menu::DrawMapSelect(){
-// 	ClearBackground(Color{35, 35, 60, 255});
-// 	int yPos = 75;
-// 	int packIndex = 0, mapIndex = 0;
-// 	for(auto& pack : Songs){
-// 		bool isMapSelected = false;
-// 		if(packIndex == selectedPack){
-// 			DrawRectangle(35, yPos, 200, 35, RED);
-// 			isMapSelected = true;
-// 		}else{
-// 			DrawRectangle(35, yPos, 200, 35, WHITE);
-// 		}
-// 		DrawText(pack.folderPath.c_str(), 38, yPos+2, 20, BLACK);
-// 
-// 		yPos += 35;
-// 		for(auto& bm : pack.maps){
-// 			if(isMapSelected && mapIndex == selectedMap)
-// 				DrawRectangle(100, yPos, 200, 35, BLUE);
-// 			else
-// 				DrawRectangle(100, yPos, 200, 35, GRAY);
-// 			DrawText(bm.Diff.c_str(), 103, yPos+2, 20, BLACK);
-// 			yPos += 35;
-// 			mapIndex++;
-// 		}
-// 		packIndex++;
-// 		mapIndex = 0;
-// 	}
-// 
-// 	if(Songs.size() >= 1){
-// 	if(IsKeyDown(KEY_LEFT_CONTROL)){
-// 		int key = GetKeyPressed();
-// 		if(key == KEY_J){
-// 			if(selectedPack+1 < (int)Songs.size()){
-// 				selectedPack++;
-// 				selectedMap = 0;
-// 			}
-// 		}
-// 		if(key == KEY_K){
-// 			if(selectedPack > 0){
-// 				selectedPack--;
-// 				selectedMap = 0;
-// 			}
-// 		}
-// 	}else{
-// 		int key = GetKeyPressed();
-// 		if(key == KEY_J){
-// 			if(selectedMap+1 < (int)Songs[selectedPack].maps.size())
-// 				selectedMap++;
-// 			else{
-// 				selectedMap = 0;
-// 				if(selectedPack < (int)Songs.size()-1){
-// 					selectedPack++;
-// 				}else{
-// 					selectedPack = 0;
-// 				}
-// 			}
-// 		}
-// 		if(key == KEY_K){
-// 			if(selectedMap > 0)
-// 				selectedMap--;
-// 			else{
-// 				if(selectedPack >0){
-// 					selectedPack--;
-// 				}else{
-// 					selectedPack = (int)Songs.size()-1;
-// 				}
-// 				selectedMap = (int)Songs[selectedPack].maps.size()-1;
-// 			}
-// 		}
-// 	}
-// 	}
-// 	if(selectedPack >= 0){
-// 		DrawText(TextFormat("Pack: %s", Songs[selectedPack].folderPath.c_str()), 400, 30, 20, BLACK);
-// 		DrawText(TextFormat("Song: %s", Songs[selectedPack].maps[selectedMap].Diff.c_str()), 400, 50, 20, BLACK);
-// 		DrawText(TextFormat("%s", Songs[selectedPack].maps[selectedMap].metaData().c_str()), 400, 100, 20, BLACK);
-// 	}else{
-// 		DrawText("No Maps found!\n", 400, 50, 20, BLACK);
-// 	}
-// 	if (GuiButton({25, 45, 70, 25}, "<- Back")) { gameState = MAIN; }
-// }
-
 void Menu::DrawMapSelect(){
 	ClearBackground(Color{35, 35, 60, 255});
 	int packIndex = 0, mapIndex = 0;
@@ -232,59 +151,74 @@ void Menu::DrawMapSelect(){
 	}
 
 	if(Songs.size() >= 1){
-	if(IsKeyDown(KEY_LEFT_CONTROL)){
-		int key = GetKeyPressed();
-		if(key == KEY_J){
-			if(selectedPack+1 < (int)Songs.size()){
-				selectedPack++;
-				selectedMap = 0;
-			}
-		}
-		if(key == KEY_K){
-			if(selectedPack > 0){
-				selectedPack--;
-				selectedMap = 0;
-			}
-		}
-	}else{
-		int key = GetKeyPressed();
-		if(key == KEY_J){
-			if(selectedMap+1 < (int)Songs[selectedPack].maps.size()){
-				selectedMap++;
-				yScrollPos-=35;	
-			}else{
-				selectedMap = 0;
-				yScrollPos-=70;	
-				if(selectedPack < (int)Songs.size()-1){
-					selectedPack++;
+		if(IsKeyDown(KEY_LEFT_CONTROL)){
+			int key = GetKeyPressed();
+			if(key == KEY_J){
+				if(selectedPack+1 < (int)Songs.size()){
+					yScrollPos -= 35*((int)Songs[selectedPack++].maps.size() - (selectedMap-1));
+					selectedMap = 0;
 				}else{
-					yScrollPos=140;	
+					yScrollPos = 140;
 					selectedPack = 0;
+					selectedMap = 0;
 				}
 			}
-		}
-		if(key == KEY_K){
-			if(selectedMap > 0){
-				selectedMap--;
-				yScrollPos += 35;
-			} else{
-				if(selectedPack >0){
-					yScrollPos += 70;
-					selectedPack--;
+			if(key == KEY_K){
+				if(selectedPack > 0){
+					yScrollPos += 35*((int)Songs[--selectedPack].maps.size()+selectedMap+1);
+					selectedMap = 0;
 				}else{
-					selectedPack = (int)Songs.size()-1;
-					yScrollPos = 105;
+					yScrollPos = 140;
 					for(auto& song : Songs){
-						for(auto& bm : song.maps){
+						for(auto& map : song.maps)
+							yScrollPos -= 35;
+					}
+					selectedMap = 0;
+					selectedPack = (int)Songs.size()-1;
+					yScrollPos += 35*((int)Songs[selectedPack].maps.size()-1);
+				}
+			}
+		}else{
+			int key = GetKeyPressed();
+			if(key == KEY_J){
+				if(selectedMap+1 < (int)Songs[selectedPack].maps.size()){
+					selectedMap++;
+					yScrollPos-=35;	
+				}else{
+					selectedMap = 0;
+					yScrollPos-=70;	
+					if(selectedPack < (int)Songs.size()-1){
+						selectedPack++;
+					}else{
+						yScrollPos=140;	
+						selectedPack = 0;
+					}
+				}
+			}
+			if(key == KEY_K){
+				if(selectedMap > 0){
+					selectedMap--;
+					yScrollPos += 35;
+				} else{
+					if(selectedPack > 0){
+						yScrollPos += 70;
+						selectedPack--;
+					}else{
+						selectedPack = (int)Songs.size()-1;
+						yScrollPos = 205;
+						for(auto& song : Songs){
+							for(auto& bm : song.maps){
+								yScrollPos -= 35;
+							}
 							yScrollPos -= 35;
 						}
 					}
+					selectedMap = (int)Songs[selectedPack].maps.size()-1;
 				}
-				selectedMap = (int)Songs[selectedPack].maps.size()-1;
 			}
 		}
 	}
-	}
+
 	if(selectedPack >= 0){
 		DrawText(TextFormat("Pack: %s", Songs[selectedPack].folderPath.c_str()), 400, 30, 20, BLACK);
 		DrawText(TextFormat("Song: %s", Songs[selectedPack].maps[selectedMap].Diff.c_str()), 400, 50, 20, BLACK);
