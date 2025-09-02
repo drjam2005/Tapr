@@ -5,6 +5,7 @@
 class Beatmap {
 public:
 	Beatmap(std::string mapPath);
+	void loadMap();
 	void printInfo();
 	void printMap(); // lol
 	std::string metaData();

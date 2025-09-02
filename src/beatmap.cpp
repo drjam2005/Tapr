@@ -49,7 +49,7 @@ Beatmap::Beatmap(std::string filePath):
 	std::string line;
 	std::fstream file(filePath);
 	std::vector<double> bpmFull;
-	bool headerDone = false; bool inHitObj = false; bool inTiming = false;
+	bool headerDone = false; bool inTiming = false;
 	while (std::getline(file, line)) {
 		if(!headerDone) {
 			if(startsWith(line, "TitleUnicode:"))
@@ -75,14 +75,7 @@ Beatmap::Beatmap(std::string filePath):
 			}
 			continue;
 		}
-
-		if (line.find("[HitObjects]") != std::string::npos) {
-			inHitObj = true;
-			inTiming = false;
-			continue;
-		}
 		if (line.find("[TimingPoints]") != std::string::npos) {
-			inHitObj = false;
 			inTiming = true;
 			continue;
 		}
@@ -100,11 +93,32 @@ Beatmap::Beatmap(std::string filePath):
 				double temp = 60000.0 / beatLength;
 				bpmFull.push_back(temp);
 			}
+			continue;
 		}
+	}
+	double full = 0;
+	for(double temp : bpmFull){
+		full += temp;
+	}
+	if(bpmFull.size())
+		bpm = (float)full / bpmFull.size();
+	file.close();
 
+	loadMap();
+}
+
+void Beatmap::loadMap(){
+	std::string line;
+	std::fstream file(mapPath);
+	bool inHitObj = false;
+	while(std::getline(file, line)){
+		if (!inHitObj) {
+			if (line.find("[HitObjects]") != std::string::npos) {
+                inHitObj = true;
+            }
+            continue;
+        }
 		if(inHitObj){
-			//   X,  Y, Time, Type, HitSound, [EndTime], [Extras]
-			// 192,192,  160,    5,        0,         0:0:0:0:
 			std::stringstream ss(line);
 			double x, y, offset, type, hs, end; char chr;
 			ss >> x >> chr >> y >> chr >> offset >> chr >> type >> chr >> hs >> chr >> end;
@@ -129,14 +143,6 @@ Beatmap::Beatmap(std::string filePath):
 			}
 		}
 	}
-	double full = 0;
-	for(double temp : bpmFull){
-		full += temp;
-	}
-	if(bpmFull.size())
-		bpm = (float)full / bpmFull.size();
-
-	file.close();
 }
 
 void Beatmap::printInfo(){

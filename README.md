@@ -28,5 +28,5 @@
 
 TODO
 ===
-* Configure Settings menu and saving
-* Try Better Rendering
+* try better game rendering
+* only fully load maps when playing
