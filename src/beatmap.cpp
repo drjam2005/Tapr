@@ -133,9 +133,10 @@ Beatmap::Beatmap(std::string filePath):
 	for(double temp : bpmFull){
 		full += temp;
 	}
+	if(bpmFull.size())
+		bpm = (float)full / bpmFull.size();
 
-	bpm = (float)full / bpmFull.size();
-
+	file.close();
 }
 
 void Beatmap::printInfo(){

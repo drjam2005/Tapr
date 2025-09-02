@@ -29,9 +29,10 @@ class Menu {
 		bool isprint = false;
 		bool isMapLoad = true;
 		char bind1 = 'D', bind2 = 'F', bind3 = 'J', bind4 = 'K';
+		int yScrollPos = 140;
 
-		int selectedPack = 0;
-		int selectedMap = 0;
+		int selectedPack = -1;
+		int selectedMap = -1;
 		std::vector<Pack> Songs;
 		Font font;
 };
