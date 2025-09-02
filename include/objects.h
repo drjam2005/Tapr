@@ -30,4 +30,5 @@ public:
 	int size();
 	void Add(double);
 	void Add(double, double);
+	void Render(double);
 };

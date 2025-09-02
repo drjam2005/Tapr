@@ -29,4 +29,4 @@
 TODO
 ===
 * try better game rendering
-* only fully load maps when playing
+* RENDER GAME NOW PLS

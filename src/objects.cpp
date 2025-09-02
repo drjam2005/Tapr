@@ -25,3 +25,6 @@ void Lane::Add(double offset, double end) {
 int Lane::size(){
 	return objects.size();
 }
+void Lane::Render(double){
+
+}
