@@ -30,5 +30,7 @@ public:
 	int size();
 	void Add(double);
 	void Add(double, double);
-	void Render(double);
+	void Hit(double);
+	void Update(double);
+	void Render(double currentTime, float scrollSpeed, int laneWidth, int hitPosition, int laneStart);
 };

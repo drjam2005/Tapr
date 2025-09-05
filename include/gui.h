@@ -13,21 +13,24 @@ enum GAME_STATE {
 class Menu {
 	public:
 		Menu(int, int);
-		void Draw();
+		void Draw(double);
 		void DrawMain();
 		void ParseOSZFiles();
 		void SetupMapSelect();
-		void DrawGame();
+		void DrawGame(double);
 		void DrawMapSelect();
 		void DrawSettings();
 
 	private:
+		Beatmap* bm = nullptr;
 		GAME_STATE gameState = MAIN;
 		int WINDOW_WIDTH, WINDOW_HEIGHT;
+		long gameStartTime = 0;
 
 		int isBinding = 0;
 		bool isprint = false;
 		bool isMapLoad = true;
+		bool inGame = false;
 		char bind1 = 'D', bind2 = 'F', bind3 = 'J', bind4 = 'K';
 		int yScrollPos = 140;
 

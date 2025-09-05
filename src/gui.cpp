@@ -10,31 +10,55 @@ Menu::Menu(int givenWidth, int givenHeight){
 	WINDOW_HEIGHT = givenHeight;
 }
 
-void Menu::Draw(){
-	if(gameState == MAIN){
-		DrawMain();
-		isMapLoad = false;
-	}if(gameState == SETTINGS){
-		DrawSettings();
-		isMapLoad = false;
-	}if(gameState == SELECT){
-		if(!isMapLoad){
-			Songs.clear();
-			ParseOSZFiles();
-			SetupMapSelect();
-			if(Songs.size() >= 1){
-				yScrollPos = 140;
-				selectedPack = 0;
-				selectedMap = 0;
+void Menu::Draw(double currentTime) {
+    if (gameState == MAIN) {
+        DrawMain();
+        isMapLoad = false;
+        inGame = false;
+    }
+    else if (gameState == SETTINGS) {
+        DrawSettings();
+        isMapLoad = false;
+        inGame = false;
+    }
+    else if (gameState == SELECT) {
+        if (!isMapLoad) {
+            Songs.clear();
+            ParseOSZFiles();
+            SetupMapSelect();
+            if (Songs.size() >= 1) {
+                yScrollPos = 140;
+                selectedPack = 0;
+                selectedMap = 0;
+            }
+        }
+        DrawMapSelect();
+        isMapLoad = true;
+        inGame = false;
+    }
+    else if (gameState == GAME) {
+        if (!inGame) {
+            std::cout << "ingame" << std::endl;
+            inGame = true;
+            gameStartTime = currentTime;
+			Beatmap& bm = Songs[selectedPack].maps[selectedMap];
+
+			if (!bm.isMusicLoaded) {
+				std::string fullPath = Songs[selectedPack].folderPath + "/" + bm.songPath;
+				bm.music = LoadMusicStream(fullPath.c_str());
+				bm.isMusicLoaded = true;
 			}
-		}
-		DrawMapSelect();
-		isMapLoad = true;
-	}if(gameState == GAME){
-		DrawGame();
-		isMapLoad = false;
-	}
+
+			SetMusicVolume(bm.music, 0.0125f);
+			SeekMusicStream(bm.music, 0.2f);
+			PlayMusicStream(bm.music);
+        }
+
+        DrawGame(currentTime - gameStartTime);
+        isMapLoad = false;
+    }
 }
+
 
 void Menu::DrawMain(){
 	ClearBackground(Color{30, 30, 60, 255});
@@ -208,6 +232,7 @@ void Menu::DrawMapSelect() {
         }
 
         if (IsKeyPressed(KEY_ENTER)) {
+			gameState = GAME;
 			std::cout << Songs[selectedPack].maps[selectedMap].Diff.c_str() << std::endl;
         }
     }
@@ -255,6 +280,10 @@ void Menu::DrawSettings() {
     }
 }
 
-void Menu::DrawGame(){
-	// TODO
+void Menu::DrawGame(double time){
+	if(IsKeyPressed(KEY_ESCAPE)){
+		gameState = SELECT;
+	}
+	Songs[selectedPack].maps[selectedMap].UpdateGame(time, bind1, bind2, bind3, bind4);
+	Songs[selectedPack].maps[selectedMap].drawGame(time, 1.2f, 80, 100, 180);
 }

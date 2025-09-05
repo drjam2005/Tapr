@@ -1,3 +1,4 @@
+#pragma once
 #include <string>
 #include <objects.h>
 #include <vector>
@@ -7,7 +8,10 @@ public:
 	Beatmap(std::string mapPath);
 	void loadMap();
 	void printInfo();
-	void printMap(); // lol
+	void printMap();
+	void drawGame(double currentTime, float scrollSpeed, int laneWidth, int hitPosition, int laneStart);
+	void UpdateGame(double, char, char, char, char);
+	void LoadMusic();
 	std::string metaData();
 
 	//General
@@ -22,10 +26,19 @@ public:
 	std::string Mapper = "";
 	std::string Diff = "";
 
+	// Misc
+	bool isMusicLoaded = false;
+	Music music;
+
 	Lane lane1;
 	Lane lane2;
 	Lane lane3;
 	Lane lane4;
+
+	Lane gameLane1 = lane1;
+	Lane gameLane2 = lane2;
+	Lane gameLane3 = lane3;
+	Lane gameLane4 = lane4;
 };
 
 class Pack {

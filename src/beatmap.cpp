@@ -9,12 +9,8 @@ namespace fs = std::experimental::filesystem;
 
 Pack::Pack(std::string path) : folderPath(path) {
 	try {
-		std::cout << "Map folder : " << path << std::endl;
         for (const auto& entry : fs::directory_iterator(path)) {
-			if(fs::is_directory(entry))
-				std::cout << "dir: ";
 			std::string fileName = entry.path().filename().string();
-			std::cout << "\t" << fileName << std::endl;
 			if(fileName.substr(fileName.length()-4) == ".osu"){
 				maps.emplace_back(path+'/'+fileName);
 			}
@@ -44,8 +40,6 @@ Beatmap::Beatmap(std::string filePath):
 	lane3(Lane(3)),
 	lane4(Lane(4))
 {
-	std::cout << "BM: " << filePath << std::endl;
-	// Parsing time!!!
 	std::string line;
 	std::fstream file(filePath);
 	std::vector<double> bpmFull;
@@ -62,8 +56,15 @@ Beatmap::Beatmap(std::string filePath):
 				Mapper = line.substr(8);
 			else if(startsWith(line, "Version:"))
 				Diff = line.substr(8);
-			else if(startsWith(line, "AudioFilename:"))
+			else if(startsWith(line, "AudioFilename:")){
 				songPath = line.substr(14);
+				auto trim = [](std::string s) {
+					s.erase(0, s.find_first_not_of(" \t\r\n"));
+					s.erase(s.find_last_not_of(" \t\r\n") + 1);
+					return s;
+				};
+				songPath = trim(songPath);
+			}
 			else if(startsWith(line, "CircleSize:"))
 				keys = std::stoi(line.substr(11));
 
@@ -143,6 +144,10 @@ void Beatmap::loadMap(){
 			}
 		}
 	}
+	gameLane1 = lane1;
+	gameLane2 = lane2;
+	gameLane3 = lane3;
+	gameLane4 = lane4;
 }
 
 void Beatmap::printInfo(){
@@ -169,4 +174,31 @@ std::string Beatmap::metaData(){
 		"\t\tSongPath: " + songPath + "\n"
 		"\t\tSongLead: " + std::to_string(songLeadIn) + "\n";
 	return meta;
+}
+
+
+void Beatmap::drawGame(double currentTime, float scrollSpeed, int laneWidth, int hitPosition, int laneStart){
+	UpdateMusicStream(music);
+	gameLane1.Render(currentTime, scrollSpeed, laneWidth, hitPosition, laneStart);
+	gameLane2.Render(currentTime, scrollSpeed, laneWidth, hitPosition, laneStart);
+	gameLane3.Render(currentTime, scrollSpeed, laneWidth, hitPosition, laneStart);
+	gameLane4.Render(currentTime, scrollSpeed, laneWidth, hitPosition, laneStart);
+}
+void Beatmap::UpdateGame(double currentTime, char bind1, char bind2, char bind3, char bind4){
+	gameLane1.Update(currentTime);
+	gameLane2.Update(currentTime);
+	gameLane3.Update(currentTime);
+	gameLane4.Update(currentTime);
+	if(IsKeyPressed(bind1)){
+		gameLane1.Hit(currentTime);
+	}
+	if(IsKeyPressed(bind2)){
+		gameLane2.Hit(currentTime);
+	}
+	if(IsKeyPressed(bind3)){
+		gameLane3.Hit(currentTime);
+	}
+	if(IsKeyPressed(bind4)){
+		gameLane4.Hit(currentTime);
+	}
 }
