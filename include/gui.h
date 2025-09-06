@@ -23,6 +23,7 @@ class Menu {
 
 	private:
 		Beatmap* bm = nullptr;
+		URbar ur;
 		Stats stats;
 		GAME_STATE gameState = MAIN;
 		int WINDOW_WIDTH, WINDOW_HEIGHT;

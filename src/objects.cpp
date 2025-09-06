@@ -55,7 +55,7 @@ void Lane::Render(double currentTime, float scrollSpeed, int laneWidth, int hitP
 }
 
 
-void Lane::Hit(double currentTime, Stats& stats) {
+void Lane::Hit(double currentTime, Stats& stats, URbar& ur) {
     if (objects.empty()) return;
 
     auto it = objects.begin();
@@ -77,6 +77,7 @@ void Lane::Hit(double currentTime, Stats& stats) {
 			else if(std::abs(timing) < 0.1f){
 				stats.hits.Bad++;
 			}
+			ur.Add(currentTime, timing);
 			stats.combo++;
 			objects.erase(it);
 		}
@@ -84,7 +85,7 @@ void Lane::Hit(double currentTime, Stats& stats) {
 }
 
 
-void Lane::Release(double currentTime, Stats& stats){
+void Lane::Release(double currentTime, Stats& stats, URbar& ur){
 	if(objects.begin()->second.isHeld){
 		double timing = objects.begin()->second.release - currentTime;
 		if(std::abs(timing) <= 0.2f){
@@ -106,10 +107,11 @@ void Lane::Release(double currentTime, Stats& stats){
 			stats.hits.Miss++;
 		}
 		objects.erase(objects.begin());
+		ur.Add(currentTime, timing);
 	}
 }
 
-void Lane::Hold(double currentTime, Stats& stats){
+void Lane::Hold(double currentTime, Stats& stats, URbar& ur){
 	if(!objects.begin()->second.isHeld && objects.begin()->second.isPressed){
 		double timing = objects.begin()->second.offset - currentTime;
 		if(std::abs(timing) <= 0.1f){
@@ -132,7 +134,7 @@ void Lane::Hold(double currentTime, Stats& stats){
 	}
 }
 
-void Lane::Update(double currentTime, Stats& stats) {
+void Lane::Update(double currentTime, Stats& stats, URbar& ur) {
     while (!objects.empty()) {
         double timing = objects.begin()->second.release;
         if (currentTime > timing + 0.15f) {
@@ -164,4 +166,52 @@ float HitScores::getAcc(){
 		return 1.0f;
 	}
 	return (Marv*1 + Perf*(300/320.0) + Good*(200/300.0) + Bad*(50/300.0)) / sumAll();
+}
+
+void URbar::Add(double currentTime, double timing){
+	hits[timing] = 0;
+}
+
+void URbar::Update(){
+    for(auto it = hits.begin(); it != hits.end(); ){
+        it->second += GetFrameTime();
+        if(it->second >= 3.0f){
+            it = hits.erase(it); // erase returns a valid "next" iterator
+        } else {
+            ++it;
+        }
+    }
+}
+
+void URbar::Render(){
+	DrawRectangle(399, 300, 3, 20, WHITE);
+	if(hits.empty()){
+		return;
+	}
+	for(auto& time : hits){
+		unsigned char opacity = (-time.second+3.0f)*51;
+		Color color{0,0,0,0};
+		if(std::abs(time.first) < 0.010)
+			color = Color{0, 255, 255, opacity};
+		else if(std::abs(time.first) < 0.0185f)
+			color = Color{255, 255, 0, opacity};
+		else if(std::abs(time.first) < 0.033f)
+			color = Color{0, 255, 0, opacity};
+		else if(std::abs(time.first) < 0.1f)
+			color = Color{100, 100, 0, opacity};
+		DrawRectangle(399.5-(1000*time.first), 300, 2, 20, color);
+	}
+	DrawTriangle({399-(getAverage()*1000.0f),290},{404-(getAverage()*1000.0f),295},{408-(getAverage()*1000.0f),290},WHITE);
+}
+
+void URbar::Reset(){
+	hits.clear();
+}
+
+float URbar::getAverage(){
+	float avg = 0.0f;
+	for(auto& hit : hits){
+		avg += hit.first;
+	}
+	return avg / hits.size();
 }

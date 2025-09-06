@@ -195,43 +195,43 @@ void Beatmap::drawGame(double currentTime, float scrollSpeed, int laneWidth, int
 		isDone = true;
 	}
 }
-void Beatmap::UpdateGame(double currentTime, char bind1, char bind2, char bind3, char bind4, Stats& stats){
-	gameLane1.Update(currentTime, stats);
-	gameLane2.Update(currentTime, stats);
-	gameLane3.Update(currentTime, stats);
-	gameLane4.Update(currentTime, stats);
+void Beatmap::UpdateGame(double currentTime, char bind1, char bind2, char bind3, char bind4, Stats& stats, URbar& bar){
+	gameLane1.Update(currentTime, stats, bar);
+	gameLane2.Update(currentTime, stats, bar);
+	gameLane3.Update(currentTime, stats, bar);
+	gameLane4.Update(currentTime, stats, bar);
 	if(IsKeyPressed(bind1)){
-		gameLane1.Hit(currentTime, stats);
+		gameLane1.Hit(currentTime, stats, bar);
 	}
 	if(IsKeyPressed(bind2)){
-		gameLane2.Hit(currentTime, stats);
+		gameLane2.Hit(currentTime, stats, bar);
 	}
 	if(IsKeyPressed(bind3)){
-		gameLane3.Hit(currentTime, stats);
+		gameLane3.Hit(currentTime, stats, bar);
 	}
 	if(IsKeyPressed(bind4)){
-		gameLane4.Hit(currentTime, stats);
+		gameLane4.Hit(currentTime, stats, bar);
 	}
 
 	if(IsKeyDown(bind1)){
-		gameLane1.Hold(currentTime, stats);
+		gameLane1.Hold(currentTime, stats, bar);
 	}else{
-		gameLane1.Release(currentTime, stats);
+		gameLane1.Release(currentTime, stats, bar);
 	}
 	if(IsKeyDown(bind2)){
-		gameLane2.Hold(currentTime, stats);
+		gameLane2.Hold(currentTime, stats, bar);
 	}else{
-		gameLane2.Release(currentTime, stats);
+		gameLane2.Release(currentTime, stats, bar);
 	}
 	if(IsKeyDown(bind3)){
-		gameLane3.Hold(currentTime, stats);
+		gameLane3.Hold(currentTime, stats, bar);
 	}else{
-		gameLane3.Release(currentTime, stats);
+		gameLane3.Release(currentTime, stats, bar);
 	}
 	if(IsKeyDown(bind4)){
-		gameLane4.Hold(currentTime, stats);
+		gameLane4.Hold(currentTime, stats, bar);
 	}else{
-		gameLane4.Release(currentTime, stats);
+		gameLane4.Release(currentTime, stats, bar);
 	}
 }
 

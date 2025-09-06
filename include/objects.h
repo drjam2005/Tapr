@@ -1,6 +1,7 @@
 #pragma once
 #include <raylib.h>
 #include <map>
+#include <vector>
 
 enum HIT_TYPE {
 	TAP,
@@ -41,6 +42,17 @@ struct Stats {
 	int combo;
 	HitScores hits;
 };
+
+class URbar {
+public:
+	std::map<double, double> hits = {};
+	void Add(double, double);
+	void Update();
+	void Render();
+	void Reset();
+	float getAverage();
+};
+
 class Lane {
 public:
 	int LaneID;
@@ -50,11 +62,10 @@ public:
 	int size();
 	void Add(double);
 	void Add(double, double);
-	void Hit(double, Stats&);
-	void handleRelease(double, Stats&);
-	void Release(double, Stats&);
-	void Hold(double, Stats&);
-	void Update(double, Stats&);
+	void Hit(double, Stats&, URbar&);
+	void Update(double, Stats&, URbar&);
+	void Hold(double, Stats&, URbar&);
+	void Release(double, Stats&, URbar&);
 	void Render(double, float, int, int, int);
 };
 

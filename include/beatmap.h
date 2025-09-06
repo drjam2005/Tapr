@@ -11,7 +11,7 @@ public:
 	void printMap();
 	void drawGame(double, float, int, int, int, bool&);
 	void preLoadMaps();
-	void UpdateGame(double, char, char, char, char, Stats&);
+	void UpdateGame(double, char, char, char, char, Stats&, URbar&);
 	void LoadMusic(std::string);
 	std::string metaData();
 

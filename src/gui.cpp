@@ -20,6 +20,7 @@ void Menu::Draw(double currentTime) {
 		musicWait = 0.0f;
 		stats.hits.reset();
 		stats.combo = 0;
+		ur.Reset();
     }
     else if (gameState == SETTINGS) {
         DrawSettings();
@@ -30,6 +31,7 @@ void Menu::Draw(double currentTime) {
 		musicWait = 0.0f;
 		stats.hits.reset();
 		stats.combo = 0;
+		ur.Reset();
     }
     else if (gameState == SELECT) {
         if (!isMapLoad) {
@@ -49,6 +51,7 @@ void Menu::Draw(double currentTime) {
 		musicWait = 0.0f;
 		stats.hits.reset();
 		stats.combo = 0;
+		ur.Reset();
     }
     else if (gameState == GAME) {
 		// loading stuff
@@ -305,12 +308,13 @@ void Menu::DrawGame(double time){
 	if(IsKeyPressed(KEY_ESCAPE))
 		gameState = SELECT;
 
-	Songs[selectedPack].maps[selectedMap].UpdateGame(time, bind1, bind2, bind3, bind4, stats);
+	Songs[selectedPack].maps[selectedMap].UpdateGame(time, bind1, bind2, bind3, bind4, stats, ur);
 	Songs[selectedPack].maps[selectedMap].drawGame(time, 1.2f, 80, 100, 240, isDone);
 
 	if(isDone){
 		isDoneDT += GetFrameTime();
-		if(isDoneDT >= 1.0f){
+		if(isDoneDT >= 3.0f){
+			ur.Reset();
 			isDoneDT = 0.0f;
 			isDone = false;
 			gameState = SELECT;
@@ -324,4 +328,6 @@ void Menu::DrawGame(double time){
 	DrawText(std::to_string(stats.hits.Miss).c_str(), 600, 420, 20, RED);
 	DrawText(std::to_string(stats.combo).c_str(), 600, 250, 20, WHITE);
 	DrawText(TextFormat("%.2f", stats.hits.getAcc()*100.0f), 600, 200, 20, WHITE);
+	ur.Render();
+	ur.Update();
 }
