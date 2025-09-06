@@ -44,10 +44,10 @@ void Lane::Render(double currentTime, float scrollSpeed, int laneWidth, int hitP
 			if(location <= (currentTime+2.0f) * 950.0f * scrollSpeed + (600 - (hitPosition))){
 				if(!o.second.isHeld){
 					DrawRectangle(laneStart+((LaneID-1)*laneWidth), location-40, laneWidth, 40, (LaneID == 2 || LaneID == 3) ? Color{0, 255, 255, 255} : WHITE);
-					DrawRectangle(laneStart+((LaneID-1)*laneWidth), location2-40, laneWidth, location-location2, (LaneID == 2 || LaneID == 3) ? Color{0, 255, 255, 175} : Color{255, 255, 255, 175});
+					DrawRectangle(laneStart+((LaneID-1)*laneWidth), location2, laneWidth, location-location2, (LaneID == 2 || LaneID == 3) ? Color{0, 255, 255, 175} : Color{255, 255, 255, 175});
 				}else{
 					DrawRectangle(laneStart+((LaneID-1)*laneWidth), 600-hitPosition-40, laneWidth, 40, (LaneID == 2 || LaneID == 3) ? Color{0, 255, 255, 255} : WHITE);
-					DrawRectangle(laneStart+((LaneID-1)*laneWidth), location2-40, laneWidth, location-location2-(hitPosition-(600-location))+40, (LaneID == 2 || LaneID == 3) ? Color{0, 255, 255, 175} : Color{255, 255, 255, 175});
+					DrawRectangle(laneStart+((LaneID-1)*laneWidth), location2, laneWidth, location-location2-(hitPosition-(600-location)), (LaneID == 2 || LaneID == 3) ? Color{0, 255, 255, 175} : Color{255, 255, 255, 175});
 				}
 			}
 		}
