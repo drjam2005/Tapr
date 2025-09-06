@@ -1,5 +1,4 @@
 #include <objects.h>
-#include <iostream>
 #include <math.h>
 
 HitObject::HitObject(double givenOffset){
@@ -45,20 +44,19 @@ void Lane::Hit(double currentTime, Stats& stats) {
 
     auto it = objects.begin();
     double objTiming = it->first;
-	double timing = std::abs(objTiming-currentTime);
-	std::cout << timing << std::endl;
+	double timing = (objTiming-currentTime);
 
-	if(timing <= 0.1f){
-		if(timing < 0.010){
+	if(std::abs(timing) <= 0.1f){
+		if(std::abs(timing) < 0.010){
 			stats.hits.Marv++;
 		}
-		else if(timing < 0.0185f){
+		else if(std::abs(timing) < 0.0185f){
 			stats.hits.Perf++;
 		}
-		else if(timing < 0.033f){
+		else if(std::abs(timing) < 0.033f){
 			stats.hits.Good++;
 		}
-		else if(timing < 0.1f){
+		else if(std::abs(timing) < 0.1f){
 			stats.hits.Bad++;
 		}
 		stats.combo++;

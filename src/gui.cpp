@@ -13,17 +13,23 @@ Menu::Menu(int givenWidth, int givenHeight){
 void Menu::Draw(double currentTime) {
     if (gameState == MAIN) {
         DrawMain();
+
         isMapLoad = false;
         inGame = false;
 		isMusicStart = false;
 		musicWait = 0.0f;
+		stats.hits.reset();
+		stats.combo = 0;
     }
     else if (gameState == SETTINGS) {
         DrawSettings();
+
         isMapLoad = false;
         inGame = false;
 		isMusicStart = false;
 		musicWait = 0.0f;
+		stats.hits.reset();
+		stats.combo = 0;
     }
     else if (gameState == SELECT) {
         if (!isMapLoad) {
@@ -41,8 +47,11 @@ void Menu::Draw(double currentTime) {
         inGame = false;
 		isMusicStart = false;
 		musicWait = 0.0f;
+		stats.hits.reset();
+		stats.combo = 0;
     }
     else if (gameState == GAME) {
+		// loading stuff
         if (!inGame) {
 			gameStartTime = currentTime;
 			Songs[selectedPack].maps[selectedMap].preLoadMaps();
@@ -64,6 +73,7 @@ void Menu::Draw(double currentTime) {
 		if(isMusicStart)
 			UpdateMusicStream(Songs[selectedPack].maps[selectedMap].music);
 
+		// actual game lmao
         DrawGame(currentTime - gameStartTime - 1.0f);
         isMapLoad = false;
     }
@@ -73,19 +83,20 @@ void Menu::Draw(double currentTime) {
 void Menu::DrawMain(){
 	ClearBackground(Color{30, 30, 60, 255});
 	DrawText("Tapr", WINDOW_WIDTH/2-145, WINDOW_HEIGHT/2-200, 120, WHITE);
-	if(GuiButton((Rectangle){(float)WINDOW_WIDTH/2-(100), ((float)WINDOW_HEIGHT/2-(35)), 200, 70 },"Play")){
+	if(GuiButton(Rectangle{(float)WINDOW_WIDTH/2-(100), ((float)WINDOW_HEIGHT/2-(35)), 200, 70 },"Play")){
 		gameState = SELECT;
 	}
-	if(GuiButton((Rectangle){(float)WINDOW_WIDTH/2-(100), ((float)WINDOW_HEIGHT/2+100-(35)), 200, 70 },"Settings")){
+	if(GuiButton(Rectangle{(float)WINDOW_WIDTH/2-(100), ((float)WINDOW_HEIGHT/2+100-(35)), 200, 70 },"Settings")){
 		gameState = SETTINGS;
 	}
-	if(GuiButton((Rectangle){(float)WINDOW_WIDTH/2-(200/2), ((float)WINDOW_HEIGHT/2+200-(70/2)), 200, 70 },"Exit")){
+	if(GuiButton(Rectangle{(float)WINDOW_WIDTH/2-int(200/2), ((float)WINDOW_HEIGHT/2+200-int(70/2)), 200, 70 },"Exit")){
 		CloseWindow();
 	}
 }
 
 void Menu::ParseOSZFiles() {
     namespace fs = std::experimental::filesystem;
+
     std::string songs = "../Songs/";
     try {
         int mapCount = 0;
@@ -296,6 +307,7 @@ void Menu::DrawGame(double time){
 
 	Songs[selectedPack].maps[selectedMap].UpdateGame(time, bind1, bind2, bind3, bind4, stats);
 	Songs[selectedPack].maps[selectedMap].drawGame(time, 1.2f, 80, 100, 240, isDone);
+
 	if(isDone){
 		isDoneDT += GetFrameTime();
 		if(isDoneDT >= 1.0f){
@@ -311,5 +323,5 @@ void Menu::DrawGame(double time){
 	DrawText(std::to_string(stats.hits.Bad).c_str(), 600, 390, 20, GRAY);
 	DrawText(std::to_string(stats.hits.Miss).c_str(), 600, 420, 20, RED);
 	DrawText(std::to_string(stats.combo).c_str(), 600, 250, 20, WHITE);
-	DrawText(std::to_string(stats.hits.getAcc()*100.0f).c_str(), 600, 200, 20, WHITE);
+	DrawText(TextFormat("%.2f", stats.hits.getAcc()*100.0f), 600, 200, 20, WHITE);
 }
