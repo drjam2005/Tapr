@@ -28,5 +28,4 @@
 
 TODO
 ===
-* try better game rendering
-* RENDER GAME NOW PLS
+* FIX AUDIO SEEKING ISSUES
