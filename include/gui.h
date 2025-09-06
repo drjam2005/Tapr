@@ -31,6 +31,8 @@ class Menu {
 		bool isprint = false;
 		bool isMapLoad = true;
 		bool inGame = false;
+		bool isDone = false;
+		double isDoneDT = 0.0f;
 		char bind1 = 'D', bind2 = 'F', bind3 = 'J', bind4 = 'K';
 		int yScrollPos = 140;
 

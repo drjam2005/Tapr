@@ -41,20 +41,14 @@ void Menu::Draw(double currentTime) {
             std::cout << "ingame" << std::endl;
             inGame = true;
             gameStartTime = currentTime;
-			Beatmap& bm = Songs[selectedPack].maps[selectedMap];
-
-			if (!bm.isMusicLoaded) {
-				std::string fullPath = Songs[selectedPack].folderPath + "/" + bm.songPath;
-				bm.music = LoadMusicStream(fullPath.c_str());
-				bm.isMusicLoaded = true;
-			}
-
-			SetMusicVolume(bm.music, 0.0125f);
-			SeekMusicStream(bm.music, 0.2f);
-			PlayMusicStream(bm.music);
+			Songs[selectedPack].maps[selectedMap].preLoadMaps();
+			std::string path = Songs[selectedPack].maps[selectedMap].mapPath;
+			Songs[selectedPack].maps[selectedMap].LoadMusic(path+"/");
+			PlayMusicStream(Songs[selectedPack].maps[selectedMap].music);
         }
 
-        DrawGame(currentTime - gameStartTime);
+		UpdateMusicStream(Songs[selectedPack].maps[selectedMap].music);
+        DrawGame(currentTime - gameStartTime - 1.0f);
         isMapLoad = false;
     }
 }
@@ -285,5 +279,13 @@ void Menu::DrawGame(double time){
 		gameState = SELECT;
 	}
 	Songs[selectedPack].maps[selectedMap].UpdateGame(time, bind1, bind2, bind3, bind4);
-	Songs[selectedPack].maps[selectedMap].drawGame(time, 1.2f, 80, 100, 180);
+	Songs[selectedPack].maps[selectedMap].drawGame(time, 1.2f, 80, 100, 240, isDone);
+	if(isDone){
+		isDoneDT += GetFrameTime();
+		if(isDoneDT >= 1.0f){
+			isDoneDT = 0.0f;
+			isDone = false;
+			gameState = SELECT;
+		}
+	}
 }

@@ -9,9 +9,10 @@ public:
 	void loadMap();
 	void printInfo();
 	void printMap();
-	void drawGame(double currentTime, float scrollSpeed, int laneWidth, int hitPosition, int laneStart);
+	void drawGame(double, float, int, int, int, bool&);
+	void preLoadMaps();
 	void UpdateGame(double, char, char, char, char);
-	void LoadMusic();
+	void LoadMusic(std::string);
 	std::string metaData();
 
 	//General
