@@ -1,2 +1,1 @@
-# Ignore all files in the "vendor" folder from language stats
-include/raygui.h linguist-vendored
+include/raygui.h linguist-detectable=false
