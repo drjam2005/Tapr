@@ -134,13 +134,13 @@ void Beatmap::loadMap(){
 					lane4.Add(offset/1000.0f);
 			}else if (type == 128){
 				if (x < 128) 
-					lane1.Add(offset/1000.0f, end);
+					lane1.Add(offset/1000.0f, end/1000.0f);
 				else if (x < 256)
-					lane2.Add(offset/1000.0f, end);
+					lane2.Add(offset/1000.0f, end/1000.0f);
 				else if (x < 384)
-					lane3.Add(offset/1000.0f, end);
+					lane3.Add(offset/1000.0f, end/1000.0f);
 				else
-					lane4.Add(offset/1000.0f, end);
+					lane4.Add(offset/1000.0f, end/1000.0f);
 			}
 		}
 	}
@@ -211,6 +211,27 @@ void Beatmap::UpdateGame(double currentTime, char bind1, char bind2, char bind3,
 	}
 	if(IsKeyPressed(bind4)){
 		gameLane4.Hit(currentTime, stats);
+	}
+
+	if(IsKeyDown(bind1)){
+		gameLane1.Hold(currentTime, stats);
+	}else{
+		gameLane1.Release(currentTime, stats);
+	}
+	if(IsKeyDown(bind2)){
+		gameLane2.Hold(currentTime, stats);
+	}else{
+		gameLane2.Release(currentTime, stats);
+	}
+	if(IsKeyDown(bind3)){
+		gameLane3.Hold(currentTime, stats);
+	}else{
+		gameLane3.Release(currentTime, stats);
+	}
+	if(IsKeyDown(bind4)){
+		gameLane4.Hold(currentTime, stats);
+	}else{
+		gameLane4.Release(currentTime, stats);
 	}
 }
 

@@ -58,7 +58,7 @@ void Menu::Draw(double currentTime) {
 
 			Songs[selectedPack].maps[selectedMap].LoadMusic(Songs[selectedPack].folderPath+"/");
 			SeekMusicStream(Songs[selectedPack].maps[selectedMap].music, 0.1);
-			SetMusicVolume(Songs[selectedPack].maps[selectedMap].music, 0.2f);
+			SetMusicVolume(Songs[selectedPack].maps[selectedMap].music, 0.15f);
 			inGame = true;
         }
 

@@ -15,6 +15,9 @@ enum SKIN_TYPE {
 struct HitObject{
 	double offset = 0.0f;
 	double release = 0.0f;
+	bool isReleased = false;
+	bool isPressed = false;
+	bool isHeld = false;
 	HIT_TYPE type = TAP;
 
 	HitObject(double);
@@ -48,6 +51,9 @@ public:
 	void Add(double);
 	void Add(double, double);
 	void Hit(double, Stats&);
+	void handleRelease(double, Stats&);
+	void Release(double, Stats&);
+	void Hold(double, Stats&);
 	void Update(double, Stats&);
 	void Render(double, float, int, int, int);
 };
