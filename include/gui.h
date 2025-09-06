@@ -23,19 +23,24 @@ class Menu {
 
 	private:
 		Beatmap* bm = nullptr;
+		Stats stats;
 		GAME_STATE gameState = MAIN;
 		int WINDOW_WIDTH, WINDOW_HEIGHT;
-		long gameStartTime = 0;
+		double gameStartTime = 0;
 
 		int isBinding = 0;
 		bool isprint = false;
 		bool isMapLoad = true;
 		bool inGame = false;
+
+		float musicWait = 0.0f;
+		bool isMusicStart = false;
 		bool isDone = false;
 		double isDoneDT = 0.0f;
-		char bind1 = 'D', bind2 = 'F', bind3 = 'J', bind4 = 'K';
-		int yScrollPos = 140;
 
+		char bind1 = 'D', bind2 = 'F', bind3 = 'J', bind4 = 'K';
+
+		int yScrollPos = 140;
 		int selectedPack = -1;
 		int selectedMap = -1;
 		std::vector<Pack> Songs;

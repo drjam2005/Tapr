@@ -21,6 +21,23 @@ struct HitObject{
 	HitObject(double, double);
 };
 
+struct HitScores {
+	int Marv = 0;
+	int Perf = 0;
+	int Good = 0;
+	int Bad  = 0;
+	int Miss = 0;
+	void reset();
+	double sumHits();
+	double sumAll();
+	float getAcc();
+};
+
+struct Stats {
+	float acc;
+	int combo;
+	HitScores hits;
+};
 class Lane {
 public:
 	int LaneID;
@@ -30,7 +47,8 @@ public:
 	int size();
 	void Add(double);
 	void Add(double, double);
-	void Hit(double);
-	void Update(double);
-	void Render(double currentTime, float scrollSpeed, int laneWidth, int hitPosition, int laneStart);
+	void Hit(double, Stats&);
+	void Update(double, Stats&);
+	void Render(double, float, int, int, int);
 };
+

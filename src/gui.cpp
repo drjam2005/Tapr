@@ -15,11 +15,15 @@ void Menu::Draw(double currentTime) {
         DrawMain();
         isMapLoad = false;
         inGame = false;
+		isMusicStart = false;
+		musicWait = 0.0f;
     }
     else if (gameState == SETTINGS) {
         DrawSettings();
         isMapLoad = false;
         inGame = false;
+		isMusicStart = false;
+		musicWait = 0.0f;
     }
     else if (gameState == SELECT) {
         if (!isMapLoad) {
@@ -35,19 +39,31 @@ void Menu::Draw(double currentTime) {
         DrawMapSelect();
         isMapLoad = true;
         inGame = false;
+		isMusicStart = false;
+		musicWait = 0.0f;
     }
     else if (gameState == GAME) {
         if (!inGame) {
-            std::cout << "ingame" << std::endl;
-            inGame = true;
-            gameStartTime = currentTime;
+			gameStartTime = currentTime;
 			Songs[selectedPack].maps[selectedMap].preLoadMaps();
-			std::string path = Songs[selectedPack].maps[selectedMap].mapPath;
-			Songs[selectedPack].maps[selectedMap].LoadMusic(path+"/");
-			PlayMusicStream(Songs[selectedPack].maps[selectedMap].music);
+
+			Songs[selectedPack].maps[selectedMap].LoadMusic(Songs[selectedPack].folderPath+"/");
+			SeekMusicStream(Songs[selectedPack].maps[selectedMap].music, 0.1);
+			SetMusicVolume(Songs[selectedPack].maps[selectedMap].music, 0.2f);
+			inGame = true;
         }
 
-		UpdateMusicStream(Songs[selectedPack].maps[selectedMap].music);
+		if(!isMusicStart){
+			musicWait += GetFrameTime();
+			if(musicWait >= 1.0f){
+				PlayMusicStream(Songs[selectedPack].maps[selectedMap].music);
+				isMusicStart = true;
+			}
+		}
+		
+		if(isMusicStart)
+			UpdateMusicStream(Songs[selectedPack].maps[selectedMap].music);
+
         DrawGame(currentTime - gameStartTime - 1.0f);
         isMapLoad = false;
     }
@@ -275,10 +291,10 @@ void Menu::DrawSettings() {
 }
 
 void Menu::DrawGame(double time){
-	if(IsKeyPressed(KEY_ESCAPE)){
+	if(IsKeyPressed(KEY_ESCAPE))
 		gameState = SELECT;
-	}
-	Songs[selectedPack].maps[selectedMap].UpdateGame(time, bind1, bind2, bind3, bind4);
+
+	Songs[selectedPack].maps[selectedMap].UpdateGame(time, bind1, bind2, bind3, bind4, stats);
 	Songs[selectedPack].maps[selectedMap].drawGame(time, 1.2f, 80, 100, 240, isDone);
 	if(isDone){
 		isDoneDT += GetFrameTime();
@@ -288,4 +304,12 @@ void Menu::DrawGame(double time){
 			gameState = SELECT;
 		}
 	}
+
+	DrawText(std::to_string(stats.hits.Marv).c_str(), 600, 300, 20, WHITE);
+	DrawText(std::to_string(stats.hits.Perf).c_str(), 600, 330, 20, GOLD);
+	DrawText(std::to_string(stats.hits.Good).c_str(), 600, 360, 20, GREEN);
+	DrawText(std::to_string(stats.hits.Bad).c_str(), 600, 390, 20, GRAY);
+	DrawText(std::to_string(stats.hits.Miss).c_str(), 600, 420, 20, RED);
+	DrawText(std::to_string(stats.combo).c_str(), 600, 250, 20, WHITE);
+	DrawText(std::to_string(stats.hits.getAcc()*100.0f).c_str(), 600, 200, 20, WHITE);
 }

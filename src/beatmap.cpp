@@ -195,26 +195,26 @@ void Beatmap::drawGame(double currentTime, float scrollSpeed, int laneWidth, int
 		isDone = true;
 	}
 }
-void Beatmap::UpdateGame(double currentTime, char bind1, char bind2, char bind3, char bind4){
-	gameLane1.Update(currentTime);
-	gameLane2.Update(currentTime);
-	gameLane3.Update(currentTime);
-	gameLane4.Update(currentTime);
+void Beatmap::UpdateGame(double currentTime, char bind1, char bind2, char bind3, char bind4, Stats& stats){
+	gameLane1.Update(currentTime, stats);
+	gameLane2.Update(currentTime, stats);
+	gameLane3.Update(currentTime, stats);
+	gameLane4.Update(currentTime, stats);
 	if(IsKeyPressed(bind1)){
-		gameLane1.Hit(currentTime);
+		gameLane1.Hit(currentTime, stats);
 	}
 	if(IsKeyPressed(bind2)){
-		gameLane2.Hit(currentTime);
+		gameLane2.Hit(currentTime, stats);
 	}
 	if(IsKeyPressed(bind3)){
-		gameLane3.Hit(currentTime);
+		gameLane3.Hit(currentTime, stats);
 	}
 	if(IsKeyPressed(bind4)){
-		gameLane4.Hit(currentTime);
+		gameLane4.Hit(currentTime, stats);
 	}
 }
 
 void Beatmap::LoadMusic(std::string dirPath){
-	std::string fullPath = mapPath + "/" +songPath;
+	std::string fullPath = dirPath+songPath;
 	music = LoadMusicStream(fullPath.c_str());
 }
