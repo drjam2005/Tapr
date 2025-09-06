@@ -61,7 +61,7 @@ void Menu::Draw(double currentTime) {
 
 			Songs[selectedPack].maps[selectedMap].LoadMusic(Songs[selectedPack].folderPath+"/");
 			SeekMusicStream(Songs[selectedPack].maps[selectedMap].music, 0.1);
-			SetMusicVolume(Songs[selectedPack].maps[selectedMap].music, 0.15f);
+			SetMusicVolume(Songs[selectedPack].maps[selectedMap].music, volume*0.15f);
 			inGame = true;
         }
 
@@ -72,6 +72,16 @@ void Menu::Draw(double currentTime) {
 				isMusicStart = true;
 			}
 		}
+		if(IsKeyPressed(KEY_UP)){
+			volume += 0.1;
+			SetMusicVolume(Songs[selectedPack].maps[selectedMap].music, volume*0.15f);
+		}
+		if(IsKeyPressed(KEY_DOWN)){
+			volume -= 0.1;
+			SetMusicVolume(Songs[selectedPack].maps[selectedMap].music, volume*0.15f);
+		}
+
+		volume = std::max(0.0f, volume);
 		
 		if(isMusicStart)
 			UpdateMusicStream(Songs[selectedPack].maps[selectedMap].music);
@@ -80,6 +90,16 @@ void Menu::Draw(double currentTime) {
         DrawGame(currentTime - gameStartTime - 1.0f);
         isMapLoad = false;
     }
+	if(gameState != GAME){
+		if(IsKeyPressed(KEY_UP)){
+			volume += 0.1;
+		}
+		if(IsKeyPressed(KEY_DOWN)){
+			volume -= 0.1;
+		}
+	}
+	if(gameState != MAIN)
+		DrawText(TextFormat("Volume: %.2f", volume*100.0f), 650, 500, 20, WHITE);
 }
 
 

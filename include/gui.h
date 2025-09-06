@@ -36,6 +36,7 @@ class Menu {
 
 		float musicWait = 0.0f;
 		bool isMusicStart = false;
+		float volume = 1.0f;
 		bool isDone = false;
 		double isDoneDT = 0.0f;
 
