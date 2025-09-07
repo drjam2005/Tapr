@@ -64,17 +64,21 @@ void Lane::Hit(double currentTime, Stats& stats, URbar& ur) {
 	objects.begin()->second.isPressed = true;
 	
 	if(it->second.type == TAP){
-		if(std::abs(timing) <= 0.1f){
-			if(std::abs(timing) < 0.010){
+		if(std::abs(timing) <= 0.2f){
+			if(std::abs(timing) < 0.016){
+				std::cout << "MarvHit: " << timing << std::endl;
 				stats.hits.Marv++;
 			}
-			else if(std::abs(timing) < 0.0185f){
+			else if(std::abs(timing) < 0.026f){
+				std::cout << "PerfHit: " << timing << std::endl;
 				stats.hits.Perf++;
 			}
-			else if(std::abs(timing) < 0.033f){
+			else if(std::abs(timing) < 0.067f){
+				std::cout << "GoodHit: " << timing << std::endl;
 				stats.hits.Good++;
 			}
 			else if(std::abs(timing) < 0.1f){
+				std::cout << "BadHit: " << timing << std::endl;
 				stats.hits.Bad++;
 			}
 			ur.Add(currentTime, timing);
@@ -86,42 +90,39 @@ void Lane::Hit(double currentTime, Stats& stats, URbar& ur) {
 
 
 void Lane::Release(double currentTime, Stats& stats, URbar& ur){
-	if(objects.begin()->second.isHeld){
-		double timing = objects.begin()->second.release - currentTime;
-		if(std::abs(timing) <= 0.2f){
-			if(std::abs(timing) < 0.010){
+	   if (!objects.empty() && objects.begin()->second.isHeld) {
+        double timing = objects.begin()->second.release - currentTime;
+        if(std::abs(timing) <= 0.1f){
+            if(std::abs(timing) < 0.016)       
 				stats.hits.Marv++;
-			}
-			else if(std::abs(timing) < 0.0185f){
+            else if(std::abs(timing) < 0.026f) 
 				stats.hits.Perf++;
-			}
-			else if(std::abs(timing) < 0.033f){
+            else if(std::abs(timing) < 0.067f) 
 				stats.hits.Good++;
-			}
-			else{
+            else                               
 				stats.hits.Bad++;
-			}
-			stats.combo++;
-		}else{
-			stats.combo = 0;
-			stats.hits.Miss++;
-		}
-		objects.erase(objects.begin());
-		ur.Add(currentTime, timing);
-	}
+            stats.combo++;
+        } else {
+            stats.combo = 0;
+            stats.hits.Miss++;
+        }
+        objects.erase(objects.begin());
+        ur.Add(currentTime, timing);
+		std::cout << "Release: " << timing << std::endl;
+    }
 }
 
 void Lane::Hold(double currentTime, Stats& stats, URbar& ur){
 	if(!objects.begin()->second.isHeld && objects.begin()->second.isPressed){
 		double timing = objects.begin()->second.offset - currentTime;
 		if(std::abs(timing) <= 0.1f){
-			if(std::abs(timing) < 0.010){
+			if(std::abs(timing) < 0.015){
 				stats.hits.Marv++;
 			}
-			else if(std::abs(timing) < 0.0185f){
+			else if(std::abs(timing) < 0.026f){
 				stats.hits.Perf++;
 			}
-			else if(std::abs(timing) < 0.033f){
+			else if(std::abs(timing) < 0.067f){
 				stats.hits.Good++;
 			}
 			else if(std::abs(timing) < 0.1f){
@@ -130,6 +131,7 @@ void Lane::Hold(double currentTime, Stats& stats, URbar& ur){
 			stats.combo++;
 			objects.begin()->second.isHeld = true;
 			objects.begin()->second.isReleased = false;
+			std::cout << "Hold: " << timing << std::endl;
 		}
 	}
 }
@@ -138,7 +140,8 @@ void Lane::Update(double currentTime, Stats& stats, URbar& ur) {
     while (!objects.empty()) {
         double timing = objects.begin()->second.release;
         if (currentTime > timing + 0.15f) {
-            objects.erase(objects.begin());
+			if(objects.begin() != objects.end())
+				objects.erase(objects.begin());
 			stats.hits.Miss++;
 			stats.combo = 0;
         } else {
@@ -165,7 +168,7 @@ float HitScores::getAcc(){
 	if(!sumAll()){
 		return 1.0f;
 	}
-	return (Marv*1 + Perf*(300/320.0) + Good*(200/300.0) + Bad*(50/300.0)) / sumAll();
+	return (Marv + Perf + Good*(200/300.0) + Bad*(50/300.0)) / sumAll();
 }
 
 void URbar::Add(double currentTime, double timing){
@@ -184,21 +187,21 @@ void URbar::Update(){
 }
 
 void URbar::Render(){
-	DrawRectangle(399, 300, 3, 20, WHITE);
+	DrawRectangle(399, 298, 3, 24, WHITE);
 	if(hits.empty()){
 		return;
 	}
 	for(auto& time : hits){
 		unsigned char opacity = (-time.second+3.0f)*51;
 		Color color{0,0,0,0};
-		if(std::abs(time.first) < 0.010)
+		if(std::abs(time.first) < 0.015)
 			color = Color{0, 255, 255, opacity};
-		else if(std::abs(time.first) < 0.0185f)
+		else if(std::abs(time.first) < 0.026f)
 			color = Color{255, 255, 0, opacity};
-		else if(std::abs(time.first) < 0.033f)
+		else if(std::abs(time.first) < 0.067f)
 			color = Color{0, 255, 0, opacity};
 		else if(std::abs(time.first) < 0.1f)
-			color = Color{100, 100, 0, opacity};
+			color = Color{100, 100, 100, opacity};
 		DrawRectangle(399.5-(1000*time.first), 300, 2, 20, color);
 	}
 	DrawTriangle({399-(getAverage()*1000.0f),290},{404-(getAverage()*1000.0f),295},{408-(getAverage()*1000.0f),290},WHITE);

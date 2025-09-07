@@ -329,7 +329,7 @@ void Menu::DrawGame(double time){
 		gameState = SELECT;
 
 	Songs[selectedPack].maps[selectedMap].UpdateGame(time, bind1, bind2, bind3, bind4, stats, ur);
-	Songs[selectedPack].maps[selectedMap].drawGame(time, 1.2f, 80, 100, 240, isDone);
+	Songs[selectedPack].maps[selectedMap].drawGame(time, 1.175f, 80, 100, 240, isDone);
 
 	if(isDone){
 		isDoneDT += GetFrameTime();
