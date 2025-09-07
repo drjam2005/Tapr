@@ -10,7 +10,6 @@ int main(int argc, char **argv) {
 	Menu game(WIDTH, HEIGHT);
 	double currentTime = 0;
 	SetExitKey(0);
-	SetTargetFPS(144);
 	InitAudioDevice();
 	while(!WindowShouldClose()){
 		currentTime += GetFrameTime();

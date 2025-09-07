@@ -1,5 +1,4 @@
 #include <objects.h>
-#include <iostream>
 #include <math.h>
 
 HitObject::HitObject(double givenOffset){
@@ -66,19 +65,15 @@ void Lane::Hit(double currentTime, Stats& stats, URbar& ur) {
 	if(it->second.type == TAP){
 		if(std::abs(timing) <= 0.2f){
 			if(std::abs(timing) < 0.016){
-				std::cout << "MarvHit: " << timing << std::endl;
 				stats.hits.Marv++;
 			}
 			else if(std::abs(timing) < 0.026f){
-				std::cout << "PerfHit: " << timing << std::endl;
 				stats.hits.Perf++;
 			}
 			else if(std::abs(timing) < 0.067f){
-				std::cout << "GoodHit: " << timing << std::endl;
 				stats.hits.Good++;
 			}
 			else if(std::abs(timing) < 0.1f){
-				std::cout << "BadHit: " << timing << std::endl;
 				stats.hits.Bad++;
 			}
 			ur.Add(currentTime, timing);
@@ -108,7 +103,6 @@ void Lane::Release(double currentTime, Stats& stats, URbar& ur){
         }
         objects.erase(objects.begin());
         ur.Add(currentTime, timing);
-		std::cout << "Release: " << timing << std::endl;
     }
 }
 
@@ -131,7 +125,6 @@ void Lane::Hold(double currentTime, Stats& stats, URbar& ur){
 			stats.combo++;
 			objects.begin()->second.isHeld = true;
 			objects.begin()->second.isReleased = false;
-			std::cout << "Hold: " << timing << std::endl;
 		}
 	}
 }
