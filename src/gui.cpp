@@ -346,7 +346,17 @@ void Menu::DrawGame(double time){
 	DrawText(std::to_string(stats.hits.Good).c_str(), 600, 360, 20, GREEN);
 	DrawText(std::to_string(stats.hits.Bad).c_str(), 600, 390, 20, GRAY);
 	DrawText(std::to_string(stats.hits.Miss).c_str(), 600, 420, 20, RED);
-	DrawText(std::to_string(stats.combo).c_str(), 600, 250, 20, WHITE);
+	DrawText(std::to_string(stats.combo).c_str(), 400-(std::to_string(stats.combo).length()*10), 200, 30, WHITE);
+
+	if(ur.currHit == "320"){
+		DrawText("MARVELOUS", 325, 175, 25, WHITE);
+	}else if(ur.currHit == "300"){
+		DrawText("PERFECT", 350, 175, 25, YELLOW);
+	}else if(ur.currHit == "200"){
+		DrawText("GOOD", 375, 175, 25, GREEN);
+	}else if(ur.currHit == " 50"){
+		DrawText("BAD", 375, 175, 25, GRAY);
+	}
 	DrawText(TextFormat("%.2f", stats.hits.getAcc()*100.0f), 600, 200, 20, WHITE);
 	ur.Render();
 	ur.Update();

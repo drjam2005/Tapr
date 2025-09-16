@@ -66,15 +66,19 @@ void Lane::Hit(double currentTime, Stats& stats, URbar& ur) {
 		if(std::abs(timing) <= 0.2f){
 			if(std::abs(timing) < 0.016){
 				stats.hits.Marv++;
+				ur.currHit = "320";
 			}
 			else if(std::abs(timing) < 0.026f){
 				stats.hits.Perf++;
+				ur.currHit = "300";
 			}
 			else if(std::abs(timing) < 0.067f){
 				stats.hits.Good++;
+				ur.currHit = "200";
 			}
 			else if(std::abs(timing) < 0.1f){
 				stats.hits.Bad++;
+				ur.currHit = " 50";
 			}
 			ur.Add(currentTime, timing);
 			stats.combo++;
@@ -88,18 +92,24 @@ void Lane::Release(double currentTime, Stats& stats, URbar& ur){
 	   if (!objects.empty() && objects.begin()->second.isHeld) {
         double timing = objects.begin()->second.release - currentTime;
         if(std::abs(timing) <= 0.1f){
-            if(std::abs(timing) < 0.016)       
+            if(std::abs(timing) < 0.016){
 				stats.hits.Marv++;
-            else if(std::abs(timing) < 0.026f) 
+				ur.currHit = "320";
+			}else if(std::abs(timing) < 0.026f){
 				stats.hits.Perf++;
-            else if(std::abs(timing) < 0.067f) 
+				ur.currHit = "300";
+			}else if(std::abs(timing) < 0.067f){
 				stats.hits.Good++;
-            else                               
+				ur.currHit = "200";
+			}else{
 				stats.hits.Bad++;
+				ur.currHit = " 50";
+			}
             stats.combo++;
         } else {
             stats.combo = 0;
             stats.hits.Miss++;
+			ur.currHit = "";
         }
         objects.erase(objects.begin());
         ur.Add(currentTime, timing);
@@ -112,15 +122,19 @@ void Lane::Hold(double currentTime, Stats& stats, URbar& ur){
 		if(std::abs(timing) <= 0.1f){
 			if(std::abs(timing) < 0.015){
 				stats.hits.Marv++;
+				ur.currHit = "320";
 			}
 			else if(std::abs(timing) < 0.026f){
 				stats.hits.Perf++;
+				ur.currHit = "300";
 			}
 			else if(std::abs(timing) < 0.067f){
 				stats.hits.Good++;
+				ur.currHit = "200";
 			}
 			else if(std::abs(timing) < 0.1f){
 				stats.hits.Bad++;
+				ur.currHit = " 50";
 			}
 			stats.combo++;
 			objects.begin()->second.isHeld = true;
@@ -136,6 +150,7 @@ void Lane::Update(double currentTime, Stats& stats, URbar& ur) {
 			if(objects.begin() != objects.end())
 				objects.erase(objects.begin());
 			stats.hits.Miss++;
+			ur.currHit = "";
 			stats.combo = 0;
         } else {
             break;
@@ -202,6 +217,7 @@ void URbar::Render(){
 
 void URbar::Reset(){
 	hits.clear();
+	currHit = "";
 }
 
 float URbar::getAverage(){

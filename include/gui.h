@@ -23,8 +23,6 @@ class Menu {
 
 	private:
 		Beatmap* bm = nullptr;
-		URbar ur;
-		Stats stats;
 		GAME_STATE gameState = MAIN;
 		int WINDOW_WIDTH, WINDOW_HEIGHT;
 		double gameStartTime = 0;
@@ -33,6 +31,9 @@ class Menu {
 		bool isprint = false;
 		bool isMapLoad = true;
 		bool inGame = false;
+
+		URbar ur;
+		Stats stats;
 
 		float musicWait = 0.0f;
 		bool isMusicStart = false;

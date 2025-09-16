@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 #include <raylib.h>
 #include <map>
 #include <vector>
@@ -46,6 +47,7 @@ struct Stats {
 class URbar {
 public:
 	std::map<double, double> hits = {};
+	std::string currHit;
 	void Add(double, double);
 	void Update();
 	void Render();
