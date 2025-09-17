@@ -18,7 +18,7 @@
  $ meson setup build
 ```
 
-## Running
+## Compiling and Running
 - Linux Systems:
 ```bash
  $ meson compile -C build
