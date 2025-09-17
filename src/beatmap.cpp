@@ -124,6 +124,7 @@ void Beatmap::loadMap(){
 			double x, y, offset, type, hs, end; char chr;
 			ss >> x >> chr >> y >> chr >> offset >> chr >> type >> chr >> hs >> chr >> end;
 			if(type == 1){
+				hitCount++;
 				if (x < 128)
 					lane1.Add(offset/1000.0f);
 				else if (x < 256)
@@ -133,6 +134,7 @@ void Beatmap::loadMap(){
 				else
 					lane4.Add(offset/1000.0f);
 			}else if (type == 128){
+				LNCount++;
 				if (x < 128) 
 					lane1.Add(offset/1000.0f, end/1000.0f);
 				else if (x < 256)

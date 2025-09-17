@@ -27,6 +27,8 @@ struct HitObject{
 };
 
 struct HitScores {
+	double allHits;
+	double allHolds;
 	int Marv = 0;
 	int Perf = 0;
 	int Good = 0;
@@ -36,6 +38,7 @@ struct HitScores {
 	double sumHits();
 	double sumAll();
 	float getAcc();
+	double score();
 };
 
 struct Stats {

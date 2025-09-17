@@ -1,4 +1,5 @@
 #include <objects.h>
+#include <iostream>
 #include <math.h>
 
 HitObject::HitObject(double givenOffset){
@@ -159,6 +160,8 @@ void Lane::Update(double currentTime, Stats& stats, URbar& ur) {
 }
 
 void HitScores::reset(){
+	allHits = 0;
+	allHolds = 0;
 	Marv = 0;
 	Perf = 0;
 	Good = 0;
@@ -172,6 +175,21 @@ double HitScores::sumAll(){
 double HitScores::sumHits(){
 	return Marv + Perf + Good + Bad;
 }
+double HitScores::score() {
+
+    float totalNotes = allHits + allHolds; // total judged objects
+    if (totalNotes == 0) return 0.0;
+
+    float achieved =
+        Marv * 320 +
+        Perf * 300 +
+        Good * 200 +
+        Bad  * 50;
+
+    float maxPossible = totalNotes * 320;
+    return int((achieved / maxPossible) * 1000000);
+}
+
 float HitScores::getAcc(){
 	if(!sumAll()){
 		return 1.0f;

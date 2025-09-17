@@ -7,8 +7,10 @@ project(
 )
 
 raylib_dep = dependency('raylib', required: true)
+miniz_dep = dependency('miniz',  required: true)
 dependencies = [
   raylib_dep,
+  miniz_dep
 ]
 
 includeDirs = [

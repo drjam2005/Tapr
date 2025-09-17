@@ -26,6 +26,8 @@ public:
 	std::string Artist = "";
 	std::string Mapper = "";
 	std::string Diff = "";
+	double hitCount = 0;
+	double LNCount = 0;
 
 	// Misc
 	bool isMusicLoaded = false;

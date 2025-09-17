@@ -1,8 +1,10 @@
 #define RAYGUI_IMPLEMENTATION
 #include <raygui.h>
+#include <miniz.h>
 #include <iostream>
 #include <gui.h>
 #include <experimental/filesystem>
+#include <fstream>
 
 Menu::Menu(int givenWidth, int givenHeight){
 	GuiLoadStyle("../resources/style.rgs");
@@ -88,6 +90,8 @@ void Menu::Draw(double currentTime) {
 
 		// actual game lmao
         DrawGame(currentTime - gameStartTime - 1.0f);
+		stats.hits.allHits = Songs[selectedPack].maps[selectedMap].hitCount;
+		stats.hits.allHolds =  Songs[selectedPack].maps[selectedMap].LNCount * 2;
         isMapLoad = false;
     }
 	if(gameState != GAME){
@@ -117,6 +121,48 @@ void Menu::DrawMain(){
 	}
 }
 
+void extractZip(const std::string &zipPath, const std::string &outputDir) {
+    namespace fs = std::experimental::filesystem;
+
+    mz_zip_archive zip{};
+    if (!mz_zip_reader_init_file(&zip, zipPath.c_str(), 0)) {
+        std::cerr << "Failed to open: " << zipPath << "\n";
+        return;
+    }
+
+    fs::create_directories(outputDir);
+    mz_uint numFiles = mz_zip_reader_get_num_files(&zip);
+
+    for (mz_uint i = 0; i < numFiles; i++) {
+        mz_zip_archive_file_stat st;
+        if (!mz_zip_reader_file_stat(&zip, i, &st)) continue;
+
+        std::string fullPath = outputDir + "/" + st.m_filename;
+
+        if (mz_zip_reader_is_file_a_directory(&zip, i)) {
+            fs::create_directories(fullPath);
+            continue;
+        }
+
+        fs::create_directories(fs::path(fullPath).parent_path());
+
+        size_t size = 0;
+        void *data = mz_zip_reader_extract_to_heap(&zip, i, &size, 0);
+        if (!data) {
+            std::cerr << "Failed to extract: " << st.m_filename << "\n";
+            continue;
+        }
+
+        std::ofstream out(fullPath, std::ios::binary);
+        out.write(reinterpret_cast<char*>(data), size);
+        out.close();
+        mz_free(data);
+    }
+
+    mz_zip_reader_end(&zip);
+}
+
+
 void Menu::ParseOSZFiles() {
     namespace fs = std::experimental::filesystem;
 
@@ -126,15 +172,11 @@ void Menu::ParseOSZFiles() {
         for (const auto& entry : fs::directory_iterator(songs)) {
             std::string fileName = entry.path().filename().string();
             if (fileName.size() > 4 && fileName.substr(fileName.length()-4) == ".osz") {
-                std::cout << "[MAP] " << fileName.substr(0, fileName.length()-4) << "\n";
+				std::string folderName = fileName.substr(0, fileName.length()-4);
+                std::cout << "[MAP] " << folderName << "\n";
 
-                std::string folderName = fileName.substr(0, fileName.length()-4);
-                std::string command = "7z x \"../Songs/" + fileName + "\" -o\"../Songs/" + folderName + "\"";
-                std::string remove = "rm \"../Songs/" + fileName + "\"";
-
-                system(command.c_str());
-                system(remove.c_str());
-
+                extractZip(songs + fileName, songs + folderName);
+                fs::remove(songs + fileName);
                 mapCount++;
             }
         }
@@ -172,10 +214,7 @@ void Menu::SetupMapSelect(){
         for (const auto& entry : fs::directory_iterator(songs)) {
 			std::string fileName = entry.path().filename().string();
 			if(fs::is_directory(entry)){
-				std::cout << "[MAP FOLDER] " << fileName << std::endl;
 				Songs.push_back(Pack("../Songs/"+fileName)); mapCount++;
-			}else {
-				std::cout << "[OTHER] " << fileName << "\n";
 			}
         }
 		if(mapCount){
@@ -325,8 +364,26 @@ void Menu::DrawSettings() {
 }
 
 void Menu::DrawGame(double time){
-	if(IsKeyPressed(KEY_ESCAPE))
+	if(IsKeyPressed(KEY_ESCAPE)){
 		gameState = SELECT;
+		std::cout << " ========DNF======== " << std::endl;
+		std::cout << "  PACK: " << Songs[selectedPack].folderPath << std::endl;
+		std::cout << "  DIFF: " << Songs[selectedPack].maps[selectedMap].Diff << std::endl;
+		std::cout << " --- HITS: --- " << std::endl;
+			  printf("    SCORE: %.0f\n",stats.hits.score());
+			  printf("      ACC: %.2f%%\n",stats.hits.getAcc()*100.0f);
+			  printf("    RATIO: %.2f:1",((float)stats.hits.Marv/stats.hits.Perf));
+		std::cout << std::endl;
+		std::cout << "      320: " << stats.hits.Marv << std::endl;
+		std::cout << "      300: " << stats.hits.Perf<< std::endl;
+		std::cout << "      200: " << stats.hits.Good<< std::endl;
+		std::cout << "       50: " << stats.hits.Bad<< std::endl;
+		std::cout << "     miss: " << stats.hits.Miss<< std::endl;
+		ur.Reset();
+		isDoneDT = 0.0f;
+		isDone = false;
+		gameState = SELECT;
+	}
 
 	Songs[selectedPack].maps[selectedMap].UpdateGame(time, bind1, bind2, bind3, bind4, stats, ur);
 	Songs[selectedPack].maps[selectedMap].drawGame(time, 1.175f, 80, 100, 240, isDone);
@@ -334,6 +391,19 @@ void Menu::DrawGame(double time){
 	if(isDone){
 		isDoneDT += GetFrameTime();
 		if(isDoneDT >= 3.0f){
+		std::cout << " ========COMPLETED======== " << std::endl;
+		std::cout << "  PACK: " << Songs[selectedPack].folderPath << std::endl;
+		std::cout << "  DIFF: " << Songs[selectedPack].maps[selectedMap].Diff << std::endl;
+		std::cout << " --- HITS: --- " << std::endl;
+			  printf("    SCORE: %.0f\n",stats.hits.score());
+			  printf("      ACC: %.2f%%\n",stats.hits.getAcc()*100.0f);
+			  printf("    RATIO: %.2f:1",((float)stats.hits.Marv/stats.hits.Perf));
+		std::cout << std::endl;
+		std::cout << "      320: " << stats.hits.Marv << std::endl;
+		std::cout << "      300: " << stats.hits.Perf<< std::endl;
+		std::cout << "      200: " << stats.hits.Good<< std::endl;
+		std::cout << "       50: " << stats.hits.Bad<< std::endl;
+		std::cout << "     miss: " << stats.hits.Miss<< std::endl;
 			ur.Reset();
 			isDoneDT = 0.0f;
 			isDone = false;
@@ -346,7 +416,9 @@ void Menu::DrawGame(double time){
 	DrawText(std::to_string(stats.hits.Good).c_str(), 600, 360, 20, GREEN);
 	DrawText(std::to_string(stats.hits.Bad).c_str(), 600, 390, 20, GRAY);
 	DrawText(std::to_string(stats.hits.Miss).c_str(), 600, 420, 20, RED);
-	DrawText(std::to_string(stats.combo).c_str(), 400-(std::to_string(stats.combo).length()*10), 200, 30, WHITE);
+	DrawText(TextFormat("%07.0f",stats.hits.score()), 600, 60, 40, WHITE);
+	DrawText(std::to_string(stats.combo).c_str(), 400-(std::to_string(stats.combo).length()*10), 220, 20, WHITE);
+	DrawText(TextFormat("%.2f:1",((float)stats.hits.Marv/stats.hits.Perf)), 400-(std::to_string((float)stats.hits.Marv/stats.hits.Perf).length()*5), 250, 20, WHITE);
 
 	if(ur.currHit == "320"){
 		DrawText("MARVELOUS", 325, 175, 25, WHITE);
