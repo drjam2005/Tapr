@@ -8,7 +8,7 @@
 > Dependencies:
 >- Raylib
 >- Meson build system
->- C++ Compiler
+>- C++ Compiler (ideally gcc)
 
 ## Building
 - Linux Systems:
