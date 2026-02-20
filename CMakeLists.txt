@@ -5,6 +5,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 set(exec exec)
 set(src
 	src/main.cpp
+	src/objects.cpp
 )
 
 add_executable(${exec} ${src})
