@@ -4,7 +4,9 @@
 #define OBJECTS_H
 
 #include "raylib.h"
+
 #include <string>
+#include <unordered_map>
 #include <vector>
 #include <deque>
 
@@ -18,6 +20,7 @@ struct HitObject {
 	HIT_TYPE type;
 	float offset;
 	float hold_time = 0.0f;
+	bool isHeld = false;
 
 	bool operator<(const HitObject& other);
 };
@@ -33,13 +36,14 @@ public:
 	void add_hold_object(float offset, float holdTime);
 };
 
-class Map {
+class Beatmap {
 private:
 	std::vector<Lane> lanes;
 	std::string mapName;
+	std::string mapPath;
 public:
-	Map() {}
-	Map(std::string mapName);
+	Beatmap() {}
+	Beatmap(std::string mapName);
 
 	std::vector<Lane>& get_lanes_reference();
 	std::vector<Lane> get_lanes_copy();
@@ -51,7 +55,7 @@ public:
 class Updater {
 private:
 	//std::vector<Lane>* lanesToPlay;
-	Map* mapToPlay = nullptr;
+	Beatmap* mapToPlay = nullptr;
 	size_t laneCount = 1;
 	long double elapsedTime = 0.0f;
 
@@ -60,7 +64,7 @@ private:
 	std::vector<KeyboardKey> bindings;
 public:
 	Updater() {}
-	Updater(Map* mapToPlay, std::vector<KeyboardKey> bindings);
+	Updater(Beatmap* mapToPlay, std::vector<KeyboardKey> bindings);
 	void Update(float dt);
 };
 // rendering params
@@ -76,24 +80,24 @@ struct GameRendererParams {
 // rendering
 class GameRenderer {
 private:
-	Map* mapToPlay = nullptr;
+	Beatmap* mapToPlay = nullptr;
 	GameRendererParams params;
 	long double elapsed_time = 0.0f;
 	size_t laneCount = 1;
 public:
 	GameRenderer() {}
-	GameRenderer(Map* mapToPlay, GameRendererParams params);
+	GameRenderer(Beatmap* mapToPlay, GameRendererParams params);
 	void Render(float dt);
 };
 
 // in charge of handling both the Updater and the Renderer
 class Game {
 public:
-	Map mapToPlay;
+	Beatmap mapToPlay;
 	GameRenderer renderer;
 	Updater updater;
 
-	Game(Map givenMap);
+	Game(Beatmap givenMap);
 
 	void Update(float dt);
 	void Render(float dt);

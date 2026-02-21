@@ -31,9 +31,10 @@ bool HitObject::operator<(const HitObject& other){
 }
 
 // Map
-Map::Map(std::string mapName) {
+Beatmap::Beatmap(std::string mapName) {
 	this->mapName = mapName;
 	// load map
+	
 	// temp beatmap 
 	{
 		lanes.push_back(Lane());
@@ -41,8 +42,8 @@ Map::Map(std::string mapName) {
 		lanes.push_back(Lane());
 		lanes.push_back(Lane());
 		lanes[0].add_hit_object(1.2f);
-		lanes[0].add_hit_object(3.0f);
-		lanes[0].add_hold_object(4.0f, 0.2f);
+		lanes[0].add_hit_object(2.0f);
+		lanes[0].add_hold_object(3.0f, 0.2f);
 
 		lanes[1].add_hit_object(2.0f);
 		lanes[1].add_hit_object(3.0f);
@@ -61,20 +62,20 @@ Map::Map(std::string mapName) {
 	}
 }
 
-std::vector<Lane>& Map::get_lanes_reference(){
+std::vector<Lane>& Beatmap::get_lanes_reference(){
 	return this->lanes;
 }
-std::vector<Lane>  Map::get_lanes_copy(){
+std::vector<Lane>  Beatmap::get_lanes_copy(){
 	return this->lanes;
 }
 
-size_t Map::get_lane_count(){
+size_t Beatmap::get_lane_count(){
 	return this->lanes.size();
 }
 
 
 // Updater
-Updater::Updater(Map* mapToPlay, std::vector<KeyboardKey> bindings){
+Updater::Updater(Beatmap* mapToPlay, std::vector<KeyboardKey> bindings){
 	this->mapToPlay = mapToPlay;
 	this->laneCount = mapToPlay->get_lane_count();
 	this->bindings = bindings;
@@ -95,22 +96,35 @@ void Updater::Update(float dt){
 		if(IsKeyPressed(bind)){
 			std::deque<HitObject>& objects = mapToPlay->get_lanes_reference()[lane].get_objects_reference();
 			if(objects.size()){
-				// get hitobject
 				HitObject& obj = objects.front();
-				switch(obj.type){
-					case HIT: 
-						{
-							objects.pop_front();
-							break;
-						}
-					case HOLD: 
-						{
-							std::cout << "lmao hold on" << std::endl;
-							objects.pop_front();
-							break;
-						}
-					default:
-						break;
+				if(obj.type == HIT){
+					objects.pop_front();
+					break;
+				}else if(obj.type == HOLD){
+					obj.isHeld = true;
+					std::cout << "lmao hold on" << std::endl;
+					break;
+				}
+			}
+		}
+		if(IsKeyDown(bind)){
+			std::deque<HitObject>& objects = mapToPlay->get_lanes_reference()[lane].get_objects_reference();
+			if(objects.size()){
+				HitObject& obj = objects.front();
+				if(obj.type == HOLD){
+					// nothing for now
+				}
+			}
+		}
+		if(IsKeyReleased(bind)){
+			std::deque<HitObject>& objects = mapToPlay->get_lanes_reference()[lane].get_objects_reference();
+			if(objects.size()){
+				HitObject& obj = objects.front();
+				if(obj.type == HOLD){
+					if(obj.isHeld){
+						obj.isHeld = false;
+						objects.pop_front();
+					}
 				}
 			}
 		}
@@ -119,7 +133,7 @@ void Updater::Update(float dt){
 }
 
 // GameRenderer
-GameRenderer::GameRenderer(Map* mapToPlay, GameRendererParams params){
+GameRenderer::GameRenderer(Beatmap* mapToPlay, GameRendererParams params){
 	this->mapToPlay = mapToPlay;
 	this->laneCount = mapToPlay->get_lane_count();
 	this->params = params;
@@ -142,7 +156,7 @@ void GameRenderer::Render(float dt){
 	//DrawText(TextFormat("Start: %f", start), 20, 20+(25*(row++)), 20, BLACK);
 	//DrawText(TextFormat("LaneWidth: %f", params.lane_width), 20, 20+(25*(row++)), 20, BLACK);
 
-	DrawRectangle(start, hit_position-5.0f, lane_width*laneCount, 10.0f, RED);
+	DrawRectangle(start, hit_position-5.0f, lane_width*laneCount, 10.0f, WHITE);
 
 	int lane_num = 0;
 	for(auto& lane : mapToPlay->get_lanes_reference()) {
@@ -158,19 +172,34 @@ void GameRenderer::Render(float dt){
 									,lane_height };
 				DrawRectangleRec(thing, params.lane_colors[lane_num]);
 			}else if(obj.type == HOLD){
-				float tail_height = obj.hold_time*scroll_speed;
-				std::cout << tail_height << '\n';
-				Rectangle thing = { x_position
-									,y_position
-									,lane_width
-									,lane_height };
-				Rectangle tail = { x_position
-									,y_position - tail_height
-									,lane_width
-									,tail_height};
-				Color clr = params.lane_colors[lane_num];
-				DrawRectangleRec(tail, clr);
-				DrawRectangleRec(thing, params.lane_colors[lane_num]);
+				if(!obj.isHeld){
+					float tail_height = obj.hold_time*scroll_speed;
+					Rectangle head = { x_position
+										,y_position
+										,lane_width
+										,lane_height };
+					Rectangle tail = { x_position
+										,y_position - tail_height
+										,lane_width
+										,tail_height};
+					Color clr = params.lane_colors[lane_num];
+					DrawRectangleRec(tail, clr);
+					DrawRectangleRec(head, params.lane_colors[lane_num]);
+				}else if(obj.isHeld){
+					Rectangle head = { x_position
+										,hit_position-(lane_height/2.0f)
+										,lane_width
+										,lane_height };
+
+					float tail_height = obj.hold_time*scroll_speed;
+					Rectangle tail = { x_position
+										,y_position - tail_height
+										,lane_width
+										,(hit_position - y_position + tail_height - (lane_height/2.0f))};
+					Color clr = params.lane_colors[lane_num];
+					DrawRectangleRec(tail, clr);
+					DrawRectangleRec(head, params.lane_colors[lane_num]);
+				}
 			}
 		}
 		lane_num++;
@@ -178,13 +207,14 @@ void GameRenderer::Render(float dt){
 }
 
 // Game
-Game::Game(Map givenMap) { 
+Game::Game(Beatmap givenMap) { 
 	mapToPlay = givenMap;
+	// all temp stuff
 	renderer = GameRenderer(&mapToPlay,
 		GameRendererParams{
 			{0, 0, (float)GetScreenWidth(), (float)GetScreenHeight()},
 			{BLUE, RED, RED, BLUE},
-			65.0f, 20.0f, 0.2f, 10.0f
+			65.0f, 20.0f, 0.2f, 4.0f
 		}
 	);
 	updater = Updater(&mapToPlay, 

@@ -4,12 +4,13 @@
 #include "objects.h"
 
 int main(){
+	std::cout << sizeof(HitObject) << '\n';
 	InitWindow(800, 600, "Raylib Window Test");
-	Map map("testing");
+	Beatmap map("testing");
 	Game game(map);
 	while(!WindowShouldClose()){
 		BeginDrawing();
-		ClearBackground(WHITE);
+		ClearBackground(BLACK);
 
 		//DrawText("Hello, Raylib!\n", 20, 20, 20, BLACK);
 
