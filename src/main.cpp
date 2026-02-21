@@ -1,9 +1,12 @@
+#include <iostream>
+
 #include "raylib.h"
 #include "objects.h"
 
 int main(){
 	InitWindow(800, 600, "Raylib Window Test");
-	Game game(Map("testing"));
+	Map map("testing");
+	Game game(map);
 	while(!WindowShouldClose()){
 		BeginDrawing();
 		ClearBackground(WHITE);

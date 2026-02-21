@@ -17,7 +17,9 @@ enum HIT_TYPE {
 struct HitObject {
 	HIT_TYPE type;
 	float offset;
-	float holdTime = 0.0f;
+	float hold_time = 0.0f;
+
+	bool operator<(const HitObject& other);
 };
 
 // in memory
@@ -35,8 +37,8 @@ class Map {
 private:
 	std::vector<Lane> lanes;
 	std::string mapName;
-	size_t laneCount = 1;
 public:
+	Map() {}
 	Map(std::string mapName);
 
 	std::vector<Lane>& get_lanes_reference();
@@ -46,20 +48,25 @@ public:
 };
 
 // playing
-
 class Updater {
 private:
 	//std::vector<Lane>* lanesToPlay;
 	Map* mapToPlay = nullptr;
 	size_t laneCount = 1;
 	long double elapsedTime = 0.0f;
+
+	// a bit scuffed and hardcoded, basically if it's 4key, and binds are DFJK
+	// then: {KEY_D, KEY_F, KEY_J, KEY_K};
+	std::vector<KeyboardKey> bindings;
 public:
-	Updater(Map* mapToPlay);
+	Updater() {}
+	Updater(Map* mapToPlay, std::vector<KeyboardKey> bindings);
 	void Update(float dt);
 };
 // rendering params
 struct GameRendererParams {
 	Rectangle renderer_dimensions;
+	std::vector<Color> lane_colors;
 	float lane_width = 1.0f;
 	float lane_height = 1.0f;
 	float hit_position = 0.0f; // percent from bottom to top
@@ -74,24 +81,19 @@ private:
 	long double elapsed_time = 0.0f;
 	size_t laneCount = 1;
 public:
+	GameRenderer() {}
 	GameRenderer(Map* mapToPlay, GameRendererParams params);
 	void Render(float dt);
 };
 
 // in charge of handling both the Updater and the Renderer
 class Game {
+public:
 	Map mapToPlay;
 	GameRenderer renderer;
 	Updater updater;
-public:
-	Game(Map givenMap): 
-		mapToPlay(givenMap),
-		renderer(GameRenderer(&mapToPlay,
-		GameRendererParams{
-			{0, 0, (float)GetScreenWidth(), (float)GetScreenHeight()}, 50.0f, 20.0f, 0.2f, 25.0f
-		})),
-		updater(Updater(&mapToPlay))
-	{ }
+
+	Game(Map givenMap);
 
 	void Update(float dt);
 	void Render(float dt);
