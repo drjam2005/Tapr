@@ -8,10 +8,11 @@ int main(){
 		BeginDrawing();
 		ClearBackground(WHITE);
 
-		DrawText("Hello, Raylib!\n", 20, 20, 20, BLACK);
+		//DrawText("Hello, Raylib!\n", 20, 20, 20, BLACK);
 
-		game.Update(GetFrameTime());
-		game.Render();
+		float dt = GetFrameTime();
+		game.Update(dt);
+		game.Render(dt);
 
 		DrawFPS(50, 50);
 
