@@ -5,7 +5,7 @@
 Building
 ===
 # Unix
-```bash
+```cmd
 $ mkdir build
 $ cd build
 $ cmake ..
