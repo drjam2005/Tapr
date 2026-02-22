@@ -2,9 +2,9 @@
 
 ### This rewrite aims to remove unecessary redundancies and hard-coded spaghetti code from the main branch, and make it cross platform too lol
 
-dependencies
+## dependencies
 - C++ compiler (GCC for unix, MinGW for windows)
-- CMake ([cmake](cmake.org/cmake/download))
+- CMake ([cmake](https://cmake.org/cmake/download))
 
 Building
 ===
