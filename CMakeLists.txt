@@ -6,6 +6,7 @@ set(exec exec)
 set(src
 	src/main.cpp
 	src/objects.cpp
+	src/systems.cpp
 )
 
 add_executable(${exec} ${src})

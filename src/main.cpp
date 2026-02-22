@@ -2,10 +2,12 @@
 
 #include "raylib.h"
 #include "objects.h"
+#include "systems.h"
 
 int main(){
-	std::cout << sizeof(HitObject) << '\n';
-	InitWindow(800, 600, "Raylib Window Test");
+
+	SetTraceLogLevel(LOG_NONE);
+	InitWindow(800, 600, "Tapr");
 	Beatmap map("testing");
 	Game game(map);
 	while(!WindowShouldClose()){
