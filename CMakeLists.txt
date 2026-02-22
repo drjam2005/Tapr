@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.28)
 project(Tapr)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
-set(exec exec)
+set(exec Tapr)
 set(src
 	src/main.cpp
 	src/objects.cpp
