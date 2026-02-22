@@ -7,8 +7,13 @@
 
 #include <vector>
 
+struct LaneBinding {
+	size_t lane;
+	KeyboardKey key;
+};
+
 struct Config {
-	std::vector<KeyboardKey> keybindings;
+	std::vector<LaneBinding> keybindings;
 	GameRendererParams params;
 	// maybe more
 };

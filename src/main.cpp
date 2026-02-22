@@ -8,9 +8,12 @@ int main(){
 	InitWindow(800, 600, "Tapr");
 	Beatmap map("testing");
 	Config conf = {
-		(std::vector<KeyboardKey>{
-		 KEY_A,KEY_S,KEY_SEMICOLON,KEY_APOSTROPHE
-	 }),
+		(std::vector<LaneBinding>){
+			{1, KEY_A},
+			{2, KEY_S},
+			{3, KEY_SEMICOLON},
+			{4, KEY_APOSTROPHE}
+		},
 		(GameRendererParams){
 			(Rectangle){200, 200, 400, 400},
 			(std::vector<Color>){YELLOW, BLUE, ORANGE, RED},
@@ -37,4 +40,5 @@ int main(){
 	}
 	CloseWindow();
 	return 0;
-}
+}
+

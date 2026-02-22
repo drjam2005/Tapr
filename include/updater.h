@@ -3,11 +3,13 @@
 #define UPDATER_H
 
 #include "objects.h"
+#include "config.h"
 
 #include "raylib.h"
 
 #include <vector>
 #include <unordered_map>
+
 
 class Updater {
 private:
@@ -17,10 +19,10 @@ private:
 
 	// a bit scuffed and hardcoded, basically if it's 4key, and binds are DFJK
 	// then: {KEY_D, KEY_F, KEY_J, KEY_K};
-	std::vector<KeyboardKey> bindings;
+	std::vector<LaneBinding> bindings;
 public:
 	Updater() {}
-	Updater(Beatmap* mapToPlay, std::vector<KeyboardKey> bindings);
+	Updater(Beatmap* mapToPlay, std::vector<LaneBinding> bindings);
  
 	void Update(float dt);
 };

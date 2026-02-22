@@ -2,8 +2,16 @@
 
 Game::Game(Beatmap givenMap) { 
 	mapToPlay = givenMap;
+
 	// all temp stuff
-	updater = Updater(&mapToPlay, (std::vector<KeyboardKey>){KEY_D,KEY_F,KEY_J,KEY_K});
+	updater = Updater(&mapToPlay, 
+		(std::vector<LaneBinding>){
+		 {1, KEY_D },
+		 {2, KEY_F },
+		 {3, KEY_J },
+		 {4, KEY_K }
+	 });
+
 	renderer = GameRenderer(&mapToPlay,
 		GameRendererParams{
 			{0, 0, (float)GetScreenWidth(), (float)GetScreenHeight()},
