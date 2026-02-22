@@ -1,0 +1,36 @@
+project(
+  'Tapr',
+  'cpp',
+  version : '0.1',
+  meson_version : '>= 1.3.0',
+  default_options : ['warning_level=3', 'cpp_std=c++14'],
+)
+
+raylib_dep = dependency('raylib', required: true)
+miniz_dep = dependency('miniz',  required: true)
+dependencies = [
+  raylib_dep,
+  miniz_dep
+]
+
+includeDirs = [
+  include_directories('include'),
+]
+
+src = [
+  'src/main.cpp',
+  'src/objects.cpp',
+  'src/gui.cpp',
+  'src/beatmap.cpp',
+]
+
+exe = executable(
+  'Tapr',
+  src,
+  install : true,
+  dependencies : dependencies,
+  include_directories : includeDirs,
+  link_args: ['-lstdc++fs']
+)
+
+test('basic', exe)

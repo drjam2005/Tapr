@@ -1,3 +1,32 @@
-# This is a new branch that will be a rewrite of Tapr
+# Tapr
+    Fun little side-project
 
-### This rewrite aims to remove unecessary redundancies and hard-coded spaghetti code from the main branch, and make it cross platform too lol
+> [!WARNING]
+> VERY INCOMPLETE!!!
+
+> [!WARNING]
+> Dependencies:
+>- Raylib
+>- Meson build system
+>- C++ Compiler (ideally gcc)
+
+## Building
+- Linux Systems:
+```bash
+ $ git clone https://github.com/drjam2005/Tapr
+ $ cd Tapr
+ $ meson setup build
+```
+
+## Compiling and Running
+- Linux Systems:
+```bash
+ $ meson compile -C build
+ $ cd build/
+ $ ./Tapr
+```
+
+TODO
+===
+* OPTIONS MENU + SAVING OF OPTIONS
+* (MAYBE SCORE SAVING)
