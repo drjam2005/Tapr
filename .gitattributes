@@ -1,1 +1,1 @@
-vendor/ linguist-detectable=false
+vendor/* linguist-vendored
