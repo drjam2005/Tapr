@@ -1,55 +1,76 @@
 #pragma once
-
-#ifndef OBJECTS_H
-#define OBJECTS_H
-
 #include <string>
+#include <raylib.h>
+#include <map>
 #include <vector>
-#include <deque>
 
-// objects
 enum HIT_TYPE {
-	HIT,
+	TAP,
 	HOLD
 };
 
-struct HitObject {
-	HIT_TYPE type;
-	double offset;
+enum SKIN_TYPE {
+	CIRCLE,
+	BAR
+};
 
-	// for hold
-	double hold_time = 0.0f;
+struct HitObject{
+	double offset = 0.0f;
+	double release = 0.0f;
+	bool isReleased = false;
+	bool isPressed = false;
 	bool isHeld = false;
+	HIT_TYPE type = TAP;
 
-	bool operator<(const HitObject& other);
+	HitObject(double);
+	HitObject(double, double);
 };
 
-// in memory
+struct HitScores {
+	double allHits;
+	double allHolds;
+	int Marv = 0;
+	int Perf = 0;
+	int Good = 0;
+	int Bad  = 0;
+	int Miss = 0;
+	void reset();
+	double sumHits();
+	double sumAll();
+	float getAcc();
+	double score();
+};
+
+struct Stats {
+	float acc;
+	int combo;
+	HitScores hits;
+};
+
+class URbar {
+public:
+	std::map<double, double> hits = {};
+	std::string currHit;
+	void Add(double, double);
+	void Update();
+	void Render();
+	void Reset();
+	float getAverage();
+};
+
 class Lane {
-	std::deque<HitObject> objects;
 public:
-	Lane() {}
-	std::deque<HitObject>& get_objects_reference();
-	std::deque<HitObject> get_objects_copy();
-	void add_hit_object(float offset);
-	void add_hold_object(float offset, float holdTime);
+	int LaneID;
+	std::map<double, HitObject> objects;
+
+	Lane(int ID);
+	int size();
+	void Add(double);
+	void Add(double, double);
+	void Hit(double, Stats&, URbar&);
+	void Update(double, Stats&, URbar&);
+	void Hold(double, Stats&, URbar&);
+	void Release(double, Stats&, URbar&);
+	void Render(double, float, int, int, int);
 };
 
-class Beatmap {
-private:
-	std::vector<Lane> lanes;
-	std::string mapName;
-	std::string mapPath;
-public:
-	Beatmap() {}
-	Beatmap(std::string mapName);
-
-	std::vector<Lane>& get_lanes_reference();
-	std::vector<Lane> get_lanes_copy();
-
-	std::deque<HitObject>& get_lane_objects_reference(size_t lane);
-	
-	size_t get_lane_count();
-};
-
-#endif // OBJECTS_H
