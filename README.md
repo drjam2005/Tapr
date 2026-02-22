@@ -4,7 +4,7 @@
 
 Building
 ===
-# Unix
+## Unix
 ```cmd
 $ mkdir build
 $ cd build
@@ -16,7 +16,7 @@ and to run
 $ ./Tapr
 ```
 
-# Windows
+## Windows
 ```cmd
 $ mkdir build
 $ cd build
