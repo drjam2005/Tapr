@@ -1,28 +1,29 @@
-#include <raylib.h>
-#include <gui.h>
+#include <iostream>
 
-#define WIDTH 800
-#define HEIGHT 600
+#include "raylib.h"
+#include "objects.h"
+#include "systems.h"
 
-int main(int argc, char **argv) {
-	InitWindow(WIDTH, HEIGHT, "Tappr");
+int main(){
 
-	Menu game(WIDTH, HEIGHT);
-	double currentTime = 0;
-	SetExitKey(0);
-	InitAudioDevice();
+	SetTraceLogLevel(LOG_NONE);
+	InitWindow(800, 600, "Tapr");
+	Beatmap map("testing");
+	Game game(map);
 	while(!WindowShouldClose()){
-		currentTime += GetFrameTime();
 		BeginDrawing();
 		ClearBackground(BLACK);
 
-		DrawFPS(20, 20);
-		game.Draw(currentTime);
+		//DrawText("Hello, Raylib!\n", 20, 20, 20, BLACK);
+
+		float dt = GetFrameTime();
+		game.Update(dt);
+		game.Render(dt);
+
+		DrawFPS(50, 50);
 
 		EndDrawing();
 	}
-    return 0;
+	CloseWindow();
+	return 0;
 }
-
-
-

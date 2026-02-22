@@ -1,247 +1,77 @@
-#include <objects.h>
-#include <iostream>
-#include <math.h>
+#include <algorithm>
 
-HitObject::HitObject(double givenOffset){
-	offset = givenOffset;
-	release = givenOffset;
+#include "objects.h"
+
+// HitObject
+bool HitObject::operator<(const HitObject& other){
+	if(this->offset < other.offset)
+		return true;
+	return false;
 }
 
-HitObject::HitObject(double givenOffset, double givenRelease){
-	offset = givenOffset;
-	release = givenRelease;
-	type = HOLD;
+// Lane
+void Lane::add_hit_object(float offset) {
+	objects.push_back(
+			{HIT, offset, 0.0f}
+		);
+}
+void Lane::add_hold_object(float offset, float holdTime) {
+	objects.push_back(
+			{HOLD, offset, holdTime}
+		);
 }
 
-Lane::Lane(int ID){
-	LaneID = ID;
+std::deque<HitObject>  Lane::get_objects_copy(){
+	return this->objects;
 }
 
-void Lane::Add(double offset) {
-    objects.emplace(offset, HitObject(offset));
+std::deque<HitObject>& Lane::get_objects_reference(){
+	return this->objects;
 }
 
-void Lane::Add(double offset, double end) {
-    objects.emplace(offset, HitObject(offset, end));
-}
-
-int Lane::size(){
-	return objects.size();
-}
-void Lane::Render(double currentTime, float scrollSpeed, int laneWidth, int hitPosition, int laneStart){
-	DrawRectangle(laneStart+((LaneID-1)*laneWidth),600-(hitPosition), laneWidth, 2, WHITE);
-	for(auto& o : objects){
-		if(o.second.type == TAP){
-			float location = (currentTime - o.first) * 950.0f * scrollSpeed + (600 - (hitPosition));
-			if(location < -10)
-				break;
-			if(location <= (currentTime+2.0f) * 950.0f * scrollSpeed + (600 - (hitPosition))){
-				DrawRectangle(laneStart+((LaneID-1)*laneWidth), location-40, laneWidth, 40, (LaneID == 2 || LaneID == 3) ? Color{0, 255, 255, 255} : WHITE);
-			}
-		}else if (o.second.type == HOLD){
-			float location = (currentTime - o.first) * 950.0f * scrollSpeed + (600 - (hitPosition));
-			float location2 = (currentTime - o.second.release) * 950.0f * scrollSpeed + (600 - (hitPosition));
-			if(location <= (currentTime+2.0f) * 950.0f * scrollSpeed + (600 - (hitPosition))){
-				if(!o.second.isHeld){
-					DrawRectangle(laneStart+((LaneID-1)*laneWidth), location-40, laneWidth, 40, (LaneID == 2 || LaneID == 3) ? Color{0, 255, 255, 255} : WHITE);
-					DrawRectangle(laneStart+((LaneID-1)*laneWidth), location2, laneWidth, location-location2, (LaneID == 2 || LaneID == 3) ? Color{0, 255, 255, 175} : Color{255, 255, 255, 175});
-				}else{
-					DrawRectangle(laneStart+((LaneID-1)*laneWidth), 600-hitPosition-40, laneWidth, 40, (LaneID == 2 || LaneID == 3) ? Color{0, 255, 255, 255} : WHITE);
-					DrawRectangle(laneStart+((LaneID-1)*laneWidth), location2, laneWidth, location-location2-(hitPosition-(600-location)), (LaneID == 2 || LaneID == 3) ? Color{0, 255, 255, 175} : Color{255, 255, 255, 175});
-				}
-			}
-		}
-	}
-}
-
-
-void Lane::Hit(double currentTime, Stats& stats, URbar& ur) {
-    if (objects.empty()) return;
-
-    auto it = objects.begin();
-    double objTiming = it->second.offset;
-	double timing = (objTiming-currentTime);
-	objects.begin()->second.isPressed = true;
+// Map
+Beatmap::Beatmap(std::string mapName) {
+	this->mapName = mapName;
+	// load map
 	
-	if(it->second.type == TAP){
-		if(std::abs(timing) <= 0.2f){
-			if(std::abs(timing) < 0.016){
-				stats.hits.Marv++;
-				ur.currHit = "320";
-			}
-			else if(std::abs(timing) < 0.026f){
-				stats.hits.Perf++;
-				ur.currHit = "300";
-			}
-			else if(std::abs(timing) < 0.067f){
-				stats.hits.Good++;
-				ur.currHit = "200";
-			}
-			else if(std::abs(timing) < 0.1f){
-				stats.hits.Bad++;
-				ur.currHit = " 50";
-			}
-			ur.Add(currentTime, timing);
-			stats.combo++;
-			objects.erase(it);
-		}
+	// temp beatmap 
+	{
+		lanes.push_back(Lane());
+		lanes.push_back(Lane());
+		lanes.push_back(Lane());
+		lanes.push_back(Lane());
+		lanes[0].add_hit_object(1.2f);
+		lanes[0].add_hit_object(2.0f);
+		lanes[0].add_hold_object(3.0f, 0.2f);
+
+		lanes[1].add_hit_object(2.0f);
+		lanes[1].add_hit_object(3.0f);
+		lanes[1].add_hold_object(1.0f, 0.2f);
+
+		lanes[2].add_hit_object(3.2f);
+		lanes[2].add_hit_object(5.0f);
+		lanes[2].add_hold_object(4.0f, 0.2f);
+
+		lanes[3].add_hit_object(5.0f);
+		lanes[3].add_hit_object(6.0f);
+		lanes[3].add_hold_object(1.0f, 0.2f);
+
+		for(auto& lane : lanes)
+			sort(lane.get_objects_reference().begin(), lane.get_objects_reference().end());
 	}
 }
 
-
-void Lane::Release(double currentTime, Stats& stats, URbar& ur){
-	   if (!objects.empty() && objects.begin()->second.isHeld) {
-        double timing = objects.begin()->second.release - currentTime;
-        if(std::abs(timing) <= 0.1f){
-            if(std::abs(timing) < 0.016){
-				stats.hits.Marv++;
-				ur.currHit = "320";
-			}else if(std::abs(timing) < 0.026f){
-				stats.hits.Perf++;
-				ur.currHit = "300";
-			}else if(std::abs(timing) < 0.067f){
-				stats.hits.Good++;
-				ur.currHit = "200";
-			}else{
-				stats.hits.Bad++;
-				ur.currHit = " 50";
-			}
-            stats.combo++;
-        } else {
-            stats.combo = 0;
-            stats.hits.Miss++;
-			ur.currHit = "";
-        }
-        objects.erase(objects.begin());
-        ur.Add(currentTime, timing);
-    }
+std::vector<Lane>& Beatmap::get_lanes_reference(){
+	return this->lanes;
+}
+std::vector<Lane>  Beatmap::get_lanes_copy(){
+	return this->lanes;
 }
 
-void Lane::Hold(double currentTime, Stats& stats, URbar& ur){
-	if(!objects.begin()->second.isHeld && objects.begin()->second.isPressed){
-		double timing = objects.begin()->second.offset - currentTime;
-		if(std::abs(timing) <= 0.1f){
-			if(std::abs(timing) < 0.015){
-				stats.hits.Marv++;
-				ur.currHit = "320";
-			}
-			else if(std::abs(timing) < 0.026f){
-				stats.hits.Perf++;
-				ur.currHit = "300";
-			}
-			else if(std::abs(timing) < 0.067f){
-				stats.hits.Good++;
-				ur.currHit = "200";
-			}
-			else if(std::abs(timing) < 0.1f){
-				stats.hits.Bad++;
-				ur.currHit = " 50";
-			}
-			stats.combo++;
-			objects.begin()->second.isHeld = true;
-			objects.begin()->second.isReleased = false;
-		}
-	}
+std::deque<HitObject>& Beatmap::get_lane_objects_reference(size_t lane){
+	return this->lanes[lane].get_objects_reference();
 }
 
-void Lane::Update(double currentTime, Stats& stats, URbar& ur) {
-    while (!objects.empty()) {
-        double timing = objects.begin()->second.release;
-        if (currentTime > timing + 0.15f) {
-			if(objects.begin() != objects.end())
-				objects.erase(objects.begin());
-			stats.hits.Miss++;
-			ur.currHit = "";
-			stats.combo = 0;
-        } else {
-            break;
-        }
-    }
-}
-
-void HitScores::reset(){
-	allHits = 0;
-	allHolds = 0;
-	Marv = 0;
-	Perf = 0;
-	Good = 0;
-	Bad  = 0;
-	Miss = 0;
-}
-
-double HitScores::sumAll(){
-	return Marv + Perf + Good + Bad + Miss;
-}
-double HitScores::sumHits(){
-	return Marv + Perf + Good + Bad;
-}
-double HitScores::score() {
-
-    float totalNotes = allHits + allHolds; // total judged objects
-    if (totalNotes == 0) return 0.0;
-
-    float achieved =
-        Marv * 320 +
-        Perf * 300 +
-        Good * 200 +
-        Bad  * 50;
-
-    float maxPossible = totalNotes * 320;
-    return int((achieved / maxPossible) * 1000000);
-}
-
-float HitScores::getAcc(){
-	if(!sumAll()){
-		return 1.0f;
-	}
-	return (Marv + Perf + Good*(200/300.0) + Bad*(50/300.0)) / sumAll();
-}
-
-void URbar::Add(double currentTime, double timing){
-	hits[timing] = 0;
-}
-
-void URbar::Update(){
-    for(auto it = hits.begin(); it != hits.end(); ){
-        it->second += GetFrameTime();
-        if(it->second >= 3.0f){
-            it = hits.erase(it); // erase returns a valid "next" iterator
-        } else {
-            ++it;
-        }
-    }
-}
-
-void URbar::Render(){
-	DrawRectangle(399, 298, 3, 24, WHITE);
-	if(hits.empty()){
-		return;
-	}
-	for(auto& time : hits){
-		unsigned char opacity = (-time.second+3.0f)*51;
-		Color color{0,0,0,0};
-		if(std::abs(time.first) < 0.015)
-			color = Color{0, 255, 255, opacity};
-		else if(std::abs(time.first) < 0.026f)
-			color = Color{255, 255, 0, opacity};
-		else if(std::abs(time.first) < 0.067f)
-			color = Color{0, 255, 0, opacity};
-		else if(std::abs(time.first) < 0.1f)
-			color = Color{100, 100, 100, opacity};
-		DrawRectangle(399.5-(1000*time.first), 300, 2, 20, color);
-	}
-	DrawTriangle({399-(getAverage()*1000.0f),290},{404-(getAverage()*1000.0f),295},{408-(getAverage()*1000.0f),290},WHITE);
-}
-
-void URbar::Reset(){
-	hits.clear();
-	currHit = "";
-}
-
-float URbar::getAverage(){
-	float avg = 0.0f;
-	for(auto& hit : hits){
-		avg += hit.first;
-	}
-	return avg / hits.size();
+size_t Beatmap::get_lane_count(){
+	return this->lanes.size();
 }
