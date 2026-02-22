@@ -6,13 +6,21 @@ set(exec exec)
 set(src
 	src/main.cpp
 	src/objects.cpp
-	src/systems.cpp
+
+	src/systems/game_system.cpp
+	src/systems/game_renderer_system.cpp
+	src/systems/updater_system.cpp
 )
 
 add_executable(${exec} ${src})
+add_subdirectory(vendor/miniz)
 
 target_include_directories(${exec} PRIVATE
 	${CMAKE_SOURCE_DIR}/include
+)
+
+target_link_libraries(${exec} PRIVATE
+	miniz
 )
 
 if(UNIX)
@@ -37,6 +45,5 @@ elseif(WIN32)
 		raylib
 		gdi32
 		winmm
-		m
 	)
 endif()
