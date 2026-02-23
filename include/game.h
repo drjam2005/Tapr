@@ -14,12 +14,15 @@ public:
 	Beatmap mapToPlay;
 	GameRenderer renderer;
 	Updater updater;
+	EventBus bus;
 
 	Game(Beatmap givenMap);
 	Game(Beatmap givenMap, Config& config);
 
 	void Update(float dt);
 	void Render(float dt);
+
+	void Loop(float dt);
 };
 
 #endif // GAME_H

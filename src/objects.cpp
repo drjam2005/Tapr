@@ -12,7 +12,7 @@ bool HitObject::operator<(const HitObject& other){
 // Lane
 void Lane::add_hit_object(float offset) {
 	objects.push_back(
-			{HIT, offset, 0.0f}
+			{TAP, offset, 0.0f}
 		);
 }
 void Lane::add_hold_object(float offset, float holdTime) {

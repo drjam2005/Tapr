@@ -8,6 +8,7 @@ set(src
 	src/objects.cpp
 
 	src/systems/game_system.cpp
+	src/systems/event_system.cpp
 	src/systems/game_renderer_system.cpp
 	src/systems/updater_system.cpp
 )

@@ -6,6 +6,7 @@
 int main(){
 	SetTraceLogLevel(LOG_NONE);
 	InitWindow(800, 600, "Tapr");
+	//SetTargetFPS(20);
 	Beatmap map("testing");
 	Config conf = {
 		(std::vector<LaneBinding>){
@@ -30,9 +31,7 @@ int main(){
 
 		//DrawText("Hello, Raylib!\n", 20, 20, 20, BLACK);
 
-		float dt = GetFrameTime();
-		game.Update(dt);
-		game.Render(dt);
+		game.Loop(GetFrameTime());
 
 		DrawFPS(50, 50);
 

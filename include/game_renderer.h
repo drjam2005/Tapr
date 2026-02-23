@@ -3,6 +3,7 @@
 #define GAME_RENDERER_H
 
 #include "objects.h"
+#include "event_system.h"
 
 #include "raylib.h"
 
@@ -29,6 +30,6 @@ private:
 public:
 	GameRenderer() {}
 	GameRenderer(Beatmap* mapToPlay, GameRendererParams params);
-	void Render(float dt);
+	void Render(float dt, EventBus& bus);
 };
 #endif // GAME_RENDERER_H

@@ -1,4 +1,5 @@
 #include "game_renderer.h"
+#include "event_system.h"
 #include <iostream>
 #include <algorithm>
 #include <cmath>
@@ -9,7 +10,7 @@ GameRenderer::GameRenderer(Beatmap* mapToPlay, GameRendererParams params){
 	this->params = params;
 }
 
-void GameRenderer::Render(float dt){
+void GameRenderer::Render(float dt, EventBus& bus){
 	this->elapsed_time += dt;
 
 	Rectangle dims = params.renderer_dimensions;
@@ -24,7 +25,27 @@ void GameRenderer::Render(float dt){
 
 	for(size_t i = 0; i < laneCount; ++i){
 		Color clr = WHITE;
+		for(auto& e : bus.get()){
+			if(e.type == KEY_PRESSED && e.lane == i)
+				clr = RED;
+		}
 		DrawRectangle(start+(lane_width*i), hit_position-5.0f, lane_width, 10.0f, clr);
+	}
+
+	// EventBus
+	for(auto& e : bus.get()){
+		if(e.type == NOTE_HIT || e.type == NOTE_HOLD_START){
+			if(e.hit_type == TIMING_MARVELOUS)
+				std::cout << "MARV";
+			if(e.hit_type == TIMING_PERFECT)
+				std::cout << "PERF";
+			if(e.hit_type == TIMING_GREAT)
+				std::cout << "GREAT";
+			if(e.hit_type == TIMING_OKAY)
+				std::cout << "OKAY";
+			std::cout << " " << e.error << '\n';
+
+		}
 	}
 	
 
@@ -40,7 +61,7 @@ void GameRenderer::Render(float dt){
 			if(y_position < params.renderer_dimensions.y)
 				break;
 
-			if(obj.type == HIT){
+			if(obj.type == TAP){
 				DrawRectangleRec(head, params.lane_colors[lane_num]);
 			}else if(obj.type == HOLD){
 				float tail_height = std::clamp(
