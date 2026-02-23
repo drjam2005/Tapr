@@ -12,16 +12,16 @@ int main(){
 	Beatmap map("testing");
 	Config conf = {
 		(std::vector<LaneBinding>){
-			{1, KEY_A},
-			{2, KEY_S},
-			{3, KEY_SEMICOLON},
-			{4, KEY_APOSTROPHE}
+			{1, KEY_D},
+			{2, KEY_F},
+			{3, KEY_J},
+			{4, KEY_K}
 		},
 		(GameRendererParams){
 			(Rectangle){200, 200, 400, 400},
 			(std::vector<Color>){YELLOW, BLUE, ORANGE, RED},
-			20.0f,
-			20.0f,
+			30.0f,
+			10.0f,
 			0.1,
 			20.0f
 		}

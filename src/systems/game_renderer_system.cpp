@@ -2,6 +2,7 @@
 #include "event_system.h"
 #include "objects.h"
 #include "raylib.h"
+#include "raymath.h"
 #include <iostream>
 #include <algorithm>
 #include <cmath>
@@ -10,6 +11,8 @@ GameRenderer::GameRenderer(Beatmap* mapToPlay, GameRendererParams params){
 	this->mapToPlay = mapToPlay;
 	this->laneCount = mapToPlay->get_lane_count();
 	this->params = params;
+	for(size_t i = 0; i < this->laneCount; ++i)
+		lane_colors[i] = WHITE;
 }
 
 void GameRenderer::Render(float dt, MapScore& score,EventBus& bus){
@@ -23,35 +26,29 @@ void GameRenderer::Render(float dt, MapScore& score,EventBus& bus){
 	float start = center - ((params.lane_width*this->laneCount)/2.0f);
 	float hit_position = dims.y + (dims.height * (1.0f - params.hit_position));
 
-	size_t row = 0;
-	for(auto& e : bus.get()){
-		if(e.type == NOTE_EVENT){
-			size_t lane = e.event.note_event.lane;
-			lane_timings[lane] = e.event.note_event.timing;
-		}
-	}
-
+	// Drawing the hit area
 	for(size_t i = 0; i < laneCount; ++i){
-		Color clr = WHITE;
+		Color& clr = lane_colors[i];
+		clr = ColorLerp(clr, WHITE, dt*10);
 		for(auto& e : bus.get()){
 			if(e.type == KEY_EVENT){
-				if(e.event.key_event.status == KEY_IS_DOWN && e.event.key_event.lane-1 == i)
-					clr = RED;
+				if(e.event.key_event.status == KEY_IS_DOWN && e.event.key_event.lane-1 == i){
+					clr = GRAY;
+				}
 			}
 		}
-		DrawRectangle(start+(lane_width*i), hit_position-5.0f, lane_width, 10.0f, clr);
-		std::string score = "NONE";
-		switch(lane_timings[i]){
-			case TIMING_MARVELOUS: score = "MARVELOUS"; break;
-			case TIMING_PERFECT:   score = "PERFECT"; break;
-			case TIMING_GREAT:     score = "GREAT"; break;
-			case TIMING_OKAY:      score = "OKAY"; break;
-			case TIMING_BAD:       score = "BAD"; break;
-			case TIMING_MISS:      score = "MISS"; break;
-			default:
-				score = "NONE";
-		}
-		DrawText(score.c_str(), start+(lane_width*i), hit_position+20.0f, 10, RED);
+		DrawRectangle(start+(lane_width*i), hit_position-5.f, lane_width, 10.0f, clr);
+	}
+
+	{   // Draw the score/hits
+		size_t yOffset = 25;
+		size_t yCount = 0;
+		DrawText(TextFormat("MARV : %d", score.MARVELOUS), (float)(start+(lane_width*(laneCount+0.5))), 100+(yOffset*(yCount++)), 10, GREEN);
+		DrawText(TextFormat("PERF : %d", score.PERFECT), (float)(start+(lane_width*(laneCount+0.5))), 100+(yOffset*(yCount++)), 10, GREEN);
+		DrawText(TextFormat("GREAT: %d", score.GREAT), (float)(start+(lane_width*(laneCount+0.5))), 100+(yOffset*(yCount++)), 10, GREEN);
+		DrawText(TextFormat("OKAY : %d", score.OKAY), (float)(start+(lane_width*(laneCount+0.5))), 100+(yOffset*(yCount++)), 10, GREEN);
+		DrawText(TextFormat("BAD  : %d", score.BAD), (float)(start+(lane_width*(laneCount+0.5))), 100+(yOffset*(yCount++)), 10, GREEN);
+		DrawText(TextFormat("MISS : %d", score.MISS), (float)(start+(lane_width*(laneCount+0.5))), 100+(yOffset*(yCount++)), 10, GREEN);
 	}
 
 	std::vector<Lane>& lanes = mapToPlay->get_lanes_reference();
@@ -59,7 +56,7 @@ void GameRenderer::Render(float dt, MapScore& score,EventBus& bus){
 		Lane& lane = lanes[lane_num];
 		for(auto& obj : lane.get_objects_reference()){
 			float relative_obj_offset = (obj.offset-elapsed_time);
-			float y_position = (hit_position-lane_height) - (relative_obj_offset*scroll_speed);
+			float y_position = (hit_position) - (relative_obj_offset*scroll_speed) - lane_height;
 			float x_position = start + (lane_width*lane_num);
 			Rectangle head = {  x_position ,y_position ,lane_width ,lane_height };
 
@@ -67,22 +64,22 @@ void GameRenderer::Render(float dt, MapScore& score,EventBus& bus){
 				break;
 
 			if(obj.type == TAP){
-				DrawRectangleRec(head, params.lane_colors[lane_num]);
+				DrawRectangleRec(head, params.colors[lane_num]);
 			}else if(obj.type == HOLD){
 				float tail_height = std::clamp(
 						(double)y_position - params.renderer_dimensions.y,
 					   	(double)0.0f, obj.hold_time*scroll_speed);
 
 				Rectangle tail = { x_position, y_position - tail_height, lane_width, tail_height};
-				Color clr = params.lane_colors[lane_num];
+				Color clr = params.colors[lane_num];
 
 				if(obj.isHeld){
-					head.y = hit_position-(lane_height/2.0f);
+					head.y = hit_position-(lane_height);
 					tail.height = (hit_position - y_position + tail_height - (lane_height/2.0f));
 				}
 
 				DrawRectangleRec(tail, clr);
-				DrawRectangleRec(head, params.lane_colors[lane_num]);
+				DrawRectangleRec(head, params.colors[lane_num]);
 			}
 		}
 	}

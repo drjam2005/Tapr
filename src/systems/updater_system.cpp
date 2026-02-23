@@ -51,14 +51,11 @@ void Updater::Update(float dt, MapScore& score, EventBus& bus){
 			continue;
 		}
 
-		// first object
 		HitObject& obj = lane.front();
-		// find key event
 		KEY_STATUS_EVENT key_status = KEY_IS_IDLE;
-		for(auto& e : bus.get()){
+		for(auto& e : bus.get())
 			if(e.type == KEY_EVENT && e.event.key_event.lane-1 == lane_num)
 				key_status = e.event.key_event.status;
-		}
 
 		float diff = elapsedTime - obj.offset;
 		if(diff > 0.3){
@@ -71,41 +68,35 @@ void Updater::Update(float dt, MapScore& score, EventBus& bus){
 			lane.pop_front();
 			continue;
 		}
-		if(key_status == KEY_IS_PRESSED){
-			if(obj.type == TAP){
-				lane.pop_front();
-			}else if(obj.type == HOLD){
-				obj.isHeld = true;
-			}
-
+		if (key_status == KEY_IS_PRESSED) {
+			diff = elapsedTime - obj.offset;
+			float error = fabs(diff);
 			TimingEnum timing = TIMING_NONE;
-			if(timings.MARVELOUS < fabs(diff)){
-				timing = TIMING_MARVELOUS;
-				score.MARVELOUS++;
-			}
-			if(timings.PERFECT < fabs(diff)){
-				timing = TIMING_PERFECT;
-				score.PERFECT++;
-			}
-			if(timings.GREAT < fabs(diff)){
-				timing = TIMING_GREAT;
-				score.GREAT++;
-			}
-			if(timings.OKAY < fabs(diff)){
-				timing = TIMING_OKAY;
-				score.OKAY++;
-			}
-			if(timings.BAD < fabs(diff)){
-				timing = TIMING_BAD;
-				score.BAD++;
+
+			if (error <= timings.MARVELOUS)    { timing = TIMING_MARVELOUS; score.MARVELOUS++; }
+			else if (error <= timings.PERFECT) { timing = TIMING_PERFECT; score.PERFECT++; }
+			else if (error <= timings.GREAT)   { timing = TIMING_GREAT; score.GREAT++; }
+			else if (error <= timings.OKAY)    { timing = TIMING_OKAY; score.OKAY++; }
+			else if (error <= timings.BAD)     { timing = TIMING_BAD; score.BAD++; }
+			else if (diff < 0 && diff >= -0.3f) { 
+				timing = TIMING_MISS;
+				score.MISS++;
+			} else {
+				continue; 
 			}
 
 			bus.emit((Event){
-				NOTE_EVENT, {   
-					.note_event = { NOTE_IS_PRESSED, timing, lane_num, diff }
-				}
-			});
-		}else if(key_status == KEY_IS_DOWN){
+					NOTE_EVENT, { .note_event = { NOTE_IS_PRESSED, timing, lane_num, diff } }
+				});
+
+			if(obj.type == TAP) {
+				lane.pop_front();
+			} else if(obj.type == HOLD) {
+				obj.isHeld = (timing != TIMING_MISS);
+				if (timing == TIMING_MISS) lane.pop_front();
+			}
+		}
+		else if(key_status == KEY_IS_DOWN){
 			if(obj.type == HOLD){
 				if(obj.isHeld)
 					bus.emit((Event){
@@ -114,28 +105,39 @@ void Updater::Update(float dt, MapScore& score, EventBus& bus){
 						}
 					});
 			}
-		}else if(key_status == KEY_IS_RELEASED){
-			float diff = elapsedTime - (obj.offset + obj.hold_time);
-			if(obj.type == HOLD && obj.isHeld){
-				obj.isHeld = false;
-				lane.pop_front();
-				TimingEnum timing = TIMING_NONE;
-				if(timings.MARVELOUS < fabs(diff))
-					timing = TIMING_MARVELOUS;
-				if(timings.PERFECT < fabs(diff))
-					timing = TIMING_PERFECT;
-				if(timings.GREAT < fabs(diff))
-					timing = TIMING_GREAT;
-				if(timings.OKAY < fabs(diff))
-					timing = TIMING_OKAY;
-				if(timings.BAD < fabs(diff))
-					timing = TIMING_BAD;
 
-				bus.emit((Event){
-					NOTE_EVENT, {   
-						.note_event = { NOTE_IS_PRESSED, timing, lane_num, diff }
-					}
-				});
+		} else if(key_status == KEY_IS_RELEASED) {
+			if(obj.type == HOLD) {
+				if (!obj.isHeld)
+					continue;
+
+				float endTime = obj.offset + obj.hold_time;
+				float diff = elapsedTime - endTime;
+				float error = fabs(diff);
+				TimingEnum timing = TIMING_NONE;
+
+				if (error <= timings.MARVELOUS) { timing = TIMING_MARVELOUS; score.MARVELOUS++; }
+				else if (error <= timings.PERFECT) { timing = TIMING_PERFECT; score.PERFECT++; }
+				else if (error <= timings.GREAT) { timing = TIMING_GREAT; score.GREAT++; }
+				else if (error <= timings.OKAY) { timing = TIMING_OKAY; score.OKAY++; }
+				else if (error <= timings.BAD) { timing = TIMING_BAD; score.BAD++; }
+
+				else if (diff < -0.2f) {
+					timing = TIMING_MISS;
+					score.MISS++;
+				}
+
+				else if (diff > 0.2f) {
+					timing = TIMING_MISS;
+					score.MISS++;
+				}
+
+				if (timing != TIMING_NONE) {
+					bus.emit((Event){
+							NOTE_EVENT, { .note_event = { NOTE_IS_RELEASED, timing, lane_num, diff } }
+							});
+					lane.pop_front();
+				}
 			}
 		}
 	}

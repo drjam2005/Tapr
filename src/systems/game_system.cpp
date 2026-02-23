@@ -34,11 +34,11 @@ Game::Game(Beatmap givenMap, Config& config) {
 }
 
 void Game::Update(float dt){
-	this->updater.Update(dt, bus);
+	this->updater.Update(dt, score, bus);
 }
 
 void Game::Render(float dt){
-	this->renderer.Render(dt, bus);
+	this->renderer.Render(dt, score, bus);
 }
 
 void Game::Loop(float dt){
