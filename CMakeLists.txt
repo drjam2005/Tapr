@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.28)
 project(Tapr)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
+set(CMAKE_CXX_COMPILER_VERSION 11)
 set(exec Tapr)
 set(src
 	src/main.cpp

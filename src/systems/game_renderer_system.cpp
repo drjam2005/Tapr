@@ -26,28 +26,13 @@ void GameRenderer::Render(float dt, EventBus& bus){
 	for(size_t i = 0; i < laneCount; ++i){
 		Color clr = WHITE;
 		for(auto& e : bus.get()){
-			if(e.type == KEY_PRESSED && e.lane == i)
-				clr = RED;
+			if(e.type == KEY_EVENT){
+				if(e.event.key_event.status == KEY_IS_DOWN && e.event.key_event.lane-1 == i)
+					clr = RED;
+			}
 		}
 		DrawRectangle(start+(lane_width*i), hit_position-5.0f, lane_width, 10.0f, clr);
 	}
-
-	// EventBus
-	for(auto& e : bus.get()){
-		if(e.type == NOTE_HIT || e.type == NOTE_HOLD_START){
-			if(e.hit_type == TIMING_MARVELOUS)
-				std::cout << "MARV";
-			if(e.hit_type == TIMING_PERFECT)
-				std::cout << "PERF";
-			if(e.hit_type == TIMING_GREAT)
-				std::cout << "GREAT";
-			if(e.hit_type == TIMING_OKAY)
-				std::cout << "OKAY";
-			std::cout << " " << e.error << '\n';
-
-		}
-	}
-	
 
 	std::vector<Lane>& lanes = mapToPlay->get_lanes_reference();
 	for(size_t lane_num = 0; lane_num < lanes.size(); ++lane_num){

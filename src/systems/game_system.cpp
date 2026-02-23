@@ -1,4 +1,5 @@
 #include "game.h"
+#include <iostream>
 
 Game::Game(Beatmap givenMap) { 
 	mapToPlay = givenMap;

@@ -1,3 +1,4 @@
+#include "objects.h"
 #include "updater.h"
 #include <iostream>
 #include <cmath>
@@ -21,78 +22,59 @@ void Updater::Update(float dt, EventBus& bus){
 	// for tap events
 	for (auto& bind : bindings) {
 		if(IsKeyPressed(bind.key)){
-			bus.emit((Event){ EventType::KEY_TAP,      bind.lane-1 });
-		}
-		if(IsKeyDown(bind.key)){
-			bus.emit((Event){ EventType::KEY_PRESSED,  bind.lane-1 });
-		}
-		if(IsKeyReleased(bind.key)){
-			bus.emit((Event){ EventType::KEY_RELEASED, bind.lane-1 });
+			bus.emit((Event){
+				KEY_EVENT,
+				{   KeyEvent
+					{ KEY_IS_PRESSED, bind.key, bind.lane }
+				}
+			});
+		}else if(IsKeyDown(bind.key)){
+			bus.emit((Event){
+				KEY_EVENT,
+				{   KeyEvent
+					{ KEY_IS_DOWN, bind.key, bind.lane }
+				}
+			});
+		}else if(IsKeyReleased(bind.key)){
+			bus.emit((Event){
+				KEY_EVENT,
+				{   KeyEvent
+					{ KEY_IS_RELEASED, bind.key, bind.lane }
+				}
+			});
 		}
 	}
-	// parse input
-	for (auto& bind : bindings) {
-		std::deque<HitObject>& objects = mapToPlay->get_lane_objects_reference(bind.lane-1);
-		if(objects.empty()) 
+
+	for(size_t lane_num = 0; lane_num < laneCount; ++lane_num){
+		std::deque<HitObject>& lane = mapToPlay->get_lane_objects_reference(lane_num);
+		if(lane.empty()){
 			continue;
+		}
 
-		HitObject& obj = objects.front();
+		// first object
+		HitObject& obj = lane.front();
+		// find key event
+		KEY_STATUS_EVENT key_status = KEY_IS_IDLE;
+		for(auto& e : bus.get()){
+			if(e.type == KEY_EVENT && e.event.key_event.lane-1 == lane_num){
+				key_status = e.event.key_event.status;
+			}
+		}
 
-		if(IsKeyPressed(bind.key)){
-			float diff = fabs(obj.offset - elapsedTime);
-			TimingEnums timing = TIMING_MISS;
-			{
-				if(diff < timings.MARVELOUS)
-					timing = TIMING_MARVELOUS;
-				else if(diff < timings.PERFECT)
-					timing = TIMING_PERFECT;
-				else if(diff < timings.GREAT)
-					timing = TIMING_GREAT;
-				else if(diff < timings.OKAY)
-					timing = TIMING_OKAY;
-				else if(diff < timings.BAD)
-					timing = TIMING_BAD;
-			}
-			if(obj.type == TAP) {
-				bus.emit((Event){
-						EventType::NOTE_HIT,
-						bind.lane-1,
-						timing,
-						diff
-					});
-				objects.pop_front();
-			}
-			else if(obj.type == HOLD) {
-				bus.emit((Event){
-						EventType::NOTE_HOLD_START,
-						bind.lane-1,
-						timing,
-						diff
-					});
+		if(key_status == KEY_IS_PRESSED){
+			if(obj.type == TAP){
+				lane.pop_front();
+			}else if(obj.type == HOLD){
 				obj.isHeld = true;
 			}
-		}
-		if(IsKeyDown(bind.key)){
-			// optional: handle HOLD/TAP
+		}else if(key_status == KEY_IS_DOWN){
 			if(obj.type == HOLD){
-				bus.emit((Event){
-						EventType::NOTE_HOLD_CURR,
-						bind.lane-1,
-						TIMING_MARVELOUS,
-						0.0f
-					});
+				//
 			}
-		}
-		if(IsKeyReleased(bind.key)){
+		}else if(key_status == KEY_IS_RELEASED){
 			if(obj.type == HOLD && obj.isHeld){
-				bus.emit((Event){
-						EventType::NOTE_HOLD_END,
-						bind.lane-1,
-						TIMING_MARVELOUS,
-						0.0f
-					});
 				obj.isHeld = false;
-				objects.pop_front();
+				lane.pop_front();
 			}
 		}
 	}

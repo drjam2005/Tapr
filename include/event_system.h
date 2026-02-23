@@ -1,4 +1,5 @@
 #pragma once
+#include "raylib.h"
 #ifndef EVENT_H
 #define EVENT_H
 
@@ -6,22 +7,44 @@
 
 #include <vector>
 
+// key events
+enum KEY_STATUS_EVENT {
+	KEY_IS_IDLE,
+	KEY_IS_PRESSED,
+	KEY_IS_DOWN,
+	KEY_IS_RELEASED,
+};
+struct KeyEvent {
+	KEY_STATUS_EVENT status = KEY_IS_IDLE;
+	KeyboardKey key;
+	size_t lane;
+};
+
+// note events
+enum NOTE_EVENT_TYPE {
+	NOTE_IS_PRESSED,
+	NOTE_IS_DOWN,
+	NOTE_IS_RELEASED
+};
+struct NoteEvent {
+	NOTE_EVENT_TYPE type;
+	TimingEnums timing;
+	size_t lane;
+	float error = 0.0f;
+};
+
 enum EventType {
-	NOTE_HIT, 
-	NOTE_HOLD_START, 
-	NOTE_HOLD_CURR, 
-	NOTE_HOLD_END, 
-	NOTE_MISS,
-	KEY_TAP,
-	KEY_PRESSED,
-	KEY_RELEASED
+	KEY_EVENT,
+	NOTE_EVENT,
+	// ... more events
 };
 
 struct Event {
 	EventType type;
-	size_t lane;
-	TimingEnums hit_type = TIMING_NONE;
-	float error = 0.0f;
+	union {
+		KeyEvent key_event;
+		NoteEvent note_event;
+	} event;
 };
 
 class EventBus {
@@ -32,6 +55,8 @@ public:
 	void emit(Event e);
 	void clear();
 	std::vector<Event>& get();
+
+	void print_current_events();
 };
 
 #endif // EVENT_H

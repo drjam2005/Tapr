@@ -5,7 +5,9 @@
 
 int main(){
 	SetTraceLogLevel(LOG_NONE);
+	//SetConfigFlags(FLAG_VSYNC_HINT);
 	InitWindow(800, 600, "Tapr");
+	SetTargetFPS(GetMonitorRefreshRate(GetCurrentMonitor())*2);
 	//SetTargetFPS(20);
 	Beatmap map("testing");
 	Config conf = {
