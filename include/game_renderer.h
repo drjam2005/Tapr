@@ -3,6 +3,7 @@
 #define GAME_RENDERER_H
 
 #include "objects.h"
+#include "score.h"
 #include "event_system.h"
 
 #include "raylib.h"
@@ -26,10 +27,10 @@ private:
 	GameRendererParams params;
 	long double elapsed_time = 0.0f;
 	size_t laneCount = 1;
-	std::unordered_map<size_t, bool> isPressed;
+	std::unordered_map<size_t, TimingEnum> lane_timings;
 public:
 	GameRenderer() {}
 	GameRenderer(Beatmap* mapToPlay, GameRendererParams params);
-	void Render(float dt, EventBus& bus);
+	void Render(float dt, MapScore& score,EventBus& bus);
 };
 #endif // GAME_RENDERER_H

@@ -1,5 +1,7 @@
 #include "game_renderer.h"
 #include "event_system.h"
+#include "objects.h"
+#include "raylib.h"
 #include <iostream>
 #include <algorithm>
 #include <cmath>
@@ -10,7 +12,7 @@ GameRenderer::GameRenderer(Beatmap* mapToPlay, GameRendererParams params){
 	this->params = params;
 }
 
-void GameRenderer::Render(float dt, EventBus& bus){
+void GameRenderer::Render(float dt, MapScore& score,EventBus& bus){
 	this->elapsed_time += dt;
 
 	Rectangle dims = params.renderer_dimensions;
@@ -22,6 +24,12 @@ void GameRenderer::Render(float dt, EventBus& bus){
 	float hit_position = dims.y + (dims.height * (1.0f - params.hit_position));
 
 	size_t row = 0;
+	for(auto& e : bus.get()){
+		if(e.type == NOTE_EVENT){
+			size_t lane = e.event.note_event.lane;
+			lane_timings[lane] = e.event.note_event.timing;
+		}
+	}
 
 	for(size_t i = 0; i < laneCount; ++i){
 		Color clr = WHITE;
@@ -32,6 +40,18 @@ void GameRenderer::Render(float dt, EventBus& bus){
 			}
 		}
 		DrawRectangle(start+(lane_width*i), hit_position-5.0f, lane_width, 10.0f, clr);
+		std::string score = "NONE";
+		switch(lane_timings[i]){
+			case TIMING_MARVELOUS: score = "MARVELOUS"; break;
+			case TIMING_PERFECT:   score = "PERFECT"; break;
+			case TIMING_GREAT:     score = "GREAT"; break;
+			case TIMING_OKAY:      score = "OKAY"; break;
+			case TIMING_BAD:       score = "BAD"; break;
+			case TIMING_MISS:      score = "MISS"; break;
+			default:
+				score = "NONE";
+		}
+		DrawText(score.c_str(), start+(lane_width*i), hit_position+20.0f, 10, RED);
 	}
 
 	std::vector<Lane>& lanes = mapToPlay->get_lanes_reference();

@@ -28,7 +28,7 @@ enum NOTE_EVENT_TYPE {
 };
 struct NoteEvent {
 	NOTE_EVENT_TYPE type;
-	TimingEnums timing;
+	TimingEnum timing;
 	size_t lane;
 	float error = 0.0f;
 };

@@ -1,4 +1,5 @@
 #pragma once
+#include "score.h"
 #ifndef GAME_H
 #define GAME_H
 
@@ -15,6 +16,7 @@ public:
 	GameRenderer renderer;
 	Updater updater;
 	EventBus bus;
+	MapScore score;
 
 	Game(Beatmap givenMap);
 	Game(Beatmap givenMap, Config& config);

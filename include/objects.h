@@ -13,14 +13,14 @@ enum HIT_TYPE {
 	HOLD
 };
 
-enum TimingEnums {
-	TIMING_MARVELOUS = 0,
+enum TimingEnum {
+	TIMING_NONE = 0,
+	TIMING_MARVELOUS,
 	TIMING_PERFECT,
 	TIMING_GREAT,
 	TIMING_OKAY,
 	TIMING_BAD,
 	TIMING_MISS,
-	TIMING_NONE
 };
 
 struct Timings {

@@ -3,6 +3,7 @@
 #define UPDATER_H
 
 #include "objects.h"
+#include "score.h"
 #include "event_system.h"
 #include "config.h"
 
@@ -26,7 +27,7 @@ public:
 	Updater() {}
 	Updater(Beatmap* mapToPlay, std::vector<LaneBinding> bindings, Timings timings=OD8_Timings);
  
-	void Update(float dt, EventBus& bus);
+	void Update(float dt, MapScore& score, EventBus& bus);
 };
 
 
