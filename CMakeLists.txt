@@ -26,6 +26,10 @@ target_link_libraries(${exec} PRIVATE
 	miniz
 )
 
+target_compile_options(${exec} PRIVATE
+	-fpermissive
+)
+
 
 if(UNIX)
 	target_include_directories(${exec} SYSTEM PUBLIC
