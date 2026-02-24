@@ -9,9 +9,8 @@ int main(){
 	InitWindow(800, 600, "Tapr");
 	//SetTargetFPS(GetMonitorRefreshRate(GetCurrentMonitor())*2);
 
-	Beatmap map("testing");
-	Game game(map);
 	App app({0, 0, (float)GetScreenWidth(), (float)GetScreenHeight()});
+
 	while(!WindowShouldClose()){
 		BeginDrawing();
 		ClearBackground(BLACK);

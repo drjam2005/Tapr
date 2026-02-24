@@ -11,16 +11,17 @@
 
 // in charge of handling both the Updater and the Renderer
 class Game {
-public:
+private:
 	Beatmap mapToPlay;
 	GameRenderer renderer;
 	Updater updater;
 	EventBus bus;
 	MapScore score;
 
+	bool isInitialized = false;
+public:
+
 	Game() {}
-	Game(Beatmap givenMap);
-	Game(Beatmap givenMap, Config& config);
 
 	void Init(Beatmap givenMap);
 	void Init(Beatmap givenMap, Config& conf);
