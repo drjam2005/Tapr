@@ -7907,4 +7907,3 @@ static int mz_stat64(const char *path, struct __stat64 *buffer)
 #endif
 
 #endif /*#ifndef MINIZ_NO_ARCHIVE_APIS*/
-

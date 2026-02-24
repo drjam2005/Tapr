@@ -1508,4 +1508,3 @@ extern "C"
 #endif
 
 #endif /* MINIZ_NO_ARCHIVE_APIS */
-
