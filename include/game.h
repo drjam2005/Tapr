@@ -18,8 +18,12 @@ public:
 	EventBus bus;
 	MapScore score;
 
+	Game() {}
 	Game(Beatmap givenMap);
 	Game(Beatmap givenMap, Config& config);
+
+	void Init(Beatmap givenMap);
+	void Init(Beatmap givenMap, Config& conf);
 
 	void Update(float dt);
 	void Render(float dt);

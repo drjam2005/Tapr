@@ -29,15 +29,16 @@ void GameRenderer::Render(float dt, MapScore& score,EventBus& bus){
 	// Drawing the hit area
 	for(size_t i = 0; i < laneCount; ++i){
 		Color& clr = lane_colors[i];
-		clr = ColorLerp(clr, WHITE, dt*10);
+		clr = ColorLerp(clr, WHITE, dt*(GetFPS()/4));
 		for(auto& e : bus.get()){
 			if(e.type == KEY_EVENT){
 				if(e.event.key_event.status == KEY_IS_DOWN && e.event.key_event.lane-1 == i){
-					clr = GRAY;
+					clr = LIGHTGRAY;
 				}
 			}
 		}
-		DrawRectangle(start+(lane_width*i), hit_position-5.f, lane_width, 10.0f, clr);
+		float height = 2.0f;
+		DrawRectangle(start+(lane_width*i), hit_position-(height/2.0f), lane_width, height, clr);
 	}
 
 	{   // Draw the score/hits

@@ -12,6 +12,7 @@ set(src
 	src/systems/event_system.cpp
 	src/systems/game_renderer_system.cpp
 	src/systems/updater_system.cpp
+	src/systems/app_system.cpp
 )
 
 add_executable(${exec} ${src})
@@ -25,22 +26,23 @@ target_link_libraries(${exec} PRIVATE
 	miniz
 )
 
+
 if(UNIX)
-	target_include_directories(${exec} PRIVATE
+	target_include_directories(${exec} SYSTEM PUBLIC
 		${CMAKE_SOURCE_DIR}/vendor/raylib/unix/include
 	)
-	target_link_directories(${exec} PRIVATE
+	target_link_directories(${exec} PUBLIC
 		${CMAKE_SOURCE_DIR}/vendor/raylib/unix/lib
 	)
-	target_link_libraries(${exec} PRIVATE
+	target_link_libraries(${exec} PUBLIC
 		raylib
 		m
 	)
 elseif(WIN32)
-	target_include_directories(${exec} PRIVATE
+	target_include_directories(${exec} SYSTEM PUBLIC
 		${CMAKE_SOURCE_DIR}/vendor/raylib/windows/include
 	)
-	target_link_directories(${exec} PRIVATE
+	target_link_directories(${exec} PUBLIC
 		${CMAKE_SOURCE_DIR}/vendor/raylib/windows/lib
 	)
 	target_link_libraries(${exec} PRIVATE

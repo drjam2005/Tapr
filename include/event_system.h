@@ -14,6 +14,7 @@ enum KEY_STATUS_EVENT {
 	KEY_IS_DOWN,
 	KEY_IS_RELEASED,
 };
+
 struct KeyEvent {
 	KEY_STATUS_EVENT status = KEY_IS_IDLE;
 	KeyboardKey key;

@@ -2,44 +2,25 @@
 
 #include "raylib.h"
 #include "systems.h"
+#include "app.h"
 
 int main(){
 	SetTraceLogLevel(LOG_NONE);
-	//SetConfigFlags(FLAG_VSYNC_HINT);
 	InitWindow(800, 600, "Tapr");
-	SetTargetFPS(GetMonitorRefreshRate(GetCurrentMonitor())*2);
-	//SetTargetFPS(20);
+	//SetTargetFPS(GetMonitorRefreshRate(GetCurrentMonitor())*2);
+
 	Beatmap map("testing");
-	Config conf = {
-		(std::vector<LaneBinding>){
-			{1, KEY_D},
-			{2, KEY_F},
-			{3, KEY_J},
-			{4, KEY_K}
-		},
-		(GameRendererParams){
-			(Rectangle){200, 200, 400, 400},
-			(std::vector<Color>){YELLOW, BLUE, ORANGE, RED},
-			30.0f,
-			10.0f,
-			0.1,
-			20.0f
-		}
-	};
 	Game game(map);
+	App app({0, 0, (float)GetScreenWidth(), (float)GetScreenHeight()});
 	while(!WindowShouldClose()){
 		BeginDrawing();
 		ClearBackground(BLACK);
 
-		//DrawText("Hello, Raylib!\n", 20, 20, 20, BLACK);
-
-		game.Loop(GetFrameTime());
+		app.Loop(GetFrameTime());
 
 		DrawFPS(50, 50);
-
 		EndDrawing();
 	}
 	CloseWindow();
 	return 0;
-}
-
+}
