@@ -6,6 +6,7 @@
 
 int main(){
 	SetTraceLogLevel(LOG_NONE);
+	SetConfigFlags(FLAG_WINDOW_RESIZABLE);
 	InitWindow(800, 600, "Tapr");
 	//SetTargetFPS(GetMonitorRefreshRate(GetCurrentMonitor())*2);
 
