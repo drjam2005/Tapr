@@ -13,9 +13,10 @@ struct LaneBinding {
 };
 
 struct Config {
-	std::vector<LaneBinding> keybindings;
+	std::unordered_map<size_t, std::vector<LaneBinding>> keybindings; // [4] = {4key bindings}
 	GameRendererParams params;
-	// maybe more
+	float volume = 0.5f;
+	float audio_offset = 0.5f;
 };
 
 #endif // CONFIG_H

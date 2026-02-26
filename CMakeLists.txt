@@ -14,7 +14,7 @@ set(src
 	src/systems/updater_system.cpp
 	src/systems/app_system.cpp
 
-	src/systems/utils/zip_util.cpp
+	src/systems/utils/utilities.cpp
 )
 
 add_executable(${exec} ${src})

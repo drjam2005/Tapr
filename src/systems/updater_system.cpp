@@ -16,19 +16,23 @@ Updater::Updater(Beatmap* mapToPlay, std::vector<LaneBinding> bindings, Timings 
 	assert(mapToPlay->get_lane_count() == bindings.size() && "LANE_COUNT SHOULD BE THE SAME AS BIND_COUNT");
 }
 
-TimingEnum Updater::getTiming(float dt) { return TIMING_NONE; }
-// TODO:
-//TimingEnum Updater::getTiming(float dt){
-//	float error = fabs(diff);
-//	if (error <= timings.MARVELOUS)    { return TIMING_MARVELOUS;}
-//	else if (error <= timings.PERFECT) { return TIMING_PERFECT;}
-//	else if (error <= timings.GREAT)   { return TIMING_GREAT;}
-//	else if (error <= timings.OKAY)    { return TIMING_OKAY;}
-//	else if (error <= timings.BAD)     { return TIMING_BAD;}
-//	else if (diff < 0 && diff >= -0.3f){ return TIMING_MISS;}
-//
-//	return TIMING_NONE;
-//}
+TimingEnum Updater::getTiming(float diff){
+	float error = fabs(diff);
+	if (error <= timings.MARVELOUS)
+		return TIMING_MARVELOUS;
+	else if (error <= timings.PERFECT)
+		return TIMING_PERFECT;
+	else if (error <= timings.GREAT)
+		return TIMING_GREAT;
+	else if (error <= timings.OKAY)
+		return TIMING_OKAY;
+	else if (error <= timings.BAD)
+		return TIMING_BAD;
+	else if (error <= timings.MISS_WINDOW)
+		return TIMING_MISS;
+
+	return TIMING_NONE;
+}
 
 void Updater::Update(float dt, MapScore& score, EventBus& bus){
 	this->elapsedTime += dt;
@@ -72,40 +76,40 @@ void Updater::Update(float dt, MapScore& score, EventBus& bus){
 				key_status = e.event.key_event.status;
 
 		float diff = elapsedTime - obj.offset;
-		if(diff > 0.3){
-			bus.emit((Event){
-				NOTE_EVENT, {   
-					.note_event = { NOTE_IS_PRESSED, TIMING_MISS, lane_num, diff }
-				}
-			});
-			score.MISS++;
-			lane.pop_front();
-			continue;
+		if(diff > timings.MISS_WINDOW){
+			if(!obj.isHeld){
+				bus.emit((Event){
+						NOTE_EVENT, {   
+						.note_event = { NOTE_IS_PRESSED, TIMING_MISS, lane_num, diff }
+						}
+					});
+				score.MISS++;
+				lane.pop_front();
+				continue;
+			}
 		}
 		if (key_status == KEY_IS_PRESSED) {
 			diff = elapsedTime - obj.offset;
-			float error = fabs(diff);
-			TimingEnum timing = TIMING_NONE;
+			TimingEnum timing = getTiming(diff);
+			if (timing == TIMING_NONE && diff < 0) return; 
 
-			if (error <= timings.MARVELOUS)    { timing = TIMING_MARVELOUS; score.MARVELOUS++; }
-			else if (error <= timings.PERFECT) { timing = TIMING_PERFECT; score.PERFECT++; }
-			else if (error <= timings.GREAT)   { timing = TIMING_GREAT; score.GREAT++; }
-			else if (error <= timings.OKAY)    { timing = TIMING_OKAY; score.OKAY++; }
-			else if (error <= timings.BAD)     { timing = TIMING_BAD; score.BAD++; }
-			else if (diff < 0 && diff >= -0.3f) { 
-				timing = TIMING_MISS;
-				score.MISS++;
-			} else {
-				continue; 
+			switch(timing) {
+				case TIMING_MARVELOUS: score.MARVELOUS++; break;
+				case TIMING_PERFECT:   score.PERFECT++;   break;
+				case TIMING_GREAT:     score.GREAT++;     break;
+				case TIMING_OKAY:      score.OKAY++;      break;
+				case TIMING_BAD:       score.BAD++;       break;
+				case TIMING_MISS:      score.MISS++;      break;
+				default:               return;
 			}
 
 			bus.emit((Event){
 					NOTE_EVENT, { .note_event = { NOTE_IS_PRESSED, timing, lane_num, diff } }
-				});
+					});
 
-			if(obj.type == TAP) {
+			if (obj.type == TAP) {
 				lane.pop_front();
-			} else if(obj.type == HOLD) {
+			} else if (obj.type == HOLD) {
 				obj.isHeld = (timing != TIMING_MISS);
 				if (timing == TIMING_MISS) lane.pop_front();
 			}
@@ -155,4 +159,7 @@ void Updater::Update(float dt, MapScore& score, EventBus& bus){
 			}
 		}
 	}
+}
+long double Updater::getElapsedTime(){
+	return this->elapsedTime;
 }

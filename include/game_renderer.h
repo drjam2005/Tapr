@@ -13,7 +13,7 @@
 
 struct GameRendererParams {
 	Rectangle renderer_dimensions;
-	std::vector<Color> colors;
+	std::vector<Color> colors; // lane colors
 	float lane_width = 1.0f;
 	float lane_height = 1.0f;
 	float hit_position = 0.0f; // percent from bottom to top
@@ -26,12 +26,12 @@ private:
 	Beatmap* mapToPlay = nullptr;
 	GameRendererParams params;
 
-	long double elapsed_time = 0.0f;
 	size_t laneCount = 1;
 	std::unordered_map<size_t, Color> lane_colors;
 
 	MapScore score;
 public:
+	long double elapsed_time = -1.5f;
 	GameRenderer() {}
 	GameRenderer(Beatmap* mapToPlay, GameRendererParams params);
 	void Render(float dt, MapScore& score,EventBus& bus);

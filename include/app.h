@@ -22,12 +22,19 @@ private:
 	Rectangle window_dimensions = {0};
 	APP_STATE current_app_state = APP_MAIN_MENU;
 
+	// SONG SELECT STUFF
+	std::vector<Pack> songPacks;
+	int selectedPack = 0;
+	int selectedMap = 0;
+	float yScrollPos = 140.0f;
+
 	// GAME STUFF
 	Game gameToPlay;
 		// UPDATER
 	Timings timings = OD8_Timings;
 	std::unordered_map<size_t, std::vector<LaneBinding>> bindings;
 		// RENDERER
+	Config working_config;
 	GameRendererParams game_rendering_params;
 
 public:

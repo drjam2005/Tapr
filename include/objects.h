@@ -25,11 +25,12 @@ enum TimingEnum {
 };
 
 struct Timings {
-	float MARVELOUS = 0.0165f;
-	float PERFECT   = 0.0405f;
-	float GREAT     = 0.0735f;
-	float OKAY      = 0.1035f;
-	float BAD       = 0.1275f;
+	float MARVELOUS         = 0.0165f;
+	float PERFECT           = 0.0405f;
+	float GREAT             = 0.0735f;
+	float OKAY              = 0.1035f;
+	float BAD               = 0.1275f;
+	float MISS_WINDOW       = 0.1500f;
 };
 
 // default OD8 timings for now
@@ -38,7 +39,8 @@ const Timings OD8_Timings = {
 	0.0405f,
 	0.0735f,
 	0.1035f,
-	0.1275f
+	0.1275f,
+	0.1500f
 };
 
 struct HitObject {
@@ -66,9 +68,10 @@ public:
 class Beatmap {
 private:
 	std::vector<Lane> lanes;
-	std::string mapName;
 	std::string mapPath;
 public:
+	std::string songPath;
+	std::string mapName;
 	Beatmap() {}
 	Beatmap(std::string mapName);
 
@@ -82,8 +85,11 @@ public:
 
 class Pack {
 private:
+	std::vector<Beatmap> beatmaps;
+public:
 	std::string packPath;
-	std::list<Beatmap> beatmaps;
+	std::vector<Beatmap>& get_beatmaps();
+	void load_from_folder(std::string path);
 };
 
 #endif // OBJECTS_H
