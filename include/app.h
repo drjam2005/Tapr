@@ -3,9 +3,11 @@
 #define APP_H
 
 #include "objects.h"
-#include "raylib.h"
+
 #include "event_system.h"
 #include "game.h"
+#include "raylib.h"
+
 
 enum APP_STATE {
 	APP_MAIN_MENU,

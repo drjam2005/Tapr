@@ -13,6 +13,9 @@ set(src
 	src/systems/game_renderer_system.cpp
 	src/systems/updater_system.cpp
 	src/systems/app_system.cpp
+
+	src/systems/utils/zip_util.cpp
+	src/systems/utils/raygui_impl.cpp
 )
 
 add_executable(${exec} ${src})

@@ -37,7 +37,7 @@ void GameRenderer::Render(float dt, MapScore& score,EventBus& bus){
 				}
 			}
 		}
-		float height = 2.0f;
+		float height = 10.0f;
 		DrawRectangle(start+(lane_width*i), hit_position-(height/2.0f), lane_width, height, clr);
 	}
 

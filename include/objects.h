@@ -5,6 +5,7 @@
 
 #include <string>
 #include <vector>
+#include <list>
 #include <deque>
 
 // objects
@@ -77,6 +78,12 @@ public:
 	std::deque<HitObject>& get_lane_objects_reference(size_t lane);
 	
 	size_t get_lane_count();
+};
+
+class Pack {
+private:
+	std::string packPath;
+	std::list<Beatmap> beatmaps;
 };
 
 #endif // OBJECTS_H
