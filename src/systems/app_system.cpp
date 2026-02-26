@@ -1,7 +1,8 @@
 #include "app.h"
 #include "utils/zip_util.h"
-#include "raygui.h"
 #include <raylib.h>
+#define RAYGUI_IMPLEMENTATION
+#include "raygui.h"
 #include <filesystem>
 #include <iostream>
 
