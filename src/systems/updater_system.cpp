@@ -16,6 +16,20 @@ Updater::Updater(Beatmap* mapToPlay, std::vector<LaneBinding> bindings, Timings 
 	assert(mapToPlay->get_lane_count() == bindings.size() && "LANE_COUNT SHOULD BE THE SAME AS BIND_COUNT");
 }
 
+TimingEnum Updater::getTiming(float dt) { return TIMING_NONE; }
+// TODO:
+//TimingEnum Updater::getTiming(float dt){
+//	float error = fabs(diff);
+//	if (error <= timings.MARVELOUS)    { return TIMING_MARVELOUS;}
+//	else if (error <= timings.PERFECT) { return TIMING_PERFECT;}
+//	else if (error <= timings.GREAT)   { return TIMING_GREAT;}
+//	else if (error <= timings.OKAY)    { return TIMING_OKAY;}
+//	else if (error <= timings.BAD)     { return TIMING_BAD;}
+//	else if (diff < 0 && diff >= -0.3f){ return TIMING_MISS;}
+//
+//	return TIMING_NONE;
+//}
+
 void Updater::Update(float dt, MapScore& score, EventBus& bus){
 	this->elapsedTime += dt;
 

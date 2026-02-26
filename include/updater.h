@@ -28,6 +28,7 @@ public:
 	Updater(Beatmap* mapToPlay, std::vector<LaneBinding> bindings, Timings timings=OD8_Timings);
  
 	void Update(float dt, MapScore& score, EventBus& bus);
+	TimingEnum getTiming(float dt);
 };
 
 
