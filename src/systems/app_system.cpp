@@ -89,7 +89,11 @@ void App::Render(float dt) {
 
 // MAIN MENU
 void App::UpdateMainMenu(float dt){
+	// erm nothing for now
+}
 
+
+void App::RenderMainMenu(float dt){
 	float text_width = MeasureText("PLAY", 50);
 
 	if(GuiButton((Rectangle){
@@ -106,11 +110,6 @@ void App::UpdateMainMenu(float dt){
 	{
 		current_app_state =	APP_SETTINGS_MENU;
 	}
-}
-
-
-void App::RenderMainMenu(float dt){
-
 }
 
 void App::UpdateSettingsMenu(float dt) {
