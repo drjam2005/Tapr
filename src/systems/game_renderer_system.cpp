@@ -65,14 +65,14 @@ void GameRenderer::Render(float dt, MapScore& score,EventBus& bus){
 				break;
 
 			if(obj.type == TAP){
-				DrawRectangleRec(head, params.colors[lane_num]);
+				DrawRectangleRec(head, params.colors[laneCount][lane_num]);
 			}else if(obj.type == HOLD){
 				float tail_height = std::clamp(
 						(double)y_position - params.renderer_dimensions.y,
 					   	(double)0.0f, obj.hold_time*scroll_speed);
 
 				Rectangle tail = { x_position, y_position - tail_height, lane_width, tail_height};
-				Color tail_clr = params.colors[lane_num];
+				Color tail_clr = params.colors[laneCount][lane_num];
 				tail_clr.a -= 120;
 
 				if(obj.isHeld){
@@ -81,7 +81,7 @@ void GameRenderer::Render(float dt, MapScore& score,EventBus& bus){
 				}
 
 				DrawRectangleRec(tail, tail_clr);
-				DrawRectangleRec(head, params.colors[lane_num]);
+				DrawRectangleRec(head, params.colors[laneCount][lane_num]);
 			}
 		}
 	}

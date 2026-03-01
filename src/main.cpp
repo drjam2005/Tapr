@@ -5,6 +5,7 @@
 #include "app.h"
 
 int main(){
+	SetConfigFlags(FLAG_WINDOW_ALWAYS_RUN);
 	SetTraceLogLevel(LOG_NONE);
 	InitWindow(800, 600, "Tapr");
 	SetExitKey(KEY_NULL);

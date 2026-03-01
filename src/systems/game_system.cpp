@@ -15,17 +15,15 @@ void Game::Init(Beatmap givenMap){
          {1, KEY_D }, {2, KEY_F }, {3, KEY_J }, {4, KEY_K }
     });
 
-    this->renderer = GameRenderer(&this->mapToPlay, GameRendererParams{
-        {0, 0, (float)GetScreenWidth(), (float)GetScreenHeight()},
-        {BLUE, WHITE, WHITE, BLUE},
-        65.0f, 20.0f, 0.2f, 25.0f
-    });
+    this->renderer = GameRenderer(&this->mapToPlay, 
+		defaultRendererParams);
 
     bus.clear();
     score = {0};
 }
 
 void Game::Init(Beatmap givenMap, Config& conf) {
+	this->config = conf;
     mapToPlay = givenMap;
 
     active_lane_count = mapToPlay.get_lane_count();
@@ -42,22 +40,19 @@ void Game::Init(Beatmap givenMap, Config& conf) {
         UnloadMusicStream(currentMusic);
 
     currentMusic = LoadMusicStream(mapToPlay.songPath.c_str());
-    PlayMusicStream(currentMusic);
 
     isMusicLoaded = true;
     isInitialized = true;
     timer = 0.0f;
 }
 
-// In game.cpp
 void Game::Update(float dt){
     if(!isInitialized) return;
 
     if (isMusicLoaded) {
-        if (this->updater.getElapsedTime() >= 0.0f) {
+        if (this->updater.getElapsedTime() >= 0.0f - config.audio_offset) {
             if (!IsMusicStreamPlaying(currentMusic)) {
                 PlayMusicStream(currentMusic);
-				SeekMusicStream(currentMusic, 0.1f);
             }
             UpdateMusicStream(currentMusic);
         }

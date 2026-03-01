@@ -33,10 +33,11 @@ private:
 		// UPDATER
 	Timings timings = OD8_Timings;
 	std::unordered_map<size_t, std::vector<LaneBinding>> bindings;
-		// RENDERER
-	Config working_config;
-	GameRendererParams game_rendering_params;
+		// RENDERER	
 
+	// CONFIG STUFF
+	Config working_config = defaultConfig;
+	Config temp_config = defaultConfig;
 public:
 
 	App(Rectangle dims);

@@ -117,6 +117,73 @@ void App::UpdateSettingsMenu(float dt) {
 
 
 void App::RenderSettingsMenu(float dt) {
+	Config& cnf = temp_config;
+	if(GuiButton((Rectangle){
+				20.0f, 20.0f,
+				50.0f, 20.0f
+				}, "<- BACK"))
+	{
+		current_app_state =	APP_MAIN_MENU;
+	}
+	// actual stuff
+	// lane_width
+	DrawText(TextFormat("LANE WIDTH: %.1f", cnf.params.lane_width), 40, 60, 20, WHITE);
+	GuiSlider({75, 80, 300, 20}, "1.0f", "225.0f", 
+			&cnf.params.lane_width, 1.0f, 225.0f);
+
+	// lane_height
+	DrawText(TextFormat("LANE HEIGHT: %.1f", cnf.params.lane_height), 40, 130, 20, WHITE);
+	GuiSlider({75, 150, 300, 20}, "1.0f", "225.0f", 
+			&cnf.params.lane_height, 1.0f, 225.0f);
+
+	// hit_position
+	DrawText(TextFormat("HIT POSITION: %.1f", cnf.params.hit_position), 40, 200, 20, WHITE);
+	GuiSlider({75, 220, 300, 20}, "0.0f", "1.0f",
+			&cnf.params.hit_position, 0.0f, 1.0f);
+
+	// scroll_speed
+	DrawText(TextFormat("SCROLL SPEED: %.1f", cnf.params.scroll_speed), 40, 270, 20, WHITE);
+	GuiSlider({75, 290, 300, 20}, "1.0f", "50.0f", 
+			&cnf.params.scroll_speed, 1.0f, 50.0f);
+
+	DrawText(TextFormat("AUDIO OFFSET (ms): %.2f", cnf.audio_offset), 40, 340, 20, WHITE);
+
+    float sliderX = 75.0f;
+    float sliderY = 360.0f;
+    float sliderWidth = 300.0f;
+    float sliderHeight = 20.0f;
+    float buttonSize = 25.0f;
+    float padding = 5.0f;
+
+
+    GuiSlider({ sliderX, sliderY, sliderWidth, sliderHeight }, 
+              "", "", 
+              &cnf.audio_offset, -1.0f, 1.0f);
+
+    if (GuiButton({ sliderX - buttonSize - padding, sliderY, buttonSize, sliderHeight }, "-")) {
+        cnf.audio_offset -= 0.05f;
+    }
+    if (GuiButton({ sliderX + sliderWidth + padding, sliderY, buttonSize, sliderHeight }, "+")) {
+        cnf.audio_offset += 0.05f;
+    }
+
+    static bool editMode = false;
+    static char buffer[32] = { 0 };
+    
+    if (!editMode) sprintf(buffer, "%.2f", cnf.audio_offset);
+    if (GuiTextBox({ sliderX + sliderWidth + buttonSize + padding * 2, sliderY, 60, sliderHeight }, 
+                   buffer, 32, editMode)) {
+        editMode = !editMode;
+        if (!editMode) cnf.audio_offset = atof(buffer);
+    }
+
+
+	if(GuiButton((Rectangle){
+				GetScreenWidth()-120.0f, GetScreenHeight()-60.0f,
+				100.0f, 50.0f,
+				}, "APPLY")){
+		working_config = temp_config;
+	}
 }
 
 // IN GAME
@@ -195,7 +262,7 @@ void App::UpdateSongSelect(float dt) {
 
     if (IsKeyPressed(KEY_ENTER)) {
         Beatmap& selected = songPacks[selectedPack].get_beatmaps()[selectedMap];
-        gameToPlay.Init(selected);
+        gameToPlay.Init(selected, working_config);
         current_app_state = APP_IN_GAME;
     }
 }

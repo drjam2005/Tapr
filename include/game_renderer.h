@@ -13,7 +13,8 @@
 
 struct GameRendererParams {
 	Rectangle renderer_dimensions;
-	std::vector<Color> colors; // lane colors
+	//std::vector<Color> colors; // lane colors
+	std::unordered_map<size_t, std::vector<Color>> colors;
 	float lane_width = 1.0f;
 	float lane_height = 1.0f;
 	float hit_position = 0.0f; // percent from bottom to top
