@@ -3,6 +3,7 @@
 #include <raylib.h>
 #define RAYGUI_IMPLEMENTATION
 #include "raygui.h"
+#include "raymath.h"
 #include <filesystem>
 #include <iostream>
 
@@ -36,6 +37,8 @@ void App::Loop(float dt)
 
 void App::Update(float dt) {
 	if (IsFileDropped()) {
+		selectedPack = 0;
+		selectedMap = 0;
 		FilePathList dropped = LoadDroppedFiles();
 
 		for (int i = 0; i < dropped.count; ++i) {
@@ -90,6 +93,7 @@ void App::Render(float dt) {
 // MAIN MENU
 void App::UpdateMainMenu(float dt){
 	// erm nothing for now
+	SetWindowTitle("Tapr");
 }
 
 
@@ -146,10 +150,15 @@ void App::RenderSettingsMenu(float dt) {
 	GuiSlider({75, 290, 300, 20}, "1.0f", "50.0f", 
 			&cnf.params.scroll_speed, 1.0f, 50.0f);
 
-	DrawText(TextFormat("AUDIO OFFSET (ms): %.2f", cnf.audio_offset), 40, 340, 20, WHITE);
+	// volume
+	DrawText(TextFormat("VOLUME: %.2f", cnf.volume), 40, 340, 20, WHITE);
+	GuiSlider({75, 360, 300, 20}, "0.0f", "1.0f", 
+			&cnf.volume, 0.0f, 1.0f);
+
+	DrawText(TextFormat("AUDIO OFFSET (ms): %.2f", cnf.audio_offset), 40, 410, 20, WHITE);
 
     float sliderX = 75.0f;
-    float sliderY = 360.0f;
+    float sliderY = 430.0f;
     float sliderWidth = 300.0f;
     float sliderHeight = 20.0f;
     float buttonSize = 25.0f;
@@ -204,6 +213,7 @@ void App::RenderGame(float dt){
 	gameToPlay.Render(dt);
 }
 
+
 // SONG SELECT
 void App::UpdateSongSelect(float dt) {
     if (songPacks.empty()) return;
@@ -214,49 +224,46 @@ void App::UpdateSongSelect(float dt) {
 
     if (key == KEY_J) {
         if (ctrl) {
-            int mapsInCurrentPack = (int)songPacks[selectedPack].get_beatmaps().size();
-            yScrollPos -= (mapsInCurrentPack - selectedMap + 1) * itemHeight;
-
-            selectedPack++;
-            if (selectedPack >= (int)songPacks.size()) {
-                selectedPack = 0;
-                yScrollPos = 140; 
-            }
-            selectedMap = 0;
+			if(selectedPack < songPacks.size()-1){
+				selectedPack++;
+			}else{
+				selectedPack = 0;
+			}
+			selectedMap = 0;
         } else {
-            if (selectedMap + 1 < (int)songPacks[selectedPack].get_beatmaps().size()) {
-                selectedMap++;
-                yScrollPos -= itemHeight;
-            } else if (selectedPack + 1 < (int)songPacks.size()) {
-                selectedPack++;
-                selectedMap = 0;
-                yScrollPos -= (itemHeight * 2); 
-            }
+			if(selectedMap < songPacks[selectedPack].get_beatmaps().size()-1){
+				selectedMap++;
+			}else{
+				selectedMap = 0;
+				if(selectedPack < songPacks.size()-1){
+					selectedPack++;
+				}else{
+					selectedPack = 0;
+				}
+			}
         }
     }
 
     if (key == KEY_K) {
         if (ctrl) {
-            selectedPack--;
-            if (selectedPack < 0) {
-                selectedPack = (int)songPacks.size() - 1;
-                yScrollPos = 140;
-                for (auto& p : songPacks) yScrollPos -= (itemHeight * (p.get_beatmaps().size() + 1));
-                yScrollPos += itemHeight;
-            } else {
-                int mapsInNewPack = (int)songPacks[selectedPack].get_beatmaps().size();
-                yScrollPos += (mapsInNewPack + 1) * itemHeight;
-            }
-            selectedMap = 0;
+			if(selectedPack > 0){
+				selectedPack--;
+			}else{
+				selectedPack = songPacks.size()-1;
+			}
+			selectedMap = 0;
         } else {
-            if (selectedMap > 0) {
-                selectedMap--;
-                yScrollPos += itemHeight;
-            } else if (selectedPack > 0) {
-                selectedPack--;
-                selectedMap = (int)songPacks[selectedPack].get_beatmaps().size() - 1;
-                yScrollPos += (itemHeight * 2);
-            }
+			if(selectedMap > 0){
+				selectedMap--;
+			}else{
+				if(selectedPack > 0){
+					selectedPack--;
+				}else{
+					selectedPack = songPacks.size()-1;
+				}
+				//selectedMap = songPacks[selectedPack].get_beatmaps().size()-1;
+				selectedMap = songPacks[selectedPack].get_beatmaps().size()-1;
+			}
         }
     }
 
@@ -267,19 +274,34 @@ void App::UpdateSongSelect(float dt) {
     }
 }
 
+float App::GetScrollPosition(float itemHeight){
+	float startingYPos = 140.0f;
+	for(size_t pack = 0; pack < selectedPack; ++pack){
+		startingYPos -= itemHeight;
+		startingYPos -= itemHeight * songPacks[pack].get_beatmaps().size();
+	}
+
+	startingYPos -= itemHeight;
+	startingYPos -= selectedMap * itemHeight;
+
+	return startingYPos;
+}
+
 void App::RenderSongSelect(float dt) {
     ClearBackground({35, 35, 60, 255});
     
     int packIndex = 0;
+    int itemHeight = 35;
+	float targetScroll = GetScrollPosition(itemHeight);
+	yScrollPos = Lerp(yScrollPos, targetScroll, dt); // Smooth sliding
     float currentY = yScrollPos;
     int screenHeight = GetScreenHeight();
-    int itemHeight = 35;
 
     for (auto& pack : songPacks) {
         if (currentY > -itemHeight && currentY < screenHeight) {
             bool isPackSelected = (packIndex == selectedPack);
             DrawRectangle(35, (int)currentY, 250, itemHeight, isPackSelected ? RED : WHITE);
-            std::string displayName = fs::path(pack.packPath).stem().string();
+            std::string displayName = fs::path(pack.packName).stem().string();
             DrawText(displayName.c_str(), 40, (int)currentY + 7, 20, BLACK);
         }
         currentY += itemHeight;
@@ -299,7 +321,7 @@ void App::RenderSongSelect(float dt) {
 
     if (!songPacks.empty()) {
         DrawRectangle(400, 20, 400, 100, Fade(BLACK, 0.5f));
-        DrawText(fs::path(songPacks[selectedPack].packPath).stem().string().c_str(), 410, 30, 20, RAYWHITE);
+        DrawText(fs::path(songPacks[selectedPack].packName).stem().string().c_str(), 410, 30, 20, RAYWHITE);
         DrawText(songPacks[selectedPack].get_beatmaps()[selectedMap].mapName.c_str(), 410, 60, 18, GRAY);
     }
 

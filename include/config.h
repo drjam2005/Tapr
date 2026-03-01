@@ -30,14 +30,16 @@ static std::unordered_map<size_t, std::vector<LaneBinding>> defaultBindings = {
 	{7,{{1, KEY_S}, {2, KEY_D}, {3, KEY_F}, {4, KEY_SPACE}, {5, KEY_J}, {6, KEY_K}, {7, KEY_L} }}
 };
 
+#define CYAN ((Color){0, 255, 255, 255})
+
 static std::unordered_map<size_t, std::vector<Color>> defaultColors = {
 	{ 1,{WHITE}},
 	{ 2,{WHITE,WHITE}},
-	{ 3,{WHITE,WHITE,WHITE}},
-	{ 4,{WHITE,WHITE,WHITE,WHITE}},
-	{ 5,{WHITE,WHITE,WHITE,WHITE,WHITE}},
-	{ 6,{WHITE,WHITE,WHITE,WHITE,WHITE,WHITE}},
-	{ 7,{WHITE,WHITE,WHITE,WHITE,WHITE,WHITE,WHITE}}
+	{ 3,{WHITE,CYAN,WHITE}},
+	{ 4,{WHITE,CYAN,CYAN,WHITE}},
+	{ 5,{WHITE,CYAN,YELLOW,CYAN,WHITE}},
+	{ 6,{WHITE,CYAN,WHITE,WHITE,CYAN,WHITE}},
+	{ 7,{WHITE,CYAN,WHITE,YELLOW,WHITE,CYAN,WHITE}}
 };
 
 static GameRendererParams defaultRendererParams = {

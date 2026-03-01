@@ -25,6 +25,7 @@ void Game::Init(Beatmap givenMap){
 void Game::Init(Beatmap givenMap, Config& conf) {
 	this->config = conf;
     mapToPlay = givenMap;
+	mapToPlay.Init();
 
     active_lane_count = mapToPlay.get_lane_count();
 
@@ -40,10 +41,15 @@ void Game::Init(Beatmap givenMap, Config& conf) {
         UnloadMusicStream(currentMusic);
 
     currentMusic = LoadMusicStream(mapToPlay.songPath.c_str());
+	SetMusicVolume(currentMusic, config.volume);
 
     isMusicLoaded = true;
     isInitialized = true;
+	SetWindowTitle(mapToPlay.mapName.c_str());
     timer = 0.0f;
+
+    bus.clear();
+    score = {0};
 }
 
 void Game::Update(float dt){

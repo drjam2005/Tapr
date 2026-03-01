@@ -35,12 +35,13 @@ std::deque<HitObject>& Lane::get_objects_reference(){
 // Map
 Beatmap::Beatmap(std::string path) {
     this->mapPath = path;
-    this->mapName = fs::path(path).stem().string(); // Use stem to remove .osu extension
-    
-    // Get the directory containing the file to build the full audio path
-    std::string folderPath = fs::path(path).parent_path().string();
+    this->mapName = fs::path(path).stem().string();
+}
 
-    std::ifstream file(path);
+void Beatmap::Init() {
+    std::string folderPath = fs::path(mapPath).parent_path().string();
+
+    std::ifstream file(mapPath);
     std::string line;
     
     int columnCount = 4; // Default fallback
@@ -142,6 +143,10 @@ std::vector<Beatmap>& Pack::get_beatmaps(){
 
 void Pack::load_from_folder(std::string path){
 	this->packPath = path;
+	size_t pos = this->packPath.rfind('-');
+	if (pos != std::string::npos)
+		packName = packPath.substr(pos + 1);
+
 	this->beatmaps.clear();
 
 	for (const auto& entry : fs::directory_iterator(path)) {

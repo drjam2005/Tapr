@@ -74,6 +74,7 @@ public:
 	std::string mapName;
 	Beatmap() {}
 	Beatmap(std::string mapName);
+	void Init();
 
 	std::vector<Lane>& get_lanes_reference();
 	std::vector<Lane> get_lanes_copy();
@@ -88,6 +89,7 @@ private:
 	std::vector<Beatmap> beatmaps;
 public:
 	std::string packPath;
+	std::string packName;
 	std::vector<Beatmap>& get_beatmaps();
 	void load_from_folder(std::string path);
 };

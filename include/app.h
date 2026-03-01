@@ -62,6 +62,8 @@ private:
 	// SONG SELECT
 	void UpdateSongSelect(float dt);
 	void RenderSongSelect(float dt);
+
+	float GetScrollPosition(float itemHeight);
 };
 
 #endif // APP_H
