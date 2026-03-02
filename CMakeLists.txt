@@ -40,6 +40,12 @@ if(UNIX)
 	target_link_directories(${exec} PUBLIC
 		${CMAKE_SOURCE_DIR}/vendor/raylib/unix/lib
 	)
+	if(RELEASE)
+		target_compile_options(${exec} PRIVATE
+			-fpermissive
+			-O3
+		)
+	endif()
 	target_link_libraries(${exec} PUBLIC
 		raylib
 		m
@@ -51,6 +57,13 @@ elseif(WIN32)
 	target_link_directories(${exec} PUBLIC
 		${CMAKE_SOURCE_DIR}/vendor/raylib/windows/lib
 	)
+	if(RELEASE)
+		target_link_options(${exec} PRIVATE "-mwindows")
+		target_compile_options(${exec} PRIVATE
+			-fpermissive
+			-O3
+		)
+	endif()
 	target_link_libraries(${exec} PRIVATE
 		raylib
 		gdi32
