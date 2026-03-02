@@ -1,4 +1,5 @@
 #pragma once
+#include "config.h"
 #ifndef APP_H
 #define APP_H
 
@@ -15,6 +16,10 @@ enum APP_STATE {
 	APP_SONG_SELECT,
 	APP_IN_GAME
 };
+
+// helper
+bool saveConfig(Config conf, std::string name);
+Config loadConfig(std::string name);
 
 class App {
 private:

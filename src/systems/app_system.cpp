@@ -1,16 +1,26 @@
 #include "app.h"
+#include "config.h"
 #include "utils/utilities.h"
-#include <raylib.h>
+
+#include "raylib.h"
+#include "raymath.h"
+#include <string>
+
 #define RAYGUI_IMPLEMENTATION
 #include "raygui.h"
-#include "raymath.h"
+#define MINI_CASE_SENSITIVE
+#include "ini.h"
+
 #include <filesystem>
 #include <iostream>
+
 
 App::App(Rectangle dims) {
 	this->window_dimensions = dims;
 	InitAudioDevice();
 
+	working_config = loadConfig("config.ini");
+	temp_config = loadConfig("config.ini");
 
 	if (!fs::exists("Songs")) {
 		fs::create_directory("Songs");
@@ -192,6 +202,13 @@ void App::RenderSettingsMenu(float dt) {
 				100.0f, 50.0f,
 				}, "APPLY")){
 		working_config = temp_config;
+		saveConfig(working_config, "config.ini");
+	}
+	if(GuiButton((Rectangle){
+				GetScreenWidth()-120.0f, GetScreenHeight()-120.0f,
+				100.0f, 50.0f,
+				}, "RESET")){
+		temp_config = defaultConfig;
 	}
 }
 
@@ -330,3 +347,116 @@ void App::RenderSongSelect(float dt) {
     }
 }
 
+struct IniCategoryScope {
+	IniCategoryScope(mINI::INIStructure *p_ini, const char *p_category) : p_ini(p_ini), p_category(p_category) {
+	}
+
+	template<typename T>
+	void set(const char *p_key, T value) {
+		(*p_ini)[p_category][p_key] = std::to_string(value);
+	}
+
+	std::string get(const char *p_key){
+		return (*p_ini)[p_category][p_key];
+	}
+
+private:
+	mINI::INIStructure *p_ini;
+	const char *p_category;
+};
+
+//helper definitions
+bool saveConfig(Config conf, std::string name){
+	mINI::INIFile file(name);
+	mINI::INIStructure ini;
+	for(int ki = 1; ki <= 7; ++ki) { // key
+		std::string category_name = TextFormat("%dKeyBindings", ki);
+		IniCategoryScope scope{&ini, category_name.c_str()};
+
+		for(int kk = 1; kk <= ki; ++kk) {
+			const char *key = TextFormat("Key%d", kk);
+			scope.set(key, (int)conf.keybindings[ki][kk-1].key);
+		}
+	}
+	{ // renderer params
+		IniCategoryScope scope{&ini, "RendererParamsDimensions"};
+
+		scope.set("x", conf.params.renderer_dimensions.x);
+		scope.set("y", conf.params.renderer_dimensions.y);
+		scope.set("width", conf.params.renderer_dimensions.width);
+		scope.set("height", conf.params.renderer_dimensions.height);
+	}
+	{ // 1key
+		for(int ki = 1; ki <= 7; ++ki) { // key
+			std::string category_name = TextFormat("%dKeyColor", ki);
+			IniCategoryScope scope{&ini, category_name.c_str()};
+
+			for(int kk = 0; kk < ki; ++kk) {
+				std::string key = TextFormat("Key%d", kk+1);
+				scope.set(key.c_str(), ColorToInt(conf.params.colors[ki][kk]));
+			}
+		}
+	}
+	// misc
+	{
+		IniCategoryScope scope{&ini, "Misc"};
+		scope.set("LaneWidth", conf.params.lane_width);
+		scope.set("LaneHeight", conf.params.lane_height);
+		scope.set("HitPosition", conf.params.hit_position);
+		scope.set("ScrollSpeed", conf.params.scroll_speed);
+		scope.set("Volume", conf.volume);
+		scope.set("AudioOffset", conf.audio_offset);
+	 }
+	return file.generate(ini, true);
+}
+
+Config loadConfig(std::string name){
+	Config conf = defaultConfig;
+	if(!FileExists(name.c_str())){
+		saveConfig(conf, name);
+	}
+	mINI::INIFile file("config.ini");
+	mINI::INIStructure ini;
+	file.read(ini);
+
+	for(int ki = 1; ki <= 7; ++ki) { // key
+		std::string category_name = TextFormat("%dKeyBindings", ki);
+		IniCategoryScope scope{&ini, category_name.c_str()};
+
+		for(int kk = 0; kk < ki; ++kk) {
+			std::string key = TextFormat("Key%d", kk+1);
+			conf.keybindings[ki][kk].key = (KeyboardKey)std::stoul(scope.get(key.c_str()));
+		}
+	}
+	{ // renderer params
+		IniCategoryScope scope{&ini, "RendererParamsDimensions"};
+
+		conf.params.renderer_dimensions.x = std::stoul(scope.get("x"));
+		conf.params.renderer_dimensions.y = std::stoul(scope.get("y"));
+		conf.params.renderer_dimensions.width = std::stoul(scope.get("width"));
+		conf.params.renderer_dimensions.height = std::stoul(scope.get("height"));
+	}
+	{  // lane colors
+		for(int ki = 1; ki <= 7; ++ki) { // key
+			std::string category_name = TextFormat("%dKeyColor", ki);
+			IniCategoryScope scope{&ini, category_name.c_str()};
+
+			for(int kk = 0; kk < ki; ++kk) {
+				std::string key = TextFormat("Key%d", kk+1);
+				conf.params.colors[ki][kk] = GetColor(std::stoul(scope.get(key.c_str())));
+			}
+		}
+	}
+	// misc
+	{
+		IniCategoryScope scope{&ini, "Misc"};
+		conf.params.lane_width = std::stoul(scope.get("LaneWidth"));
+		conf.params.lane_height = std::stoul(scope.get("LaneHeight"));
+		conf.params.hit_position = std::stof(scope.get("HitPosition"));
+		conf.params.scroll_speed = std::stof(scope.get("ScrollSpeed"));
+		conf.volume = std::stof(scope.get("Volume"));
+		conf.audio_offset = std::stof(scope.get("AudioOffset"));
+	 }
+
+	return conf;
+}

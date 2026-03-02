@@ -6,4 +6,4 @@
 namespace fs = std::filesystem;
 
 bool ExtractZipTo(const std::string& zipPath, const std::string& outputDir);
-const char* GetKeyName(KeyboardKey key);
+std::string GetKeyName(KeyboardKey key);
