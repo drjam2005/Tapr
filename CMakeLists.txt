@@ -50,7 +50,6 @@ if(UNIX)
 	endif()
 	target_link_libraries(${exec} PUBLIC
 		raylib
-		m
 	)
 elseif(WIN32)
 	target_include_directories(${exec} SYSTEM PUBLIC
