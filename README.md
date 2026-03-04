@@ -1,10 +1,11 @@
-# This is a new branch that will be a rewrite of Tapr
+# Tapr 2.0
 
-### This rewrite aims to remove unecessary redundancies and hard-coded spaghetti code from the main branch, and make it cross platform too lol
+> [!WARNING]
+> incomplete!
 
 ## dependencies
-- C++ compiler (GCC for unix, MinGW for windows)
 - CMake ([cmake](https://cmake.org/cmake/download))
+- C++ compiler (GCC for unix, MinGW for windows)
 
 Building
 ===
@@ -12,7 +13,7 @@ Building
 ```cmd
 $ mkdir build
 $ cd build
-$ cmake ..
+$ cmake .. -DRELEASE=ON
 $ make
 ```
 and to run
@@ -24,11 +25,17 @@ $ ./Tapr
 ```cmd
 $ mkdir build
 $ cd build
-$ cmake .. -G "MinGW Makefiles"
+$ cmake .. -G "MinGW Makefiles" -DRELEASE=ON
 $ make
 ```
 and to run
 ```
 $ Tapr.exe
 ```
+
+TODO
+===
+* SCORE SAVING
+* MORE JUICE
+
 
