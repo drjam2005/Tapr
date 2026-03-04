@@ -13,6 +13,7 @@
 
 #include <filesystem>
 #include <iostream>
+#include <cmath>
 
 
 App::App(Rectangle dims) {
@@ -132,6 +133,22 @@ void App::UpdateSettingsMenu(float dt) {
 
 void App::RenderSettingsMenu(float dt) {
 	Config& cnf = temp_config;
+	if(selected_key_edit >= 0){
+		DrawRectangleRec((Rectangle){
+				195, 195, GetScreenWidth()-390.f, GetScreenHeight()-390.f
+				}, GRAY);
+		DrawRectangleRec((Rectangle){
+				200, 200, GetScreenWidth()-400.f, GetScreenHeight()-400.f
+				}, DARKGRAY);
+		DrawText(TextFormat("Listening to Key Press...\nFor %dKeymode, Lane: %d", selected_key_mode_edit, selected_key_edit+1), (GetScreenWidth()/2.0f)-120.0f, (GetScreenHeight()/2.0f)-10.0f, 20, WHITE);
+		int key = GetKeyPressed();
+		if(key){
+			cnf.keybindings[selected_key_mode_edit][selected_key_edit].key = (KeyboardKey)key;
+			selected_key_mode_edit = -1;
+			selected_key_edit = -1;
+		}
+		return;
+	}
 	if(GuiButton((Rectangle){
 				20.0f, 20.0f,
 				50.0f, 20.0f
@@ -142,33 +159,33 @@ void App::RenderSettingsMenu(float dt) {
 	// actual stuff
 	// lane_width
 	DrawText(TextFormat("LANE WIDTH: %.1f", cnf.params.lane_width), 40, 60, 20, WHITE);
-	GuiSlider({75, 80, 300, 20}, "1.0f", "225.0f", 
+	GuiSlider({75, 80, 300, 15}, "1.0f", "225.0f", 
 			&cnf.params.lane_width, 1.0f, 225.0f);
 
 	// lane_height
-	DrawText(TextFormat("LANE HEIGHT: %.1f", cnf.params.lane_height), 40, 130, 20, WHITE);
-	GuiSlider({75, 150, 300, 20}, "1.0f", "225.0f", 
+	DrawText(TextFormat("LANE HEIGHT: %.1f", cnf.params.lane_height), 40, 110, 20, WHITE);
+	GuiSlider({75, 130, 300, 15}, "1.0f", "225.0f", 
 			&cnf.params.lane_height, 1.0f, 225.0f);
 
 	// hit_position
-	DrawText(TextFormat("HIT POSITION: %.1f", cnf.params.hit_position), 40, 200, 20, WHITE);
-	GuiSlider({75, 220, 300, 20}, "0.0f", "1.0f",
+	DrawText(TextFormat("HIT POSITION: %.1f", cnf.params.hit_position), 40, 160, 20, WHITE);
+	GuiSlider({75, 180, 300, 15}, "0.0f", "1.0f",
 			&cnf.params.hit_position, 0.0f, 1.0f);
 
 	// scroll_speed
-	DrawText(TextFormat("SCROLL SPEED: %.1f", cnf.params.scroll_speed), 40, 270, 20, WHITE);
-	GuiSlider({75, 290, 300, 20}, "1.0f", "50.0f", 
+	DrawText(TextFormat("SCROLL SPEED: %.1f", cnf.params.scroll_speed), 40, 210, 20, WHITE);
+	GuiSlider({75, 230, 300, 15}, "1.0f", "50.0f", 
 			&cnf.params.scroll_speed, 1.0f, 50.0f);
 
 	// volume
-	DrawText(TextFormat("VOLUME: %.2f", cnf.volume), 40, 340, 20, WHITE);
-	GuiSlider({75, 360, 300, 20}, "0.0f", "1.0f", 
+	DrawText(TextFormat("VOLUME: %.2f", cnf.volume), 40, 260, 20, WHITE);
+	GuiSlider({75, 280, 300, 15}, "0.0f", "1.0f", 
 			&cnf.volume, 0.0f, 1.0f);
 
-	DrawText(TextFormat("AUDIO OFFSET (ms): %.2f", cnf.audio_offset), 40, 410, 20, WHITE);
+	DrawText(TextFormat("AUDIO OFFSET (ms): %.2f", cnf.audio_offset), 40, 310, 20, WHITE);
 
     float sliderX = 75.0f;
-    float sliderY = 430.0f;
+    float sliderY = 330.0f;
     float sliderWidth = 300.0f;
     float sliderHeight = 20.0f;
     float buttonSize = 25.0f;
@@ -196,6 +213,29 @@ void App::RenderSettingsMenu(float dt) {
         if (!editMode) cnf.audio_offset = atof(buffer);
     }
 
+	// keybind editing...
+	DrawText(TextFormat("KeyMode to Edit: %d", current_key_mode_edit), 75, 370, 20, WHITE);
+	if(GuiButton((Rectangle){270, 370, 30, 20}, "<")){
+		current_key_mode_edit = fmax(1, current_key_mode_edit - 1);
+	}
+	if(GuiButton((Rectangle){310, 370, 30, 20}, ">")){
+		current_key_mode_edit = fmin(current_key_mode_edit + 1, 7);
+	}
+	float currentXOffset = 0;
+	for(int i = 0; i < current_key_mode_edit; ++i){
+		const char* text = GetKeyName( cnf.keybindings[current_key_mode_edit][i].key).c_str();
+		float text_width = MeasureText(text, 20);
+		DrawText(TextFormat("%s", text), 75+currentXOffset, 400, 20, (
+			cnf.keybindings[current_key_mode_edit][i].key == working_config.keybindings[current_key_mode_edit][i].key ? WHITE : YELLOW
+					));
+		if(GuiButton((Rectangle){75+currentXOffset, 430, 70, 20}, "Edit")){
+			selected_key_mode_edit = current_key_mode_edit;
+			selected_key_edit = i;
+		}
+		currentXOffset += fmax(text_width + 5, 75);
+	}
+	
+
 
 	if(GuiButton((Rectangle){
 				GetScreenWidth()-120.0f, GetScreenHeight()-60.0f,
@@ -215,10 +255,9 @@ void App::RenderSettingsMenu(float dt) {
 // IN GAME
 void App::UpdateGame(float dt){
 	if(IsKeyPressed(KEY_GRAVE)){
-		Beatmap& selected = songPacks[selectedPack].get_beatmaps()[selectedMap];
-		std::cout << "Playing: " << selected.mapName << std::endl;
-		gameToPlay.Init(selected);
-		current_app_state = APP_IN_GAME;
+        Beatmap& selected = songPacks[selectedPack].get_beatmaps()[selectedMap];
+        gameToPlay.Init(selected, working_config);
+        current_app_state = APP_IN_GAME;
 	}
 	if(IsKeyPressed(KEY_ESCAPE)){
 		current_app_state = APP_MAIN_MENU;
