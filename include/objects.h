@@ -70,6 +70,7 @@ private:
 	std::vector<Lane> lanes;
 	std::string mapPath;
 public:
+	float mapStart = -2.5f;
 	std::string songPath;
 	std::string mapName;
 	Beatmap() {}

@@ -103,6 +103,9 @@ void Beatmap::Init() {
 
             double time = std::stod(tokens[2]) / 1000.0;
             int type = std::stoi(tokens[3]);
+			if(mapStart < 0){
+				mapStart = time;
+			}
 
             if (type & 128) { // Hold Note
                 std::string endPart = tokens[5];

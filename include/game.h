@@ -21,10 +21,12 @@ private:
 	Config config;
 
 	size_t active_lane_count = 4;
-	float timer = 0.0f;
+	float elapsedTime = -2.0f;
 
 	bool isMusicLoaded = false;
 	bool isInitialized = false;
+
+	bool isSkipped = false;
 public:
 
 	Game() {}

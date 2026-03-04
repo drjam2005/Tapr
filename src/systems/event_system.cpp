@@ -15,22 +15,6 @@ std::vector<Event>& EventBus::get(){
 
 void EventBus::print_current_events(){
 	for(auto& e : events){
-		if(e.type == KEY_EVENT){
-			std::cout << "(KEY_EVENT) " << e.event.key_event.lane << ": ";
-			switch(e.event.key_event.status){
-				case KEY_IS_DOWN:
-					std::cout << " down";
-					break;
-				case KEY_IS_PRESSED:
-					std::cout << " pressed";
-					break;
-				case KEY_IS_RELEASED:
-					std::cout << " released";
-					break;
-				default:
-					break;
-			}
-			std::cout << '\n';
-		}
+		// nothing for now
 	}
 }

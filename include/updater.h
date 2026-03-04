@@ -17,7 +17,6 @@ class Updater {
 private:
 	Beatmap* mapToPlay = nullptr;
 	size_t laneCount = 1;
-	long double elapsedTime = -1.5f;
 	Timings timings;
 
 	// a bit scuffed and hardcoded, basically if it's 4key, and binds are DFJK
@@ -25,7 +24,8 @@ private:
 	std::vector<LaneBinding> bindings;
 public:
 	Updater() {}
-	Updater(Beatmap* mapToPlay, std::vector<LaneBinding> bindings, Timings timings=OD8_Timings);
+	Updater(Beatmap* mapToPlay, std::vector<LaneBinding> bindings, Timings timings);
+	long double elapsedTime = -2.0f;
  
 	void Update(float dt, MapScore& score, EventBus& bus);
 	long double getElapsedTime();

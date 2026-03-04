@@ -32,7 +32,7 @@ private:
 
 	MapScore score;
 public:
-	long double elapsed_time = -1.5f;
+	long double elapsed_time = -2.0f;
 	GameRenderer() {}
 	GameRenderer(Beatmap* mapToPlay, GameRendererParams params);
 	void Render(float dt, MapScore& score,EventBus& bus);

@@ -111,6 +111,7 @@ void App::UpdateMainMenu(float dt){
 void App::RenderMainMenu(float dt){
 	float text_width = MeasureText("PLAY", 50);
 
+	DrawText("TAPR 2.0", GetScreenWidth()/2.0f - 100.0f, GetScreenHeight()/2.0f - 110, 50, WHITE);
 	if(GuiButton((Rectangle){
 				window_dimensions.x + (window_dimensions.width/2) - (text_width/2),
 				GetScreenHeight()/2.0f, text_width, 50
@@ -120,10 +121,18 @@ void App::RenderMainMenu(float dt){
 	}
 	if(GuiButton((Rectangle){
 				window_dimensions.x + (window_dimensions.width/2) - (text_width/2),
-				GetScreenHeight()/2.0f + 50, text_width, 50
+				GetScreenHeight()/2.0f + 70, text_width, 50
 				}, "SETTINGS"))
 	{
 		current_app_state =	APP_SETTINGS_MENU;
+	}
+
+	if(GuiButton((Rectangle){
+				window_dimensions.x + (window_dimensions.width/2) - (text_width/2),
+				GetScreenHeight()/2.0f + 140, text_width, 50
+				}, "EXIT"))
+	{
+		CloseWindow();
 	}
 }
 
@@ -255,7 +264,7 @@ void App::RenderSettingsMenu(float dt) {
 // IN GAME
 void App::UpdateGame(float dt){
 	if(IsKeyPressed(KEY_GRAVE)){
-        Beatmap& selected = songPacks[selectedPack].get_beatmaps()[selectedMap];
+        Beatmap selected = songPacks[selectedPack].get_beatmaps()[selectedMap];
         gameToPlay.Init(selected, working_config);
         current_app_state = APP_IN_GAME;
 	}
@@ -324,7 +333,7 @@ void App::UpdateSongSelect(float dt) {
     }
 
     if (IsKeyPressed(KEY_ENTER)) {
-        Beatmap& selected = songPacks[selectedPack].get_beatmaps()[selectedMap];
+        Beatmap selected = songPacks[selectedPack].get_beatmaps()[selectedMap];
         gameToPlay.Init(selected, working_config);
         current_app_state = APP_IN_GAME;
     }
