@@ -1,4 +1,5 @@
 #include "game.h"
+#include <iostream>
 
 void Game::Init(Beatmap givenMap){
 //    isInitialized = true;
@@ -54,13 +55,16 @@ void Game::Init(Beatmap givenMap, Config& conf) {
 void Game::Update(float dt){
 	elapsedTime += dt;
     if(!isInitialized) return;
-	if(mapToPlay.mapStart - elapsedTime >= 2.0f && !isSkipped){
+	if(mapToPlay.mapStart - elapsedTime >= 2.0f && !isSkipped && mapToPlay.mapStart >= 2.0f){
 		DrawText("Skip Intro? <SPACE>", (GetScreenWidth()/2.0f)-100.0f, GetScreenHeight()/2.0f, 20, WHITE);
 		if(IsKeyPressed(KEY_SPACE)){
 			SeekMusicStream(currentMusic, mapToPlay.mapStart-config.audio_offset-2.0f);
 			this->updater.elapsedTime   = GetMusicTimePlayed(currentMusic)-config.audio_offset;
 			this->renderer.elapsed_time = GetMusicTimePlayed(currentMusic)-config.audio_offset;
 			elapsedTime = (mapToPlay.mapStart)-2.0f;
+			std::cout << this->updater.elapsedTime << '\n';
+			std::cout << mapToPlay.mapStart-config.audio_offset-2.0f << '\n';
+			std::cout << GetMusicTimePlayed(currentMusic) << '\n';
 			isSkipped = true;
 		}
 	}else{

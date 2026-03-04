@@ -287,7 +287,7 @@ void App::UpdateSongSelect(float dt) {
     int key = GetKeyPressed();
     bool ctrl = IsKeyDown(KEY_LEFT_CONTROL) || IsKeyDown(KEY_RIGHT_CONTROL);
 
-    if (key == KEY_J) {
+    if (key == KEY_J || key == KEY_DOWN) {
         if (ctrl) {
 			if(selectedPack < songPacks.size()-1){
 				selectedPack++;
@@ -309,7 +309,7 @@ void App::UpdateSongSelect(float dt) {
         }
     }
 
-    if (key == KEY_K) {
+    if (key == KEY_K || key == KEY_UP) {
         if (ctrl) {
 			if(selectedPack > 0){
 				selectedPack--;
@@ -358,9 +358,13 @@ void App::RenderSongSelect(float dt) {
     int packIndex = 0;
     int itemHeight = 35;
 	float targetScroll = GetScrollPosition(itemHeight);
-	yScrollPos = Lerp(yScrollPos, targetScroll, dt); // Smooth sliding
+	yScrollPos = Lerp(yScrollPos, targetScroll, dt);
     float currentY = yScrollPos;
     int screenHeight = GetScreenHeight();
+	
+	if(songPacks.empty()){
+		DrawText("DRAG AND DROP OSU!MANIA BEATMAPS!", GetScreenWidth()/2.0f-300, GetScreenHeight()/2.0f-20, 30, WHITE);
+	}
 
     for (auto& pack : songPacks) {
         if (currentY > -itemHeight && currentY < screenHeight) {
