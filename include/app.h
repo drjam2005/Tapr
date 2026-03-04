@@ -43,6 +43,11 @@ private:
 	// CONFIG STUFF
 	Config working_config = defaultConfig;
 	Config temp_config = defaultConfig;
+
+	int current_key_mode_edit = 1;
+
+	int selected_key_mode_edit = -1;
+	int selected_key_edit = -1;
 public:
 
 	App(Rectangle dims);
