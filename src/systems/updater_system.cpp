@@ -1,14 +1,14 @@
 #include "objects.h"
 #include "updater.h"
-#include <iostream>
 #include <cmath>
 #include "event_system.h"
 
 #include "raylib.h"
 #include <assert.h>
 
-Updater::Updater(Beatmap* mapToPlay, std::vector<LaneBinding> bindings, Timings timings){
+Updater::Updater(Beatmap* mapToPlay, URBar* ur, std::vector<LaneBinding> bindings, Timings timings){
 	this->mapToPlay = mapToPlay;
+	this->ur = ur;
 	this->laneCount = mapToPlay->get_lane_count();
 	this->bindings = bindings;
 	this->timings = timings;
@@ -84,6 +84,9 @@ void Updater::Update(float dt, MapScore& score, EventBus& bus){
 						}
 					});
 				score.MISS++;
+				score.COMBO = 0;
+				score.font_size = 25.0f;
+				score.lastTiming = TIMING_MISS;
 				lane.pop_front();
 				continue;
 			}
@@ -103,9 +106,18 @@ void Updater::Update(float dt, MapScore& score, EventBus& bus){
 				default:               return;
 			}
 
+			if(timing != TIMING_MISS)
+				score.COMBO++;
+
+			score.lastTiming = timing;
+			score.font_size = 25.f;
+
 			bus.emit((Event){
 					NOTE_EVENT, { .note_event = { NOTE_IS_PRESSED, timing, lane_num, diff } }
 					});
+
+			ur->AddError(diff, timing);
+
 
 			if (obj.type == TAP) {
 				lane.pop_front();

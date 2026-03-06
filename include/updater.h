@@ -16,15 +16,14 @@
 class Updater {
 private:
 	Beatmap* mapToPlay = nullptr;
+	URBar* ur = nullptr;
 	size_t laneCount = 1;
 	Timings timings;
 
-	// a bit scuffed and hardcoded, basically if it's 4key, and binds are DFJK
-	// then: {KEY_D, KEY_F, KEY_J, KEY_K};
 	std::vector<LaneBinding> bindings;
 public:
 	Updater() {}
-	Updater(Beatmap* mapToPlay, std::vector<LaneBinding> bindings, Timings timings);
+	Updater(Beatmap* mapToPlay, URBar* ur, std::vector<LaneBinding> bindings, Timings timings);
 	long double elapsedTime = -2.0f;
  
 	void Update(float dt, MapScore& score, EventBus& bus);

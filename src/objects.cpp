@@ -135,6 +135,39 @@ std::deque<HitObject>& Beatmap::get_lane_objects_reference(size_t lane){
 	return this->lanes[lane].get_objects_reference();
 }
 
+// URBar
+std::vector<UROffset>& URBar::getOffsets(){
+	return this->offsets;
+}
+
+void URBar::AddError(float dt, TimingEnum timing){
+	this->offsets.push_back({ dt, timing});
+}
+
+void URBar::Update(float dt){
+	for(auto& offset : offsets){
+		offset.lifeTime -= dt;
+	}
+
+	offsets.erase(
+		std::remove_if(offsets.begin(), offsets.end(),
+			[](UROffset offset){ return offset.lifeTime <= 0; }),
+		offsets.end()
+	);
+}
+
+float URBar::getAverage(){
+	if(this->offsets.empty())
+		return 0.0f;
+
+	float average = 0.0f;
+	for(auto& offset : this->offsets){
+		average += offset.error;
+	}
+
+	return (float)(average / this->offsets.size());
+}
+
 size_t Beatmap::get_lane_count(){
 	return this->lanes.size();
 }

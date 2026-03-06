@@ -14,6 +14,7 @@ class Game {
 private:
 	Beatmap mapToPlay;
 	GameRenderer renderer;
+	URBar ur;
 	Music currentMusic;
 	Updater updater;
 	EventBus bus;

@@ -1,4 +1,5 @@
 #pragma once
+#include <queue>
 #ifndef GAME_RENDERER_H
 #define GAME_RENDERER_H
 
@@ -21,10 +22,13 @@ struct GameRendererParams {
 	float scroll_speed = 1.0f;
 };
 
+
 // rendering
 class GameRenderer {
 private:
 	Beatmap* mapToPlay = nullptr;
+	URBar* ur = nullptr;
+
 	GameRendererParams params;
 
 	size_t laneCount = 1;
@@ -34,7 +38,7 @@ private:
 public:
 	long double elapsed_time = -2.0f;
 	GameRenderer() {}
-	GameRenderer(Beatmap* mapToPlay, GameRendererParams params);
+	GameRenderer(Beatmap* mapToPlay, URBar* ur, GameRendererParams params);
 	void Render(float dt, MapScore& score,EventBus& bus);
 };
 #endif // GAME_RENDERER_H

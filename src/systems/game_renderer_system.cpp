@@ -1,14 +1,16 @@
+#include "config.h"
 #include "game_renderer.h"
 #include "event_system.h"
 #include "objects.h"
 #include "raylib.h"
-#include "raymath.h"
-#include <iostream>
 #include <algorithm>
+#include <iostream>
 #include <cmath>
+#include <raymath.h>
 
-GameRenderer::GameRenderer(Beatmap* mapToPlay, GameRendererParams params){
+GameRenderer::GameRenderer(Beatmap* mapToPlay, URBar* ur, GameRendererParams params){
 	this->mapToPlay = mapToPlay;
+	this->ur = ur;
 	this->laneCount = mapToPlay->get_lane_count();
 	this->params = params;
 	for(size_t i = 0; i < this->laneCount; ++i)
@@ -17,6 +19,72 @@ GameRenderer::GameRenderer(Beatmap* mapToPlay, GameRendererParams params){
 
 void GameRenderer::Render(float dt, MapScore& score,EventBus& bus){
 	this->elapsed_time += dt;
+
+	{	// misc stuff
+		DrawText(TextFormat(score.PERFECT ? "%.2f:1" : "inf:1", (float)score.MARVELOUS / score.PERFECT),
+				params.renderer_dimensions.width/2.0f + params.renderer_dimensions.x - 20, params.renderer_dimensions.height/2.0f + params.renderer_dimensions.y + 10, 20, WHITE
+			);
+
+		// draw combo :3
+
+		DrawText(TextFormat(score.COMBO ? "%dx" : "", score.COMBO),
+				params.renderer_dimensions.width/2.0f + params.renderer_dimensions.x - 20, params.renderer_dimensions.height/2.0f + params.renderer_dimensions.y - 50, score.font_size, WHITE
+			);
+		{
+			// draw timing
+			Color clr;
+			std::string text = "";
+			switch(score.lastTiming) {
+				case TIMING_MARVELOUS: clr = CYAN; text = "MARVELOUS"; break;
+				case TIMING_PERFECT:   clr = YELLOW; text = "PERFECT"; break;
+				case TIMING_GREAT:     clr = GREEN; text = "GREAT"; break;
+				case TIMING_OKAY:      clr = ORANGE; text = "OKAY"; break;
+				case TIMING_BAD:       clr = GRAY; text = "BAD"; break;
+				case TIMING_MISS:	   clr = RED; text = "MISS"; break;
+				default:               break;
+			}
+
+			score.font_size = Lerp(score.font_size, 20, dt*10);
+			Vector2 text_dims = MeasureTextEx(GetFontDefault(), text.c_str(), score.font_size, 1.0f);
+			//DrawText(TextFormat("%s", text.c_str()),
+			//		params.renderer_dimensions.width/2.0f + params.renderer_dimensions.x - (text_dims.x/2.0f), 
+			//		params.renderer_dimensions.height/2.0f + params.renderer_dimensions.y - 90 - (text_dims.y/2.0f), 
+			//		score.font_size, clr
+			//	);
+			DrawTextPro(GetFontDefault(), TextFormat("%s", text.c_str()), 
+					{
+						params.renderer_dimensions.width/2.0f + params.renderer_dimensions.x - (text_dims.x/2.0f), 
+						params.renderer_dimensions.height/2.0f + params.renderer_dimensions.y - 90 - (text_dims.y/2.0f), 
+					}
+					,
+					{
+					0.0f, 0.0f
+					}
+					, fmin(score.font_size, 22)-20, score.font_size, 1.0f, clr);
+		}
+
+		// draw urbar time
+		DrawRectangle(params.renderer_dimensions.width/2.0f + params.renderer_dimensions.x - 60.0f, params.renderer_dimensions.height/2.0f + params.renderer_dimensions.y, 
+				120, 2, WHITE);
+		float mid = GetScreenWidth()/2.0f;
+		for(auto& offset : ur->getOffsets()){
+			// get relative offset based from mid
+			float relOffset = mid + (offset.error * 500);
+			Color clr = CYAN;
+			switch(offset.timing) {
+				case TIMING_MARVELOUS: clr = CYAN; break;
+				case TIMING_PERFECT:   clr = YELLOW; break;
+				case TIMING_GREAT:     clr = GREEN; break;
+				case TIMING_OKAY:      clr = ORANGE; break;
+				case TIMING_BAD:       clr = GRAY; break;
+				case TIMING_MISS:	   clr = RED; break;
+				default:               continue; break;
+			}
+			clr.a = Clamp((200 * offset.lifeTime), 0, 200);
+			DrawRectangle(relOffset - 1, GetScreenHeight()/2.0f - 5.0, 2, 10, clr);
+		}
+	}
+	// draw ratio :3
 
 	Rectangle dims = params.renderer_dimensions;
 	float scroll_speed = params.scroll_speed*40;
@@ -29,11 +97,11 @@ void GameRenderer::Render(float dt, MapScore& score,EventBus& bus){
 	// Drawing the hit area
 	for(size_t i = 0; i < laneCount; ++i){
 		Color& clr = lane_colors[i];
-		clr = ColorLerp(clr, WHITE, dt*(GetFPS()/4));
+		clr = ColorLerp(clr, WHITE, dt*5);
 		for(auto& e : bus.get()){
 			if(e.type == KEY_EVENT){
 				if(e.event.key_event.status == KEY_IS_DOWN && e.event.key_event.lane-1 == i){
-					clr = LIGHTGRAY;
+					clr = GRAY;
 				}
 			}
 		}
@@ -44,12 +112,12 @@ void GameRenderer::Render(float dt, MapScore& score,EventBus& bus){
 	{   // Draw the score/hits
 		size_t yOffset = 25;
 		size_t yCount = 0;
-		DrawText(TextFormat("MARV : %d", score.MARVELOUS), (float)(start+(lane_width*(laneCount+0.5))), 100+(yOffset*(yCount++)), 10, GREEN);
-		DrawText(TextFormat("PERF : %d", score.PERFECT), (float)(start+(lane_width*(laneCount+0.5))), 100+(yOffset*(yCount++)), 10, GREEN);
-		DrawText(TextFormat("GREAT: %d", score.GREAT), (float)(start+(lane_width*(laneCount+0.5))), 100+(yOffset*(yCount++)), 10, GREEN);
-		DrawText(TextFormat("OKAY : %d", score.OKAY), (float)(start+(lane_width*(laneCount+0.5))), 100+(yOffset*(yCount++)), 10, GREEN);
-		DrawText(TextFormat("BAD  : %d", score.BAD), (float)(start+(lane_width*(laneCount+0.5))), 100+(yOffset*(yCount++)), 10, GREEN);
-		DrawText(TextFormat("MISS : %d", score.MISS), (float)(start+(lane_width*(laneCount+0.5))), 100+(yOffset*(yCount++)), 10, GREEN);
+		DrawText(TextFormat("%d", score.MARVELOUS), (float)(start+(lane_width*(laneCount+0.25))), 100+(yOffset*(yCount++)), 15, CYAN);
+		DrawText(TextFormat("%d", score.PERFECT),   (float)(start+(lane_width*(laneCount+0.25))), 100+(yOffset*(yCount++)), 15, YELLOW);
+		DrawText(TextFormat("%d", score.GREAT),     (float)(start+(lane_width*(laneCount+0.25))), 100+(yOffset*(yCount++)), 15, GREEN);
+		DrawText(TextFormat("%d", score.OKAY),      (float)(start+(lane_width*(laneCount+0.25))), 100+(yOffset*(yCount++)), 15, ORANGE);
+		DrawText(TextFormat("%d", score.BAD),       (float)(start+(lane_width*(laneCount+0.25))), 100+(yOffset*(yCount++)), 15, GRAY);
+		DrawText(TextFormat("%d", score.MISS),      (float)(start+(lane_width*(laneCount+0.25))), 100+(yOffset*(yCount++)), 15, RED);
 	}
 
 	std::vector<Lane>& lanes = mapToPlay->get_lanes_reference();

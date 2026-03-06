@@ -85,6 +85,22 @@ public:
 	size_t get_lane_count();
 };
 
+struct UROffset {
+	float error = 0.0f;
+	TimingEnum timing;
+
+	float lifeTime = 2.0f;
+};
+
+struct URBar {
+	std::vector<UROffset> offsets;
+	
+	void Update(float dt);
+	void AddError(float dt, TimingEnum timing);
+	float getAverage();
+	std::vector<UROffset>& getOffsets();
+};
+
 class Pack {
 private:
 	std::vector<Beatmap> beatmaps;

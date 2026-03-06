@@ -26,15 +26,21 @@ void Game::Init(Beatmap givenMap, Config& conf) {
 	this->config = conf;
     mapToPlay = givenMap;
 	mapToPlay.Init();
+	ur.getOffsets().clear();
 
     active_lane_count = mapToPlay.get_lane_count();
 
+
     updater = Updater(
         &mapToPlay,
+		&ur,
         config.keybindings[active_lane_count],
         OD8_Timings);
 
-    renderer = GameRenderer(&mapToPlay, config.params);
+    renderer = GameRenderer(
+			&mapToPlay, 
+			&ur,
+			config.params);
 
     if (isMusicLoaded)
         UnloadMusicStream(currentMusic);
@@ -62,9 +68,6 @@ void Game::Update(float dt){
 			this->updater.elapsedTime   = GetMusicTimePlayed(currentMusic)-config.audio_offset;
 			this->renderer.elapsed_time = GetMusicTimePlayed(currentMusic)-config.audio_offset;
 			elapsedTime = (mapToPlay.mapStart)-2.0f;
-			std::cout << this->updater.elapsedTime << '\n';
-			std::cout << mapToPlay.mapStart-config.audio_offset-2.0f << '\n';
-			std::cout << GetMusicTimePlayed(currentMusic) << '\n';
 			isSkipped = true;
 		}
 	}else{
@@ -83,6 +86,7 @@ void Game::Update(float dt){
 
     this->bus.clear();
     this->updater.Update(dt, score, bus);
+	this->ur.Update(dt);
 }
 
 void Game::Render(float dt){
@@ -94,6 +98,7 @@ void Game::Render(float dt){
 void Game::Loop(float dt){
 	if(!isInitialized)
 		return;
+	this->ur.Update(dt);
 	this->Update(dt);
 	this->Render(dt);
 
