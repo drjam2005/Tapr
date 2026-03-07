@@ -186,8 +186,8 @@ void App::RenderSettingsMenu(float dt) {
 
 	// scroll_speed
 	DrawText(TextFormat("SCROLL SPEED: %.1f", cnf.params.scroll_speed), 40, 210, 20, WHITE);
-	GuiSlider({75, 230, 300, 15}, "1.0f", "50.0f", 
-			&cnf.params.scroll_speed, 1.0f, 50.0f);
+	GuiSlider({75, 230, 300, 15}, "-50.0f", "50.0f", 
+			&cnf.params.scroll_speed, -50.0f, 50.0f);
 
 	// volume
 	DrawText(TextFormat("VOLUME: %.2f", cnf.volume), 40, 260, 20, WHITE);

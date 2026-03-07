@@ -143,23 +143,36 @@ void GameRenderer::Render(float dt, MapScore& score,EventBus& bus){
 			float x_position = start + (lane_width*lane_num);
 			Rectangle head = {  x_position ,y_position ,lane_width ,lane_height };
 
-			if(y_position < params.renderer_dimensions.y)
-				break;
+			if(params.scroll_speed >= 0){
+				if(y_position < params.renderer_dimensions.y)
+					break;
+			}else{
+				if(y_position > params.renderer_dimensions.height)
+					break;
+			}
 
 			if(obj.type == TAP){
 				DrawRectangleRec(head, params.colors[laneCount][lane_num]);
 			}else if(obj.type == HOLD){
-				float tail_height = std::clamp(
-						(double)y_position - params.renderer_dimensions.y,
-					   	(double)0.0f, obj.hold_time*scroll_speed);
+				float tail_height = fabs(obj.hold_time*scroll_speed);
 
-				Rectangle tail = { x_position, y_position - tail_height, lane_width, tail_height};
+				Rectangle tail;
+				if(params.scroll_speed >= 0){
+					tail = { x_position, y_position - tail_height, lane_width, tail_height};
+				}else{
+					tail = { x_position, y_position, lane_width, tail_height};
+				}
 				Color tail_clr = params.colors[laneCount][lane_num];
 				tail_clr.a -= 120;
 
 				if(obj.isHeld){
-					head.y = hit_position-(lane_height);
-					tail.height = (hit_position - y_position + tail_height - (lane_height/2.0f));
+					head.y = hit_position-(lane_height/2.0f);
+					if(params.scroll_speed >= 0){
+						tail.height = (hit_position - y_position + tail_height - (lane_height/2.0f));
+					}else{
+						tail.y = head.y;
+						tail.height = (y_position - hit_position + tail_height + (lane_height/2.0f));;
+					}
 				}
 
 				DrawRectangleRec(tail, tail_clr);
