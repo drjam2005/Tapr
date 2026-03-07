@@ -111,8 +111,10 @@ void Beatmap::Init() {
                 std::string endPart = tokens[5];
                 double endTime = std::stod(endPart.substr(0, endPart.find(':'))) / 1000.0;
                 lanes[laneIdx].add_hold_object(time, endTime - time);
+				objectCount++;
             } else {
                 lanes[laneIdx].add_hit_object(time);
+				objectCount++;
             }
         }
     }
@@ -187,7 +189,14 @@ void Pack::load_from_folder(std::string path){
 
 	for (const auto& entry : fs::directory_iterator(path)) {
 		if (entry.path().extension() == ".osu") {
-			beatmaps.emplace_back(entry.path().string());
+			Beatmap bm(entry.path().string());
+			fs::path whole = path; whole /= bm.mapName;
+			bm.wholePath = whole.string();
+			beatmaps.emplace_back(bm);
 		}
 	}
+
+	sort(beatmaps.begin(), beatmaps.end(), [](const Beatmap& a, const Beatmap& b){
+				return fs::file_size(a.wholePath + ".osu") < fs::file_size(b.wholePath + ".osu");
+			});
 }

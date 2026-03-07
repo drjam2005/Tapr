@@ -1,10 +1,11 @@
 #include "objects.h"
 #include "updater.h"
-#include <cmath>
 #include "event_system.h"
 
 #include "raylib.h"
 #include <assert.h>
+#include <cmath>
+#include <iostream>
 
 Updater::Updater(Beatmap* mapToPlay, URBar* ur, std::vector<LaneBinding> bindings, Timings timings){
 	this->mapToPlay = mapToPlay;
@@ -12,6 +13,10 @@ Updater::Updater(Beatmap* mapToPlay, URBar* ur, std::vector<LaneBinding> binding
 	this->laneCount = mapToPlay->get_lane_count();
 	this->bindings = bindings;
 	this->timings = timings;
+
+	for(int lane = 0; lane < laneCount; ++lane){
+		holds[lane] = -1;
+	}
 
 	assert(mapToPlay->get_lane_count() == bindings.size() && "LANE_COUNT SHOULD BE THE SAME AS BIND_COUNT");
 }
@@ -38,29 +43,33 @@ void Updater::Update(float dt, MapScore& score, EventBus& bus){
 	this->elapsedTime += dt;
 
 	// for tap events
+	int ln = 0;
 	for (auto& bind : bindings) {
-		if(IsKeyPressed(bind.key)){
-			bus.emit((Event){
-				KEY_EVENT,
-				{   .key_event = 
-					{ KEY_IS_PRESSED, bind.key, bind.lane }
-				}
-			});
-		}else if(IsKeyDown(bind.key)){
-			bus.emit((Event){
-				KEY_EVENT,
-				{   .key_event =
-					{ KEY_IS_DOWN, bind.key, bind.lane }
-				}
-			});
-		}else if(IsKeyReleased(bind.key)){
-			bus.emit((Event){
-				KEY_EVENT,
-				{   .key_event =
-					{ KEY_IS_RELEASED, bind.key, bind.lane }
-				}
-			});
+		{
+			if(IsKeyPressed(bind.key)){
+				bus.emit((Event){
+					KEY_EVENT,
+					{   .key_event = 
+						{ KEY_IS_PRESSED, bind.key, bind.lane }
+					}
+				});
+			}else if(IsKeyDown(bind.key)){
+				bus.emit((Event){
+					KEY_EVENT,
+					{   .key_event =
+						{ KEY_IS_DOWN, bind.key, bind.lane }
+					}
+				});
+			}else if(IsKeyReleased(bind.key)){
+				bus.emit((Event){
+					KEY_EVENT,
+					{   .key_event =
+						{ KEY_IS_RELEASED, bind.key, bind.lane }
+					}
+				});
+			}
 		}
+		ln++;
 	}
 
 	for(size_t lane_num = 0; lane_num < laneCount; ++lane_num){
@@ -96,14 +105,16 @@ void Updater::Update(float dt, MapScore& score, EventBus& bus){
 			TimingEnum timing = getTiming(diff);
 			if (timing == TIMING_NONE && diff < 0) return; 
 
-			switch(timing) {
-				case TIMING_MARVELOUS: score.MARVELOUS++; break;
-				case TIMING_PERFECT:   score.PERFECT++;   break;
-				case TIMING_GREAT:     score.GREAT++;     break;
-				case TIMING_OKAY:      score.OKAY++;      break;
-				case TIMING_BAD:       score.BAD++;       break;
-				case TIMING_MISS:      score.MISS++;      break;
-				default:               return;
+			if(obj.type == TAP){
+				switch(timing) {
+					case TIMING_MARVELOUS: score.MARVELOUS++; break;
+					case TIMING_PERFECT:   score.PERFECT++;   break;
+					case TIMING_GREAT:     score.GREAT++;     break;
+					case TIMING_OKAY:      score.OKAY++;      break;
+					case TIMING_BAD:       score.BAD++;       break;
+					case TIMING_MISS:      score.MISS++;      break;
+					default:               return;
+				}
 			}
 
 			if(timing != TIMING_MISS)
@@ -123,6 +134,7 @@ void Updater::Update(float dt, MapScore& score, EventBus& bus){
 				lane.pop_front();
 			} else if (obj.type == HOLD) {
 				obj.isHeld = (timing != TIMING_MISS);
+				holds[lane_num] = fabs(diff);
 				if (timing == TIMING_MISS) lane.pop_front();
 			}
 		}
@@ -143,24 +155,27 @@ void Updater::Update(float dt, MapScore& score, EventBus& bus){
 
 				float endTime = obj.offset + obj.hold_time;
 				float diff = elapsedTime - endTime;
-				float error = fabs(diff);
+				float error = fabs((diff + holds[lane_num])/2.0f);
 				TimingEnum timing = TIMING_NONE;
 
-				if (error <= timings.MARVELOUS) { timing = TIMING_MARVELOUS; score.MARVELOUS++; }
-				else if (error <= timings.PERFECT) { timing = TIMING_PERFECT; score.PERFECT++; }
-				else if (error <= timings.GREAT) { timing = TIMING_GREAT; score.GREAT++; }
-				else if (error <= timings.OKAY) { timing = TIMING_OKAY; score.OKAY++; }
-				else if (error <= timings.BAD) { timing = TIMING_BAD; score.BAD++; }
-
+				if (error <= timings.MARVELOUS) { timing = TIMING_MARVELOUS; score.MARVELOUS++; score.COMBO++;}
+				else if (error <= timings.PERFECT) { timing = TIMING_PERFECT; score.PERFECT++; score.COMBO++;}
+				else if (error <= timings.GREAT) { timing = TIMING_GREAT; score.GREAT++; score.COMBO++;}
+				else if (error <= timings.OKAY) { timing = TIMING_OKAY; score.OKAY++; score.COMBO++;}
+				else if (error <= timings.BAD) { timing = TIMING_BAD; score.BAD++; score.COMBO++; }
 				else if (diff < -0.2f) {
 					timing = TIMING_MISS;
 					score.MISS++;
+					score.COMBO = 0;
 				}
-
 				else if (diff > 0.2f) {
 					timing = TIMING_MISS;
 					score.MISS++;
+					score.COMBO = 0;
 				}
+				score.font_size = 25.0f;
+
+				score.lastTiming = timing;
 
 				if (timing != TIMING_NONE) {
 					bus.emit((Event){

@@ -1,5 +1,6 @@
 #pragma once
 #include "config.h"
+#include "score.h"
 #ifndef APP_H
 #define APP_H
 
@@ -29,6 +30,7 @@ private:
 
 	// SONG SELECT STUFF
 	std::vector<Pack> songPacks;
+	std::vector<MapScore> scores;
 	int selectedPack = 0;
 	int selectedMap = 0;
 	float yScrollPos = 140.0f;
@@ -48,6 +50,7 @@ private:
 
 	int selected_key_mode_edit = -1;
 	int selected_key_edit = -1;
+	float end_grace_time = 2.0f;
 public:
 
 	App(Rectangle dims);
@@ -73,7 +76,10 @@ private:
 	void UpdateSongSelect(float dt);
 	void RenderSongSelect(float dt);
 
+	// misc
 	float GetScrollPosition(float itemHeight);
+	bool saveScore(Game& game);
+	std::vector<MapScore> getScores(std::string fileName);
 };
 
 #endif // APP_H

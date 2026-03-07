@@ -26,10 +26,10 @@ void GameRenderer::Render(float dt, MapScore& score,EventBus& bus){
 			);
 
 		// draw combo :3
-
 		DrawText(TextFormat(score.COMBO ? "%dx" : "", score.COMBO),
 				params.renderer_dimensions.width/2.0f + params.renderer_dimensions.x - 20, params.renderer_dimensions.height/2.0f + params.renderer_dimensions.y - 50, score.font_size, WHITE
 			);
+		float mid = GetScreenWidth()/2.0f;
 		{
 			// draw timing
 			Color clr;
@@ -44,7 +44,7 @@ void GameRenderer::Render(float dt, MapScore& score,EventBus& bus){
 				default:               break;
 			}
 
-			score.font_size = Lerp(score.font_size, 20, dt*10);
+			score.font_size = Lerp(score.font_size, 20, dt*30);
 			Vector2 text_dims = MeasureTextEx(GetFontDefault(), text.c_str(), score.font_size, 1.0f);
 			//DrawText(TextFormat("%s", text.c_str()),
 			//		params.renderer_dimensions.width/2.0f + params.renderer_dimensions.x - (text_dims.x/2.0f), 
@@ -61,12 +61,23 @@ void GameRenderer::Render(float dt, MapScore& score,EventBus& bus){
 					0.0f, 0.0f
 					}
 					, fmin(score.font_size, 22)-20, score.font_size, 1.0f, clr);
+		DrawRectangle(
+				mid - 50,
+				params.renderer_dimensions.height/2.0f + params.renderer_dimensions.y - 70,
+				100,
+				2,
+				DARKGRAY);
+		DrawRectangle(
+				mid - 50,
+				params.renderer_dimensions.height/2.0f + params.renderer_dimensions.y - 70,
+				100*(score.getTotal() / mapToPlay->objectCount),
+				2,
+				LIGHTGRAY);
 		}
 
 		// draw urbar time
-		DrawRectangle(params.renderer_dimensions.width/2.0f + params.renderer_dimensions.x - 60.0f, params.renderer_dimensions.height/2.0f + params.renderer_dimensions.y, 
-				120, 2, WHITE);
-		float mid = GetScreenWidth()/2.0f;
+		DrawRectangle(params.renderer_dimensions.width/2.0f + params.renderer_dimensions.x - 70.0f, params.renderer_dimensions.height/2.0f + params.renderer_dimensions.y, 
+				140, 2, WHITE);
 		for(auto& offset : ur->getOffsets()){
 			// get relative offset based from mid
 			float relOffset = mid + (offset.error * 500);
@@ -83,6 +94,8 @@ void GameRenderer::Render(float dt, MapScore& score,EventBus& bus){
 			clr.a = Clamp((200 * offset.lifeTime), 0, 200);
 			DrawRectangle(relOffset - 1, GetScreenHeight()/2.0f - 5.0, 2, 10, clr);
 		}
+		DrawRectangle(mid, params.renderer_dimensions.height/2.0f + params.renderer_dimensions.y - 5, 
+				1, 10, WHITE);
 	}
 	// draw ratio :3
 
@@ -97,7 +110,7 @@ void GameRenderer::Render(float dt, MapScore& score,EventBus& bus){
 	// Drawing the hit area
 	for(size_t i = 0; i < laneCount; ++i){
 		Color& clr = lane_colors[i];
-		clr = ColorLerp(clr, WHITE, dt*5);
+		clr = ColorLerp(clr, WHITE, dt*50);
 		for(auto& e : bus.get()){
 			if(e.type == KEY_EVENT){
 				if(e.event.key_event.status == KEY_IS_DOWN && e.event.key_event.lane-1 == i){
@@ -112,6 +125,7 @@ void GameRenderer::Render(float dt, MapScore& score,EventBus& bus){
 	{   // Draw the score/hits
 		size_t yOffset = 25;
 		size_t yCount = 0;
+		DrawText(TextFormat("%.2f", score.getAccuracy()), (float)(start+(lane_width*(laneCount+0.25))), 100+(yOffset*(yCount++)), 15, WHITE);
 		DrawText(TextFormat("%d", score.MARVELOUS), (float)(start+(lane_width*(laneCount+0.25))), 100+(yOffset*(yCount++)), 15, CYAN);
 		DrawText(TextFormat("%d", score.PERFECT),   (float)(start+(lane_width*(laneCount+0.25))), 100+(yOffset*(yCount++)), 15, YELLOW);
 		DrawText(TextFormat("%d", score.GREAT),     (float)(start+(lane_width*(laneCount+0.25))), 100+(yOffset*(yCount++)), 15, GREEN);

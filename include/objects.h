@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdint>
+#include <sys/types.h>
 #ifndef OBJECTS_H
 #define OBJECTS_H
 
@@ -73,6 +75,9 @@ public:
 	float mapStart = -2.5f;
 	std::string songPath;
 	std::string mapName;
+	std::string wholePath;
+	uintmax_t objectCount = 0;
+
 	Beatmap() {}
 	Beatmap(std::string mapName);
 	void Init();

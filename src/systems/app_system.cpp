@@ -1,5 +1,6 @@
 #include "app.h"
 #include "config.h"
+#include "score.h"
 #include "utils/utilities.h"
 
 #include "raylib.h"
@@ -83,8 +84,10 @@ void App::Update(float dt) {
 		UpdateSettingsMenu(dt);
 	else if(current_app_state == APP_SONG_SELECT)
 		UpdateSongSelect(dt);
-	else if(current_app_state == APP_IN_GAME)
+	else if(current_app_state == APP_IN_GAME){
+		DisableCursor();
 		UpdateGame(dt);
+	}
 
 }
 
@@ -270,8 +273,30 @@ void App::UpdateGame(float dt){
 	}
 	if(IsKeyPressed(KEY_ESCAPE)){
 		current_app_state = APP_MAIN_MENU;
+		EnableCursor();
 	}
 	gameToPlay.Update(dt);
+
+	if(gameToPlay.isDone()){
+		end_grace_time -= dt;
+	}
+
+	if(end_grace_time <= 0){
+		// save song
+		MapScore score = gameToPlay.getScore();
+		// saving?
+		std::cout << "STATS: " << '\n';
+		std::cout << "MARV:  " << score.MARVELOUS << '\n';
+		std::cout << "PERF:  " << score.PERFECT << '\n';
+		std::cout << "GREAT: " << score.GREAT << '\n';
+		std::cout << "OKAY:  " << score.OKAY << '\n';
+		std::cout << "BAD:   " << score.BAD << '\n';
+		std::cout << "MISS:  " << score.MISS << '\n';
+		saveScore(gameToPlay);
+		current_app_state = APP_SONG_SELECT;
+		end_grace_time = 2.0f;
+		EnableCursor();
+	}
 }
 
 void App::RenderGame(float dt){
@@ -392,6 +417,16 @@ void App::RenderSongSelect(float dt) {
         DrawRectangle(400, 20, 400, 100, Fade(BLACK, 0.5f));
         DrawText(fs::path(songPacks[selectedPack].packName).stem().string().c_str(), 410, 30, 20, RAYWHITE);
         DrawText(songPacks[selectedPack].get_beatmaps()[selectedMap].mapName.c_str(), 410, 60, 18, GRAY);
+
+		// not good...
+		size_t yCount = 0;
+		std::vector<MapScore> scores = getScores(songPacks[selectedPack].get_beatmaps()[selectedMap].wholePath);
+		for(auto& score : scores){
+			DrawRectangle(400, 140+(30*yCount++), 400, 30, Fade(BLACK, 0.75f));
+			DrawText(TextFormat("%d. %.2f (%.2f:1)", yCount, score.accuracy, ((float)score.MARVELOUS / score.PERFECT)),
+					450, 140+(30*(yCount-1))+10, 15, WHITE
+					);
+		}
     }
 
     if (GuiButton({25, 10, 70, 25}, "<- Back")) { 
@@ -399,23 +434,73 @@ void App::RenderSongSelect(float dt) {
     }
 }
 
+
 struct IniCategoryScope {
 	IniCategoryScope(mINI::INIStructure *p_ini, const char *p_category) : p_ini(p_ini), p_category(p_category) {
 	}
 
 	template<typename T>
-	void set(const char *p_key, T value) {
-		(*p_ini)[p_category][p_key] = std::to_string(value);
-	}
+		void set(const char *p_key, T value) {
+			(*p_ini)[p_category][p_key] = std::to_string(value);
+		}
 
 	std::string get(const char *p_key){
 		return (*p_ini)[p_category][p_key];
 	}
 
-private:
+	private:
 	mINI::INIStructure *p_ini;
 	const char *p_category;
 };
+
+bool App::saveScore(Game& game){
+	std::string fileName = game.getMap().wholePath + ".score";
+	MapScore& score = game.getScore();
+
+	mINI::INIFile file(fileName);
+	mINI::INIStructure ini;
+	file.read(ini);
+	size_t plays = ini.size();
+	std::string playName = TextFormat("PLAY%d",plays+1);
+	IniCategoryScope scope{&ini, playName.c_str()};
+
+	scope.set("MARV", score.MARVELOUS);
+	scope.set("PERF", score.PERFECT);
+	scope.set("GREAT", score.GREAT);
+	scope.set("OKAY", score.OKAY);
+	scope.set("BAD", score.BAD);
+	scope.set("MISS", score.MISS);
+	scope.set("ACC", score.getAccuracy());
+
+	return file.generate(ini, true);
+}
+std::vector<MapScore> App::getScores(std::string fileName){
+	mINI::INIFile file(fileName + ".score");
+	mINI::INIStructure ini;
+	file.read(ini);
+	size_t plays = ini.size();
+	std::vector<MapScore> scores;
+	for(int i = 0; i < plays; ++i){
+		std::string playName = TextFormat("PLAY%d",i+1);
+		IniCategoryScope scope{&ini, playName.c_str()};
+		MapScore currentScore;
+
+		currentScore.MARVELOUS = std::stof(scope.get("MARV"));
+		currentScore.PERFECT = std::stof(scope.get("PERF"));
+		currentScore.GREAT = std::stof(scope.get("GREAT"));
+		currentScore.OKAY = std::stof(scope.get("OKAY"));
+		currentScore.BAD = std::stof(scope.get("BAD"));
+		currentScore.MISS = std::stof(scope.get("MISS"));
+		currentScore.accuracy = std::stof(scope.get("ACC"));
+
+		scores.push_back(currentScore);
+	}
+
+	sort(scores.begin(), scores.end(), [](const MapScore& a, const MapScore& b){
+				return a.accuracy > b.accuracy;
+			});
+	return scores;
+}
 
 //helper definitions
 bool saveConfig(Config conf, std::string name){

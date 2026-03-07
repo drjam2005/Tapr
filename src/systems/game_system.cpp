@@ -1,4 +1,5 @@
 #include "game.h"
+#include "score.h"
 #include <iostream>
 
 void Game::Init(Beatmap givenMap){
@@ -46,6 +47,7 @@ void Game::Init(Beatmap givenMap, Config& conf) {
         UnloadMusicStream(currentMusic);
 
     currentMusic = LoadMusicStream(mapToPlay.songPath.c_str());
+	currentMusic.looping = false;
 	SetMusicVolume(currentMusic, config.volume);
 
     isMusicLoaded = true;
@@ -75,7 +77,6 @@ void Game::Update(float dt){
 	}
 
     if (isMusicLoaded) {
-
         if (this->updater.getElapsedTime() >= 0.0f - config.audio_offset) {
             if (!IsMusicStreamPlaying(currentMusic)) {
                 PlayMusicStream(currentMusic);
@@ -87,6 +88,13 @@ void Game::Update(float dt){
     this->bus.clear();
     this->updater.Update(dt, score, bus);
 	this->ur.Update(dt);
+
+	//check if no more hitobjects
+	finished = true;
+	for(auto& lane : mapToPlay.get_lanes_reference()){
+		if(!lane.get_objects_reference().empty())
+			finished = false;
+	}
 }
 
 void Game::Render(float dt){
@@ -108,4 +116,15 @@ void Game::Loop(float dt){
 void Game::SetConfig(const Config& conf)
 {
     this->config = conf;
+}
+
+bool Game::isDone(){
+	return finished;
+}
+
+MapScore& Game::getScore(){
+	return score;
+}
+Beatmap& Game::getMap(){
+	return mapToPlay;
 }

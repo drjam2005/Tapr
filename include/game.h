@@ -7,7 +7,6 @@
 #include "config.h"
 #include "updater.h"
 #include "game_renderer.h"
-#include <vector>
 
 // in charge of handling both the Updater and the Renderer
 class Game {
@@ -28,6 +27,7 @@ private:
 	bool isInitialized = false;
 
 	bool isSkipped = false;
+	bool finished = false;
 public:
 
 	Game() {}
@@ -41,7 +41,9 @@ public:
 	void Loop(float dt);
 
 	void SetConfig(const Config& conf);
-
+	bool isDone();
+	Beatmap& getMap();
+	MapScore& getScore();
 };
 
 #endif // GAME_H

@@ -21,6 +21,7 @@ private:
 	Timings timings;
 
 	std::vector<LaneBinding> bindings;
+	std::unordered_map<size_t, float> holds;
 public:
 	Updater() {}
 	Updater(Beatmap* mapToPlay, URBar* ur, std::vector<LaneBinding> bindings, Timings timings);
