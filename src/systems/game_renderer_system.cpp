@@ -169,7 +169,8 @@ void GameRenderer::Render(float dt, MapScore& score,EventBus& bus){
 				}
 
 				DrawRectangleRec(tail, tail_clr);
-				DrawCircleV(tailEnd, lane_width/2.0f - 2.0f, tail_clr);
+				if(tailEnd.y < hit_position)
+					DrawCircleV(tailEnd, lane_width/2.0f - 2.0f, tail_clr);
 				//DrawRectangleRec(head, params.colors[laneCount][lane_num]);
 				DrawCircleV(chead, lane_width/2.0f - 2.0f, params.colors[laneCount][lane_num]);
 			}
