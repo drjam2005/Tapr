@@ -49,6 +49,7 @@ private:
 	int current_key_mode_edit = 1;
 
 	int selected_key_mode_edit = -1;
+	int selected_key_color_edit = -1;
 	int selected_key_edit = -1;
 	float end_grace_time = 2.0f;
 public:

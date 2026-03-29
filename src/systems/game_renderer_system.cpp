@@ -233,8 +233,8 @@ void GameRenderer::Render(float dt, MapScore& score,EventBus& bus){
 		}
 
 		// draw urbar time
-		DrawRectangle(params.renderer_dimensions.width/2.0f + params.renderer_dimensions.x - 70.0f, params.renderer_dimensions.height/2.0f + params.renderer_dimensions.y, 
-				140, 2, WHITE);
+		//DrawRectangle(params.renderer_dimensions.width/2.0f + params.renderer_dimensions.x - 70.0f, params.renderer_dimensions.height/2.0f + params.renderer_dimensions.y, 
+		//		140, 2, WHITE);
 		for(auto& offset : ur->getOffsets()){
 			// get relative offset based from mid
 			float relOffset = mid + (offset.error * 500);

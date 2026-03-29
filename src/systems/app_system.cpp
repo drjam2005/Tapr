@@ -145,7 +145,7 @@ void App::UpdateSettingsMenu(float dt) {
 
 void App::RenderSettingsMenu(float dt) {
 	Config& cnf = temp_config;
-	if(selected_key_edit >= 0){
+	if(selected_key_edit >= 0 && selected_key_mode_edit >= 0){
 		DrawRectangleRec((Rectangle){
 				195, 195, GetScreenWidth()-390.f, GetScreenHeight()-390.f
 				}, GRAY);
@@ -235,7 +235,7 @@ void App::RenderSettingsMenu(float dt) {
 	}
 	float currentXOffset = 0;
 	for(int i = 0; i < current_key_mode_edit; ++i){
-		const char* text = GetKeyName( cnf.keybindings[current_key_mode_edit][i].key).c_str();
+		const char* text = GetKeyName(cnf.keybindings[current_key_mode_edit][i].key).c_str();
 		float text_width = MeasureText(text, 20);
 		DrawText(TextFormat("%s", text), 75+currentXOffset, 400, 20, (
 			cnf.keybindings[current_key_mode_edit][i].key == working_config.keybindings[current_key_mode_edit][i].key ? WHITE : YELLOW
@@ -244,9 +244,18 @@ void App::RenderSettingsMenu(float dt) {
 			selected_key_mode_edit = current_key_mode_edit;
 			selected_key_edit = i;
 		}
+		DrawRectangle(75+currentXOffset, 430+40, 70, 20, temp_config.params.colors[current_key_mode_edit][i]);
+		if(GuiButton((Rectangle){75+currentXOffset, 430+70, 70, 20}, "Change Clr")){
+			selected_key_color_edit = current_key_mode_edit;
+			selected_key_edit = i;
+		}
 		currentXOffset += fmax(text_width + 5, 75);
 	}
-	
+	// color thing
+	if(selected_key_color_edit >= 0){
+		DrawText(TextFormat("Color for Lane: %d", selected_key_edit+1), 75+(75.0f*(current_key_mode_edit)), 470, 20, WHITE);
+		GuiColorPicker({75+(75.0f*(current_key_mode_edit)), 500, 70, 70}, "Color", &temp_config.params.colors[current_key_mode_edit][selected_key_edit]);
+	}
 
 
 	if(GuiButton((Rectangle){
