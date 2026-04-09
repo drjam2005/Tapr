@@ -20,8 +20,6 @@ GameRenderer::GameRenderer(Beatmap* mapToPlay, URBar* ur, GameRendererParams par
 void GameRenderer::Render(float dt, MapScore& score,EventBus& bus){
 	this->elapsed_time += dt;
 
-	// draw ratio :3
-
 	Rectangle dims = params.renderer_dimensions;
 	float scroll_speed = params.scroll_speed*40;
 	float lane_width = params.lane_width;
@@ -30,37 +28,7 @@ void GameRenderer::Render(float dt, MapScore& score,EventBus& bus){
 	float start = center - ((params.lane_width*this->laneCount)/2.0f);
 	float hit_position = dims.y + (dims.height * (1.0f - params.hit_position));
 
-	// Drawing the hit area
-	//for(size_t i = 0; i < laneCount; ++i){
-	//	Color& clr = lane_colors[i];
-	//	clr = ColorLerp(clr, WHITE, dt*50);
-	//	for(auto& e : bus.get()){
-	//		if(e.type == KEY_EVENT){
-	//			if(e.event.key_event.status == KEY_IS_DOWN && e.event.key_event.lane-1 == i){
-	//				clr = GRAY;
-	//			}
-	//		}
-	//	}
-	//	float height = params.lane_height/2.0f;
-	//	DrawRectangle(start+(lane_width*i), hit_position-(height/2.0f), lane_width, height, clr);
-	//}
 
-	for(size_t i = 0; i < laneCount; ++i){
-		Color& clr = lane_colors[i];
-		clr = ColorLerp(clr, WHITE, dt*50);
-		for(auto& e : bus.get()){
-			if(e.type == KEY_EVENT){
-				if(e.event.key_event.status == KEY_IS_DOWN && e.event.key_event.lane-1 == i){
-					clr = GRAY;
-				}
-			}
-		}
-		float height = params.lane_height/2.0f;
-		//DrawRectangle(start+(lane_width*i), hit_position-(height/2.0f), lane_width, height, clr);
-		Vector2 center = {start+(lane_width*i)+(lane_width/2.0f), hit_position-(lane_width/2.0f)};
-		//DrawCircle(start+(lane_width*i)+(lane_width/2.0f), hit_position-(lane_width/2.0f), lane_width/2.0f, clr);
-		DrawRing(center, lane_width/2.0f - 2.0f, lane_width/2.0f, 0.0f, 360.0f, 64, clr); // Draw ring
-	}
 
 	{   // Draw the score/hits
 		size_t yOffset = 25;
@@ -76,103 +44,133 @@ void GameRenderer::Render(float dt, MapScore& score,EventBus& bus){
 
 	// drawing of the objects
 	std::vector<Lane>& lanes = mapToPlay->get_lanes_reference();
-//	for(size_t lane_num = 0; lane_num < lanes.size(); ++lane_num){
-//		Lane& lane = lanes[lane_num];
-//		for(auto& obj : lane.get_objects_reference()){
-//			float relative_obj_offset = (obj.offset-elapsed_time);
-//			float y_position = (hit_position) - (relative_obj_offset*scroll_speed) - lane_height;
-//			float x_position = start + (lane_width*lane_num);
-//			Rectangle head = {  x_position ,y_position ,lane_width ,lane_height };
-//
-//			if(params.scroll_speed >= 0){
-//				if(y_position < params.renderer_dimensions.y)
-//					break;
-//			}else{
-//				if(y_position > params.renderer_dimensions.height)
-//					break;
-//			}
-//
-//			if(obj.type == TAP){
-//				DrawRectangleRec(head, params.colors[laneCount][lane_num]);
-//			}else if(obj.type == HOLD){
-//				float tail_height = fabs(obj.hold_time*scroll_speed);
-//
-//				Rectangle tail;
-//				if(params.scroll_speed >= 0){
-//					tail = { x_position, y_position - tail_height, lane_width, tail_height};
-//				}else{
-//					tail = { x_position, y_position, lane_width, tail_height};
-//				}
-//				Color tail_clr = params.colors[laneCount][lane_num];
-//				tail_clr.a -= 120;
-//
-//				if(obj.isHeld){
-//					head.y = hit_position-(lane_height/2.0f);
-//					if(params.scroll_speed >= 0){
-//						tail.height = (hit_position - y_position + tail_height - (lane_height/2.0f));
-//					}else{
-//						tail.y = head.y;
-//						tail.height = (y_position - hit_position + tail_height + (lane_height/2.0f));;
-//					}
-//				}
-//
-//				DrawRectangleRec(tail, tail_clr);
-//				DrawRectangleRec(head, params.colors[laneCount][lane_num]);
-//			}
-//		}
-//	}
-	for(size_t lane_num = 0; lane_num < lanes.size(); ++lane_num){
-		Lane& lane = lanes[lane_num];
-		for(auto& obj : lane.get_objects_reference()){
-			float relative_obj_offset = (obj.offset-elapsed_time);
-			float y_position = (hit_position) - (relative_obj_offset*scroll_speed) - (lane_width/2.0f);
-			float x_position = start + (lane_width*lane_num) + (lane_width/2.0f);
-			Rectangle head = {  x_position ,y_position ,lane_width ,lane_height };
-			Vector2 chead = { x_position, y_position };
-
-			if(params.scroll_speed >= 0){
-				if(y_position < params.renderer_dimensions.y)
-					break;
-			}else{
-				if(y_position > params.renderer_dimensions.height)
-					break;
-			}
-
-			if(obj.type == TAP){
-				//DrawRectangleRec(head, params.colors[laneCount][lane_num]);
-				DrawCircleV(chead, lane_width/2.0f - 2.0f, params.colors[laneCount][lane_num]);
-			}else if(obj.type == HOLD){
-				float tail_height = fabs(obj.hold_time*scroll_speed) - (lane_width/2.0f);
-				Vector2 tailEnd;
-
-				Rectangle tail;
-				if(params.scroll_speed >= 0){
-					tail = { x_position - lane_width/2.0f, y_position - tail_height, lane_width, tail_height};
-					tailEnd = {x_position , y_position - tail_height };
-				}else{
-					tail = { x_position - lane_width/2.0f, y_position, lane_width, tail_height};
-					tailEnd = {x_position , y_position };
-				}
-				Color tail_clr = params.colors[laneCount][lane_num];
-				tail_clr.b = fmax(0, tail_clr.b - 120);
-				tail_clr.g = fmax(0, tail_clr.g - 120);
-				tail_clr.r = fmax(0, tail_clr.r - 120);
-
-				if(obj.isHeld){
-					chead.y = hit_position-(lane_width/2.0f);
-					if(params.scroll_speed >= 0){
-						tail.height = (hit_position - y_position + tail_height - (lane_width/2.0f));
-					}else{
-						tail.y = head.y;
-						tail.height = (y_position - hit_position + tail_height + (lane_width/2.0f));;
+	if(params.type == BAR){
+		for(size_t i = 0; i < laneCount; ++i){
+			Color& clr = lane_colors[i];
+			clr = ColorLerp(clr, WHITE, dt*50);
+			for(auto& e : bus.get()){
+				if(e.type == KEY_EVENT){
+					if(e.event.key_event.status == KEY_IS_DOWN && e.event.key_event.lane-1 == i){
+						clr = GRAY;
 					}
 				}
+			}
+			float height = params.lane_height/2.0f;
+			DrawRectangle(start+(lane_width*i), hit_position-(height/2.0f), lane_width, height, clr);
+		}
+		for(size_t lane_num = 0; lane_num < lanes.size(); ++lane_num){
+			Lane& lane = lanes[lane_num];
+			for(auto& obj : lane.get_objects_reference()){
+				float relative_obj_offset = (obj.offset-elapsed_time);
+				float y_position = (hit_position) - (relative_obj_offset*scroll_speed) - lane_height;
+				float x_position = start + (lane_width*lane_num);
+				Rectangle head = {  x_position ,y_position ,lane_width ,lane_height };
 
-				DrawRectangleRec(tail, tail_clr);
-				if(tailEnd.y < hit_position)
-					DrawCircleV(tailEnd, lane_width/2.0f - 2.0f, tail_clr);
-				//DrawRectangleRec(head, params.colors[laneCount][lane_num]);
-				DrawCircleV(chead, lane_width/2.0f - 2.0f, params.colors[laneCount][lane_num]);
+				if(params.scroll_speed >= 0){
+					if(y_position < params.renderer_dimensions.y)
+						break;
+				}else{
+					if(y_position > params.renderer_dimensions.height)
+						break;
+				}
+
+				if(obj.type == TAP){
+					DrawRectangleRec(head, params.colors[laneCount][lane_num]);
+				}else if(obj.type == HOLD){
+					float tail_height = fabs(obj.hold_time*scroll_speed);
+
+					Rectangle tail;
+					if(params.scroll_speed >= 0){
+						tail = { x_position, y_position - tail_height, lane_width, tail_height};
+					}else{
+						tail = { x_position, y_position, lane_width, tail_height};
+					}
+					Color tail_clr = params.colors[laneCount][lane_num];
+					tail_clr.a -= 120;
+
+					if(obj.isHeld){
+						head.y = hit_position-(lane_height/2.0f);
+						if(params.scroll_speed >= 0){
+							tail.height = (hit_position - y_position + tail_height - (lane_height/2.0f));
+						}else{
+							tail.y = head.y;
+							tail.height = (y_position - hit_position + tail_height + (lane_height/2.0f));;
+						}
+					}
+
+					DrawRectangleRec(tail, tail_clr);
+					DrawRectangleRec(head, params.colors[laneCount][lane_num]);
+				}
+			}
+		}
+	}else if(params.type == CIRCLE){
+		for(size_t i = 0; i < laneCount; ++i){
+			Color& clr = lane_colors[i];
+			clr = ColorLerp(clr, WHITE, dt*50);
+			for(auto& e : bus.get()){
+				if(e.type == KEY_EVENT){
+					if(e.event.key_event.status == KEY_IS_DOWN && e.event.key_event.lane-1 == i){
+						clr = GRAY;
+					}
+				}
+			}
+			float height = params.lane_height/2.0f;
+			Vector2 center = {start+(lane_width*i)+(lane_width/2.0f), hit_position-(lane_width/2.0f)};
+			DrawRing(center, lane_height/2.0f - 2.0f, lane_height/2.0f, 0.0f, 360.0f, 64, clr); // Draw ring
+		}
+		for(size_t lane_num = 0; lane_num < lanes.size(); ++lane_num){
+			Lane& lane = lanes[lane_num];
+			for(auto& obj : lane.get_objects_reference()){
+				float relative_obj_offset = (obj.offset-elapsed_time);
+				float y_position = (hit_position) - (relative_obj_offset*scroll_speed) - (lane_width/2.0f);
+				float x_position = start + (lane_width*lane_num) + (lane_width/2.0f);
+				Rectangle head = {  x_position ,y_position ,lane_width ,lane_height };
+				Vector2 chead = { x_position, y_position };
+
+				if(params.scroll_speed >= 0){
+					if(y_position < params.renderer_dimensions.y)
+						break;
+				}else{
+					if(y_position > params.renderer_dimensions.height)
+						break;
+				}
+
+				if(obj.type == TAP){
+					//DrawRectangleRec(head, params.colors[laneCount][lane_num]);
+					DrawCircleV(chead, lane_height/2.0f, params.colors[laneCount][lane_num]);
+				}else if(obj.type == HOLD){
+					float tail_height = fabs(obj.hold_time*scroll_speed) - (lane_width/2.0f);
+					Vector2 tailEnd;
+
+					Rectangle tail;
+					if(params.scroll_speed >= 0){
+						tail = { x_position - lane_height/2.0f, y_position - tail_height, lane_height, tail_height};
+						tailEnd = {x_position , y_position - tail_height };
+					}else{
+						tail = { x_position - lane_height/2.0f, y_position, lane_height, tail_height};
+						tailEnd = {x_position , y_position };
+					}
+					Color tail_clr = params.colors[laneCount][lane_num];
+					tail_clr.b = fmax(0, tail_clr.b - 120);
+					tail_clr.g = fmax(0, tail_clr.g - 120);
+					tail_clr.r = fmax(0, tail_clr.r - 120);
+
+					if(obj.isHeld){
+						chead.y = hit_position-(lane_width/2.0f);
+						if(params.scroll_speed >= 0){
+							tail.height = (hit_position - y_position + tail_height - (lane_width/2.0f));
+						}else{
+							tail.y = head.y;
+							tail.height = (y_position - hit_position + tail_height + (lane_width/2.0f));;
+						}
+					}
+
+					DrawRectangleRec(tail, tail_clr);
+					if(tailEnd.y < hit_position)
+						DrawCircleV(tailEnd, lane_height/2.0f - 2.0f, tail_clr);
+					//DrawRectangleRec(head, params.colors[laneCount][lane_num]);
+					DrawCircleV(chead, lane_height/2.0f - 2.0f, params.colors[laneCount][lane_num]);
+				}
 			}
 		}
 	}

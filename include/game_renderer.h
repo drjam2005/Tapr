@@ -12,7 +12,14 @@
 #include <vector>
 #include <unordered_map>
 
+enum SKIN_TYPE {
+	BAR = 0,
+	CIRCLE,
+	SKIN_COUNT
+};
+
 struct GameRendererParams {
+	SKIN_TYPE type;
 	Rectangle renderer_dimensions;
 	//std::vector<Color> colors; // lane colors
 	std::unordered_map<size_t, std::vector<Color>> colors;

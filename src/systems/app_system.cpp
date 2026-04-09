@@ -1,5 +1,6 @@
 #include "app.h"
 #include "config.h"
+#include "game_renderer.h"
 #include "score.h"
 #include "utils/utilities.h"
 
@@ -11,11 +12,11 @@
 #include "raygui.h"
 #define MINI_CASE_SENSITIVE
 #include "ini.h"
+#include <magic_enum.hpp>
 
 #include <filesystem>
 #include <iostream>
 #include <cmath>
-
 
 App::App(Rectangle dims) {
 	this->window_dimensions = dims;
@@ -174,8 +175,13 @@ void App::RenderSettingsMenu(float dt) {
 	GuiSlider({75, 80, 300, 15}, "1.0f", "225.0f", 
 			&cnf.params.lane_width, 1.0f, 225.0f);
 
-	// lane_height
-	DrawText(TextFormat("LANE HEIGHT: %.1f", cnf.params.lane_height), 40, 110, 20, WHITE);
+	// lane_height / circle width
+	if(temp_config.params.type == BAR){
+		DrawText(TextFormat("LANE HEIGHT: %.1f", cnf.params.lane_height), 40, 110, 20, WHITE);
+	}
+	if(temp_config.params.type == CIRCLE){
+		DrawText(TextFormat("CIRCLE RADIUS: %.1f", cnf.params.lane_height), 40, 110, 20, WHITE);
+	}
 	GuiSlider({75, 130, 300, 15}, "1.0f", "225.0f", 
 			&cnf.params.lane_height, 1.0f, 225.0f);
 
@@ -224,6 +230,23 @@ void App::RenderSettingsMenu(float dt) {
         editMode = !editMode;
         if (!editMode) cnf.audio_offset = atof(buffer);
     }
+
+	// skin type
+	DrawText(TextFormat("Skin Type: %s", ((std::string)magic_enum::enum_name(temp_config.params.type)).c_str()), 450, 60, 20, WHITE);
+	if(GuiButton((Rectangle){450, 90, 30, 20}, "<")){
+		if(temp_config.params.type > 0){
+			temp_config.params.type = magic_enum::enum_value<SKIN_TYPE>(magic_enum::enum_integer(temp_config.params.type) - 1);
+		}else{
+			temp_config.params.type = magic_enum::enum_value<SKIN_TYPE>(magic_enum::enum_count<SKIN_TYPE>()-2);
+		}
+	}
+	if(GuiButton((Rectangle){490, 90, 30, 20}, ">")){
+		if(temp_config.params.type < SKIN_COUNT-1){
+			temp_config.params.type = magic_enum::enum_value<SKIN_TYPE>(magic_enum::enum_integer(temp_config.params.type) + 1);
+		}else{
+			temp_config.params.type = magic_enum::enum_value<SKIN_TYPE>(0);
+		}
+	}
 
 	// keybind editing...
 	DrawText(TextFormat("KeyMode to Edit: %d", current_key_mode_edit), 75, 370, 20, WHITE);
@@ -552,6 +575,7 @@ bool saveConfig(Config conf, std::string name){
 		scope.set("ScrollSpeed", conf.params.scroll_speed);
 		scope.set("Volume", conf.volume);
 		scope.set("AudioOffset", conf.audio_offset);
+		scope.set("Type", conf.params.type);
 	 }
 	return file.generate(ini, true);
 }
@@ -602,6 +626,7 @@ Config loadConfig(std::string name){
 		conf.params.scroll_speed = std::stof(scope.get("ScrollSpeed"));
 		conf.volume = std::stof(scope.get("Volume"));
 		conf.audio_offset = std::stof(scope.get("AudioOffset"));
+		conf.params.type = magic_enum::enum_value<SKIN_TYPE>(std::stoul(scope.get("Type")));
 	 }
 
 	return conf;

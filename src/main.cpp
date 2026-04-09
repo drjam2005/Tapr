@@ -9,8 +9,6 @@ int main(){
 	SetTraceLogLevel(LOG_NONE);
 	InitWindow(800, 600, "Tapr");
 	SetExitKey(KEY_NULL);
-	//SetTargetFPS(GetMonitorRefreshRate(GetCurrentMonitor())*4);
-	//SetTargetFPS(1000);
 	SetTargetFPS(GetMonitorRefreshRate(GetCurrentMonitor())*4);
 
 	App app({0, 0, (float)GetScreenWidth(), (float)GetScreenHeight()});

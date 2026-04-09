@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.28)
 project(Tapr)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
-set(CMAKE_CXX_COMPILER_VERSION 11)
+set(CMAKE_CXX_COMPILER_VERSION 17)
 set(exec Tapr)
 set(src
 	src/main.cpp
@@ -20,6 +20,7 @@ set(src
 add_executable(${exec} ${src})
 add_subdirectory(vendor/miniz)
 add_subdirectory(vendor/mINI)
+add_subdirectory(vendor/magic_enum)
 
 target_include_directories(${exec} PRIVATE
 	${CMAKE_SOURCE_DIR}/include
@@ -28,6 +29,7 @@ target_include_directories(${exec} PRIVATE
 target_link_libraries(${exec} PRIVATE
 	miniz
 	mini
+	magic_enum
 )
 
 target_compile_options(${exec} PRIVATE
