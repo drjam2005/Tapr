@@ -35,7 +35,6 @@ $ Tapr.exe
 
 TODO
 ===
-* SCORE SAVING
-* MORE JUICE
+* Proper Skinning system
 
 
