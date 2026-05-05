@@ -6,7 +6,6 @@
 
 #include "objects.h"
 
-#include "event_system.h"
 #include "game.h"
 #include "raylib.h"
 

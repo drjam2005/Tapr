@@ -43,7 +43,7 @@ static std::unordered_map<size_t, std::vector<Color>> defaultColors = {
 };
 
 static GameRendererParams defaultRendererParams = {
-	CIRCLE,
+	BAR,
 	{0, 0, 800, 600},
 	defaultColors,
 	65.0f,

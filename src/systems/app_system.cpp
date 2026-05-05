@@ -136,6 +136,9 @@ void App::RenderMainMenu(float dt){
 				GetScreenHeight()/2.0f + 140, text_width, 50
 				}, "EXIT"))
 	{
+		songPacks.clear();
+		scores.clear();
+		bindings.clear();
 		CloseWindow();
 	}
 }
