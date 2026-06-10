@@ -116,6 +116,15 @@ void App::RenderMainMenu(float dt){
 	float text_width = MeasureText("PLAY", 50);
 
 	DrawText("TAPR 2.0", GetScreenWidth()/2.0f - 100.0f, GetScreenHeight()/2.0f - 110, 50, WHITE);
+	if(IsKeyPressed(KEY_P)){
+		current_app_state =	APP_SONG_SELECT;
+	}
+	if(IsKeyPressed(KEY_S)){
+		current_app_state =	APP_SETTINGS_MENU;
+	}
+	if(IsKeyPressed(KEY_Q)){
+		CloseWindow();
+	}
 	if(GuiButton((Rectangle){
 				window_dimensions.x + (window_dimensions.width/2) - (text_width/2),
 				GetScreenHeight()/2.0f, text_width, 50
@@ -144,6 +153,9 @@ void App::RenderMainMenu(float dt){
 }
 
 void App::UpdateSettingsMenu(float dt) {
+	if(IsKeyPressed(KEY_ESCAPE)){
+		current_app_state = APP_MAIN_MENU;
+	}
 }
 
 
@@ -310,6 +322,7 @@ void App::UpdateGame(float dt){
 		current_app_state = APP_MAIN_MENU;
 		EnableCursor();
 	}
+
 	gameToPlay.Update(dt);
 
 	if(gameToPlay.isDone()){

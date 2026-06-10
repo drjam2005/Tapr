@@ -32,7 +32,7 @@ struct Timings {
 	float GREAT             = 0.0735f;
 	float OKAY              = 0.1035f;
 	float BAD               = 0.1275f;
-	float MISS_WINDOW       = 0.1500f;
+	float MISS_WINDOW       = 0.1300f;
 };
 
 // default OD8 timings for now
@@ -42,7 +42,7 @@ const Timings OD8_Timings = {
 	0.0735f,
 	0.1035f,
 	0.1275f,
-	0.1500f
+	0.1300f
 };
 
 struct HitObject {

@@ -1,27 +1,5 @@
 #include "game.h"
 #include "score.h"
-#include <iostream>
-
-void Game::Init(Beatmap givenMap){
-//    isInitialized = true;
-//    
-//    this->mapToPlay = givenMap; 
-//
-//    this->currentMusic = LoadMusicStream(this->mapToPlay.songPath.c_str());
-//    this->currentMusic.looping = false;
-//
-//    this->isMusicLoaded = true;
-//
-//    this->updater = Updater(&this->mapToPlay, {
-//         {1, KEY_D }, {2, KEY_F }, {3, KEY_J }, {4, KEY_K }
-//    });
-//
-//    this->renderer = GameRenderer(&this->mapToPlay, 
-//		defaultRendererParams);
-//
-//    bus.clear();
-//    score = {0};
-}
 
 void Game::Init(Beatmap givenMap, Config& conf) {
 	this->config = conf;
@@ -89,7 +67,7 @@ void Game::Update(float dt){
     this->updater.Update(dt, score, bus);
 	this->ur.Update(dt);
 
-	//check if no more hitobjects
+	// check if no more hitobjects
 	finished = true;
 	for(auto& lane : mapToPlay.get_lanes_reference()){
 		if(!lane.get_objects_reference().empty())
@@ -125,6 +103,7 @@ bool Game::isDone(){
 MapScore& Game::getScore(){
 	return score;
 }
+
 Beatmap& Game::getMap(){
 	return mapToPlay;
 }
