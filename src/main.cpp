@@ -4,11 +4,11 @@
 int main(){
 	SetConfigFlags(FLAG_WINDOW_ALWAYS_RUN);
 	SetTraceLogLevel(LOG_NONE);
+
 	InitWindow(800, 600, "Tapr");
+
 	SetExitKey(KEY_NULL);
-	//SetTargetFPS(1000);
-	SetTargetFPS(60);
-	//SetTargetFPS(GetMonitorRefreshRate(GetCurrentMonitor())*4);
+	SetTargetFPS(1000);
 
 	App app({0, 0, (float)GetScreenWidth(), (float)GetScreenHeight()});
 
