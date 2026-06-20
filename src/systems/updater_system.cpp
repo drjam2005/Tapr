@@ -5,7 +5,6 @@
 #include "raylib.h"
 #include <assert.h>
 #include <cmath>
-#include <iostream>
 
 Updater::Updater(Beatmap* mapToPlay, URBar* ur, std::vector<LaneBinding> bindings, Timings timings){
 	this->mapToPlay = mapToPlay;
