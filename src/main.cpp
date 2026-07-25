@@ -2,7 +2,7 @@
 #include "app.h"
 
 int main(){
-	SetConfigFlags(FLAG_WINDOW_ALWAYS_RUN);
+	SetConfigFlags(FLAG_WINDOW_ALWAYS_RUN | FLAG_MSAA_4X_HINT);
 	SetTraceLogLevel(LOG_NONE);
 
 	InitWindow(800, 600, "Tapr");

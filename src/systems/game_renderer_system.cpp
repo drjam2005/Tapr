@@ -138,6 +138,7 @@ void GameRenderer::Render(float dt, MapScore& score,EventBus& bus){
 				if(obj.type == TAP){
 					//DrawRectangleRec(head, params.colors[laneCount][lane_num]);
 					DrawCircleV(chead, lane_height/2.0f, params.colors[laneCount][lane_num]);
+					DrawCircleLinesV(chead, lane_height/2.0f - 2, WHITE);
 				}else if(obj.type == HOLD){
 					float tail_height = fabs(obj.hold_time*scroll_speed) - (lane_width/2.0f);
 					Vector2 tailEnd;
@@ -151,9 +152,9 @@ void GameRenderer::Render(float dt, MapScore& score,EventBus& bus){
 						tailEnd = {x_position , y_position };
 					}
 					Color tail_clr = params.colors[laneCount][lane_num];
-					tail_clr.b = fmax(0, tail_clr.b - 120);
-					tail_clr.g = fmax(0, tail_clr.g - 120);
-					tail_clr.r = fmax(0, tail_clr.r - 120);
+					tail_clr.b = tail_clr.b / 2; 
+					tail_clr.g = tail_clr.g / 2; 
+					tail_clr.r = tail_clr.r / 2; 
 
 					if(obj.isHeld){
 						chead.y = hit_position-(lane_width/2.0f);
@@ -170,6 +171,7 @@ void GameRenderer::Render(float dt, MapScore& score,EventBus& bus){
 						DrawCircleV(tailEnd, lane_height/2.0f - 2.0f, tail_clr);
 					//DrawRectangleRec(head, params.colors[laneCount][lane_num]);
 					DrawCircleV(chead, lane_height/2.0f - 2.0f, params.colors[laneCount][lane_num]);
+					DrawCircleLinesV(chead, lane_height/2.0f - 2, WHITE);
 				}
 			}
 		}
